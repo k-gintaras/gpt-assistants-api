@@ -1,4 +1,4 @@
-import { AssistantWithDetails, AssistantRow } from '../models/assistant.model';
+import { AssistantWithDetails, AssistantRow, FeedbackSummaryRow } from '../models/assistant.model';
 import { MemoryRow } from '../models/memory.model';
 import { MemoryFocusRuleRow } from '../models/focused-memory.model';
 import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../queries/assistant.queries';
@@ -28,6 +28,7 @@ export const fullAssistantService = {
     `
         )
         .get(id) as AssistantRow | undefined;
+
       if (!assistantRow) return null;
 
       // Fetch assistant tags
@@ -42,7 +43,7 @@ export const fullAssistantService = {
         )
         .all(id) as TagRow[];
 
-      // Fetch related memory focus rule
+      // Fetch memory focus rule
       const memoryFocusRuleRow = this.db
         .prepare(
           `
@@ -70,7 +71,7 @@ export const fullAssistantService = {
         : [];
 
       // Group tags by memory ID
-      const memoryTags: { [memoryId: string]: Tag[] } = {};
+      const memoryTags: Record<string, Tag[]> = {};
       memoryRows.forEach((row) => {
         if (!memoryTags[row.id]) {
           memoryTags[row.id] = [];
@@ -80,8 +81,22 @@ export const fullAssistantService = {
         }
       });
 
+      // Fetch feedback summary for the assistant
+      const feedbackSummaryRow = this.db
+        .prepare(
+          `
+      SELECT 
+        COALESCE(AVG(f.rating), 0) AS avgRating, 
+        COALESCE(COUNT(f.id), 0) AS totalFeedback
+      FROM feedback f
+      JOIN tasks t ON f.target_id = t.id AND f.target_type = 'task'
+      WHERE t.assignedAssistant = ?
+    `
+        )
+        .get(id) as FeedbackSummaryRow;
+
       // Transform and return the AssistantWithDetails object
-      return transformAssistantWithDetails(assistantRow, memoryRows, memoryTags, assistantTagRows, memoryFocusRuleRow);
+      return transformAssistantWithDetails(assistantRow, memoryRows, memoryTags, assistantTagRows, memoryFocusRuleRow, feedbackSummaryRow);
     } catch (error) {
       console.error('Error fetching full assistant details:', error);
       throw new Error('Failed to fetch assistant details.');

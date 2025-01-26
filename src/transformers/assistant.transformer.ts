@@ -1,4 +1,4 @@
-import { Assistant, AssistantRow, AssistantWithDetails, FeedbackStats } from '../models/assistant.model';
+import { Assistant, AssistantRow, AssistantWithDetails, FeedbackSummary, FeedbackSummaryRow } from '../models/assistant.model';
 import { MemoryFocusRuleRow } from '../models/focused-memory.model';
 import { MemoryRow } from '../models/memory.model';
 import { Tag, TagRow } from '../models/tag.model';
@@ -7,19 +7,12 @@ import { transformMemoryRow } from './memory.transformer';
 import { transformTagRow } from './tag.transformer';
 
 export function transformAssistantRow(row: AssistantRow): Assistant {
-  const feedback: FeedbackStats = {
-    positive: row.feedback_positive,
-    negative: row.feedback_negative,
-    lastFeedbackDate: row.feedback_lastFeedbackDate ? new Date(row.feedback_lastFeedbackDate) : undefined,
-  };
-
   return {
     id: row.id,
     name: row.name,
     description: row.description,
     type: row.type,
     instructions: row.instructions || undefined,
-    feedback,
     createdAt: new Date(row.createdAt),
     updatedAt: new Date(row.updatedAt),
   };
@@ -30,7 +23,8 @@ export function transformAssistantWithDetails(
   memoryRows: MemoryRow[],
   memoryTags: { [memoryId: string]: Tag[] }, // Mapping memory IDs to tags
   assistantTags: TagRow[], // Rows of tags associated with the assistant
-  memoryFocusRuleRow?: MemoryFocusRuleRow
+  memoryFocusRuleRow?: MemoryFocusRuleRow,
+  feedbackSummaryRows?: FeedbackSummaryRow
 ): AssistantWithDetails {
   const assistant = transformAssistantRow(assistantRow);
 
@@ -40,10 +34,16 @@ export function transformAssistantWithDetails(
 
   const assistantTagsTransformed = assistantTags.map(transformTagRow);
 
+  const feedbackSummary: FeedbackSummary = {
+    avgRating: feedbackSummaryRows?.avg_rating || 0,
+    totalFeedback: feedbackSummaryRows?.total_feedback || 0,
+  };
+
   return {
     ...assistant,
     focusedMemories,
     memoryFocusRule,
     assistantTags: assistantTagsTransformed,
+    feedbackSummary,
   };
 }

@@ -1,4 +1,4 @@
-import { AssistantWithDetails, FeedbackStats } from '../models/assistant.model';
+import { AssistantWithDetails, FeedbackSummary } from '../models/assistant.model';
 import { Memory } from '../models/memory.model';
 import { Tag } from '../models/tag.model';
 import { transformMemoryRow } from './memory.transformer';
@@ -10,9 +10,8 @@ export interface FullAssistantRows {
   assistant_description: string;
   assistant_type: 'completion' | 'chat' | 'assistant';
   assistant_instructions: string | null;
-  feedback_positive: number;
-  feedback_negative: number;
-  feedback_lastFeedbackDate: string | null; // ISO 8601 date
+  avg_rating: number;
+  total_feedback: number;
   assistant_createdAt: string; // ISO 8601 date
   assistant_updatedAt: string; // ISO 8601 date
 
@@ -48,10 +47,9 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
 
   // Extract assistant details from the first row
   const firstRow = rows[0];
-  const feedback: FeedbackStats = {
-    positive: firstRow.feedback_positive,
-    negative: firstRow.feedback_negative,
-    lastFeedbackDate: firstRow.feedback_lastFeedbackDate ? new Date(firstRow.feedback_lastFeedbackDate) : undefined,
+  const feedbackSummary: FeedbackSummary = {
+    avgRating: firstRow.avg_rating || 0,
+    totalFeedback: firstRow.total_feedback || 0,
   };
 
   const assistant: AssistantWithDetails = {
@@ -59,13 +57,13 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     name: firstRow.assistant_name,
     description: firstRow.assistant_description,
     type: firstRow.assistant_type,
-    assistantTags: [], // Assistant tags will be populated later
+    assistantTags: [], // Populated below
     instructions: firstRow.assistant_instructions || undefined,
-    feedback,
     createdAt: new Date(firstRow.assistant_createdAt),
     updatedAt: new Date(firstRow.assistant_updatedAt),
     focusedMemories: [],
     memoryFocusRule: undefined,
+    feedbackSummary,
   };
 
   // Group assistant tags
@@ -101,7 +99,6 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
   assistant.focusedMemories = Array.from(focusedMemoriesMap.values())
     .map(({ row, tags }) => {
       if (!row.memory_id || !row.memory_type) {
-        // Skip rows that lack essential memory details
         console.warn(`Skipping row with incomplete memory details: ${JSON.stringify(row)}`);
         return null;
       }

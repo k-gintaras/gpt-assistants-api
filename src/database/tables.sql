@@ -1,13 +1,10 @@
--- Assistant tables
+-- Assistant tables 
 CREATE TABLE IF NOT EXISTS assistants (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
   type TEXT CHECK(type IN ('completion', 'chat', 'assistant')) NOT NULL,
   instructions TEXT,
-  feedback_positive INTEGER DEFAULT 0,
-  feedback_negative INTEGER DEFAULT 0,
-  feedback_lastFeedbackDate TEXT, -- ISO 8601 formatted date
   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
 );
@@ -67,16 +64,17 @@ CREATE TABLE IF NOT EXISTS tasks (
   status TEXT CHECK(status IN ('pending', 'in_progress', 'completed', 'failed')) NOT NULL,
   inputData TEXT, -- Serialized JSON for task input
   outputData TEXT, -- Serialized JSON for task output
-  feedback TEXT, -- General feedback about the task
   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
 );
 
 CREATE TABLE IF NOT EXISTS feedback (
   id TEXT PRIMARY KEY,
-  task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, -- Relates feedback to a specific task
-  rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), -- 1-5 rating
-  comments TEXT, -- Optional comments
+  target_id TEXT NOT NULL, -- ID of the target entity (assistant, memory, or task)
+  target_type TEXT CHECK(target_type IN ('assistant', 'memory', 'task')) NOT NULL, -- Target type
+  user_id TEXT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL, -- Optional user ID
+  rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), -- Rating (1-5 stars)
+  comments TEXT, -- Optional feedback comments
   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
 );
@@ -115,17 +113,18 @@ CREATE TABLE task_tags (
   PRIMARY KEY (task_id, tag_id)
 );
 
+-- ! future maybe, when assistants can promote other assistants to use higher capabilities
 -- Promotion tables
-CREATE TABLE IF NOT EXISTS promotion_criteria (
-  id TEXT PRIMARY KEY,
-  assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
-  positiveFeedbackThreshold INTEGER NOT NULL,
-  tasksCompletedThreshold INTEGER NOT NULL,
-  memoryExpansion BOOLEAN NOT NULL,
-  nextLevel TEXT CHECK(nextLevel IN ('chat', 'assistant')) NOT NULL,
-  createdAt TEXT NOT NULL, -- ISO 8601 formatted date
-  updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
-);
+-- CREATE TABLE IF NOT EXISTS promotion_criteria (
+--   id TEXT PRIMARY KEY,
+--   assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
+--   positiveFeedbackThreshold INTEGER NOT NULL,
+--   tasksCompletedThreshold INTEGER NOT NULL,
+--   memoryExpansion BOOLEAN NOT NULL,
+--   nextLevel TEXT CHECK(nextLevel IN ('chat', 'assistant')) NOT NULL,
+--   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
+--   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
+-- );
 
 
 -- ! reduntant for now, users are assistants really

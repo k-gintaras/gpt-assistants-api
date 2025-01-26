@@ -28,21 +28,11 @@ export const assistantService = {
     const updatedAt = createdAt;
 
     const stmt = this.db.prepare(`
-      INSERT INTO assistants (id, name, description, type, instructions, feedback_positive, feedback_negative, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(
-      id,
-      assistant.name,
-      assistant.description,
-      assistant.type,
-      assistant.instructions || null,
-      0, // Initial feedback_positive
-      0, // Initial feedback_negative
-      createdAt,
-      updatedAt
-    );
+    stmt.run(id, assistant.name, assistant.description, assistant.type, assistant.instructions || null, createdAt, updatedAt);
 
     return id;
   },

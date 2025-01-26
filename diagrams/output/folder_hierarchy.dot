@@ -1,0 +1,32 @@
+
+digraph G {
+  rankdir=TB; // Change layout to Top-to-Bottom
+  nodesep=0.5; // Adjust horizontal spacing
+  ranksep=1;   // Adjust vertical spacing
+  node [fontname="Arial"];
+  "controllers" [shape=folder];
+  "data" [shape=folder];
+  "database" [shape=folder];
+  "models" [shape=folder];
+  "service-models" [shape=folder];
+  "queries" [shape=folder];
+  "routes" [shape=folder];
+  "services" [shape=folder];
+  "gpt-api" [shape=folder];
+  "tests" [shape=folder];
+  "integration" [shape=folder];
+  "unit" [shape=folder];
+  "gpt-tests" [shape=folder];
+  "other-tests" [shape=folder];
+  "service-tests" [shape=folder];
+  "transformer-tests" [shape=folder];
+  "transformers" [shape=folder];
+  "models" -> "service-models";
+  "services" -> "gpt-api";
+  "tests" -> "integration";
+  "tests" -> "unit";
+  "unit" -> "gpt-tests";
+  "unit" -> "other-tests";
+  "unit" -> "service-tests";
+  "unit" -> "transformer-tests"
+}
