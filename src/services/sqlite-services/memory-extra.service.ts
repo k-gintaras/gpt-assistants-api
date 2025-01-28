@@ -1,15 +1,19 @@
 import Database from 'better-sqlite3';
-import { Memory, MemoryRow } from '../models/memory.model';
-import { Tag } from '../models/tag.model';
-import { transformMemoryRow } from '../transformers/memory.transformer';
+import { Memory, MemoryRow } from '../../models/memory.model';
+import { Tag } from '../../models/tag.model';
+import { transformMemoryRow } from '../../transformers/memory.transformer';
 import { generateUniqueId } from './unique-id.service';
 
-export const memoryExtraService = {
-  db: new Database(':memory:'), // Default database instance
+export class MemoryExtraService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
   /**
    * Fetch all memories with their associated tags.
    */
@@ -38,7 +42,7 @@ export const memoryExtraService = {
     });
 
     return Array.from(memoryMap.values()).map(({ row, tags }) => transformMemoryRow(row, tags));
-  },
+  }
 
   /**
    * Fetch memories associated with specific tags.
@@ -74,7 +78,7 @@ export const memoryExtraService = {
     });
 
     return Array.from(memoryMap.values()).map(({ row, tags }) => transformMemoryRow(row, tags));
-  },
+  }
 
   /**
    * Update tags associated with a memory.
@@ -173,5 +177,5 @@ export const memoryExtraService = {
     }
 
     return true;
-  },
-};
+  }
+}

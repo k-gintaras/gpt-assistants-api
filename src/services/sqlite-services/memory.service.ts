@@ -1,13 +1,17 @@
 import { generateUniqueId } from './unique-id.service';
-import { Memory } from '../models/memory.model';
+import { Memory } from '../../models/memory.model';
 import Database from 'better-sqlite3';
 
-export const memoryService = {
-  db: new Database(':memory:'), // Default database instance
+export class MemoryService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
   async addMemory(memory: Omit<Memory, 'id' | 'tags' | 'createdAt' | 'updatedAt'>): Promise<string> {
     const id = generateUniqueId();
     const createdAt = new Date().toISOString();
@@ -21,13 +25,12 @@ export const memoryService = {
     stmt.run(id, memory.type, memory.description || null, memory.data ? JSON.stringify(memory.data) : null, createdAt, updatedAt);
 
     return id;
-  },
+  }
 
   async removeMemory(memoryId: string): Promise<void> {
     const stmt = this.db.prepare('DELETE FROM memories WHERE id = ?');
     stmt.run(memoryId);
-  },
-
+  }
   async updateMemory(id: string, updates: Partial<Omit<Memory, 'id' | 'tags' | 'createdAt' | 'updatedAt'>>): Promise<void> {
     const stmt = this.db.prepare(`
     UPDATE memories
@@ -40,5 +43,5 @@ export const memoryService = {
   `);
 
     stmt.run(updates.type || null, updates.description || null, updates.data ? JSON.stringify(updates.data) : null, new Date().toISOString(), id);
-  },
-};
+  }
+}

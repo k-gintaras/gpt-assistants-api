@@ -8,8 +8,8 @@ export interface FullAssistantRows {
   assistant_id: string;
   assistant_name: string;
   assistant_description: string;
-  assistant_type: 'completion' | 'chat' | 'assistant';
-  assistant_instructions: string | null;
+  assistant_type: 'chat' | 'assistant'; // Removed 'completion'
+  assistant_model: string; // New field for model
   avg_rating: number;
   total_feedback: number;
   assistant_createdAt: string; // ISO 8601 date
@@ -57,10 +57,10 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     name: firstRow.assistant_name,
     description: firstRow.assistant_description,
     type: firstRow.assistant_type,
+    model: firstRow.assistant_model, // Added model field
     assistantTags: [], // Populated below
-    instructions: firstRow.assistant_instructions || undefined,
-    createdAt: new Date(firstRow.assistant_createdAt),
-    updatedAt: new Date(firstRow.assistant_updatedAt),
+    createdAt: firstRow.assistant_createdAt,
+    updatedAt: firstRow.assistant_updatedAt,
     focusedMemories: [],
     memoryFocusRule: undefined,
     feedbackSummary,

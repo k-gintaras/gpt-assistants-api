@@ -1,14 +1,15 @@
 import Database from 'better-sqlite3';
-import { assistantService } from '../../../services/assistant.service';
 import { Assistant } from '../../../models/assistant.model';
+import { AssistantService } from '../../../services/sqlite-services/assistant.service';
 
 let db: Database.Database;
+let assistantService: AssistantService;
 
 describe('Assistant Service Tests', () => {
   beforeEach(() => {
     // Create a new in-memory database for each test
     db = new Database(':memory:');
-    assistantService.setDb(db); // Inject the test-specific database instance
+    assistantService = new AssistantService(db);
 
     // Initialize the assistants table
     db.exec(`
@@ -16,8 +17,8 @@ describe('Assistant Service Tests', () => {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
-        type TEXT CHECK(type IN ('completion', 'chat', 'assistant')) NOT NULL,
-        instructions TEXT,
+        type TEXT CHECK(type IN ('chat', 'assistant')) NOT NULL,
+        model TEXT NOT NULL,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL
       );
@@ -33,8 +34,8 @@ describe('Assistant Service Tests', () => {
     const newAssistant: Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'> = {
       name: 'Test Assistant',
       description: 'A test assistant',
-      type: 'completion',
-      instructions: 'Some instructions',
+      type: 'chat',
+      model: 'gpt-3.5-turbo',
     };
 
     const id = await assistantService.addAssistant(newAssistant);
@@ -44,43 +45,46 @@ describe('Assistant Service Tests', () => {
     if (!assistant) throw new Error('Assistant not found');
     expect(assistant.name).toBe(newAssistant.name);
     expect(assistant.type).toBe(newAssistant.type);
+    expect(assistant.model).toBe(newAssistant.model);
   });
 
   test('Should fetch all assistants', () => {
     db.prepare(
       `
-      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-    ).run('1', 'Test Assistant 1', 'A description', 'completion', 'Some instructions', new Date().toISOString(), new Date().toISOString());
+    ).run('1', 'Test Assistant 1', 'A description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString());
 
     const assistants = assistantService.getAllAssistants();
     expect(assistants).toHaveLength(1);
     expect(assistants[0].name).toBe('Test Assistant 1');
+    expect(assistants[0].model).toBe('gpt-3.5-turbo');
   });
 
   test('Should fetch an assistant by ID', () => {
     const id = '1';
     db.prepare(
       `
-      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-    ).run(id, 'Test Assistant', 'A description', 'completion', 'Some instructions', new Date().toISOString(), new Date().toISOString());
+    ).run(id, 'Test Assistant', 'A description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString());
 
     const assistant = assistantService.getAssistantById(id);
     expect(assistant).toBeDefined();
     expect(assistant?.name).toBe('Test Assistant');
+    expect(assistant?.model).toBe('gpt-3.5-turbo');
   });
 
   test('Should update an existing assistant', async () => {
     const id = '1';
     db.prepare(
       `
-      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-    ).run(id, 'Old Assistant', 'Old description', 'completion', 'Old instructions', new Date().toISOString(), new Date().toISOString());
+    ).run(id, 'Old Assistant', 'Old description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString());
 
     const updates = {
       name: 'Updated Assistant',
@@ -99,10 +103,10 @@ describe('Assistant Service Tests', () => {
     const id = '1';
     db.prepare(
       `
-      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-    ).run(id, 'Test Assistant', 'Description', 'assistant', 'Instructions', new Date().toISOString(), new Date().toISOString());
+    ).run(id, 'Test Assistant', 'Description', 'assistant', 'gpt-4', new Date().toISOString(), new Date().toISOString());
 
     const success = await assistantService.deleteAssistant(id);
     expect(success).toBe(true);

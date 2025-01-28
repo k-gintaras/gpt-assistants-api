@@ -1,13 +1,14 @@
-import { tagService } from '../../../services/tag.service';
 import { testDbHelper } from '../test-db.helper';
 import Database from 'better-sqlite3';
 import { Tag, TagRow } from '../../../models/tag.model';
+import { TagService } from '../../../services/sqlite-services/tag.service';
 
 let db: Database.Database;
+let tagService: TagService;
 
 beforeEach(() => {
   db = testDbHelper.initialize();
-  tagService.setDb(db);
+  tagService = new TagService(db);
 });
 
 afterEach(() => {

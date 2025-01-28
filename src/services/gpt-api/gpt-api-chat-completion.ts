@@ -1,6 +1,21 @@
 import { ChatCompletion } from 'openai/resources';
 import { getOpenAI } from './gpt-api-connector';
 
+export interface GptMessage {
+  role: 'user' | 'developer' | 'system' | 'assistant';
+  content: string;
+}
+export type GptMessageArray = GptMessage[];
+
+/**
+ * Determines the appropriate role for the system-like message based on the model.
+ * @param model - The model being used (e.g., 'gpt-4o').
+ * @returns The appropriate role ('developer' for newer models, 'system' otherwise).
+ */
+function getSystemRole(model: string): 'developer' | 'system' {
+  return model.startsWith('gpt-4o') || model.startsWith('o1') ? 'developer' : 'system';
+}
+
 /**
  * Creates a chat completion using the provided messages and parameters.
  * @param model - The model to use for the chat completion (e.g., 'gpt-4o').
@@ -10,7 +25,7 @@ import { getOpenAI } from './gpt-api-connector';
  */
 export async function createChatCompletion(
   model: string,
-  messages: Array<{ role: 'user' | 'developer' | 'assistant'; content: string }>,
+  messages: GptMessageArray,
   options: {
     max_tokens?: number;
     temperature?: number;
@@ -42,6 +57,7 @@ export async function createChatCompletion(
     return null;
   }
 }
+
 /**
  * Extracts the assistant's reply from the chat completion response.
  * @param completion - The chat completion response from the API.
@@ -66,7 +82,7 @@ export function extractChatReply(completion: ChatCompletion): string | null {
  */
 export async function generateChatReply(
   model: string,
-  messages: Array<{ role: 'user' | 'developer' | 'assistant'; content: string }>,
+  messages: GptMessageArray,
   options: {
     max_tokens?: number;
     temperature?: number;
@@ -86,9 +102,22 @@ export async function generateChatReply(
  * @param newMessages - New messages to add to the conversation.
  * @returns The updated conversation history.
  */
-export function extendConversation(
-  history: Array<{ role: 'user' | 'developer' | 'assistant'; content: string }>,
-  newMessages: Array<{ role: 'user' | 'developer' | 'assistant'; content: string }>
-): Array<{ role: 'user' | 'developer' | 'assistant'; content: string }> {
+export function extendConversation(history: GptMessageArray, newMessages: GptMessageArray): GptMessageArray {
   return [...history, ...newMessages];
+}
+
+/**
+ * Prepares messages for a chat completion.
+ * Automatically determines the correct role for system/developer messages based on the model.
+ * @param model - The model being used.
+ * @param instructions - The system or developer message content.
+ * @param userMessage - The user's input message.
+ * @returns An array of formatted messages.
+ */
+export function prepareMessages(model: string, instructions: string, userMessage: string): GptMessageArray {
+  const systemRole = getSystemRole(model);
+  return [
+    { role: systemRole, content: instructions },
+    { role: 'user', content: userMessage },
+  ];
 }

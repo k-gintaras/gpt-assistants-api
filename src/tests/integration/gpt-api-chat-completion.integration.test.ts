@@ -1,8 +1,8 @@
-import { createChatCompletion, generateChatReply, extendConversation } from '../../services/gpt-api/gpt-api-chat-completion';
+import { createChatCompletion, generateChatReply, extendConversation, GptMessageArray } from '../../services/gpt-api/gpt-api-chat-completion';
 
 describe('Integration Test for Chat Completion Functions', () => {
   const model = 'gpt-3.5-turbo-16k'; // Use your desired model here
-  let conversationHistory: Array<{ role: 'user' | 'developer' | 'assistant'; content: string }> = [];
+  let conversationHistory: GptMessageArray = [];
 
   beforeAll(() => {
     jest.setTimeout(30000); // Extend timeout for API calls

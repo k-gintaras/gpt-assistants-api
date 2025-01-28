@@ -1,0 +1,92 @@
+[
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\assistant.model.ts",
+    "interfaces": [
+      "export interface AssistantWithDetails extends Assistant {\r\n  focusedMemories: Memory[]; // Relevant memories based on the assistant's focus\r\n  memoryFocusRule?: MemoryFocusRule; // Rules guiding memory selection\r\n  assistantTags?: Tag[]; // Tags associated with the assistant\r\n  feedbackSummary: FeedbackSummary; // Aggregate feedback calculated from tasks\r\n}",
+      "export interface FeedbackSummary {\r\n  avgRating: number; // Average feedback rating (1-5)\r\n  totalFeedback: number; // Total number of feedback entries\r\n}",
+      "export interface FeedbackSummaryRow {\r\n  avg_rating: number; // Average feedback rating (1-5)\r\n  total_feedback: number; // Total number of feedback entries\r\n}",
+      "export interface Assistant {\r\n  id: string;\r\n  name: string;\r\n  description: string;\r\n  type: 'completion' | 'chat' | 'assistant';\r\n  instructions?: string;\r\n  createdAt: Date;\r\n  updatedAt: Date;\r\n}",
+      "export interface AssistantRow {\r\n  id: string;\r\n  name: string;\r\n  description: string;\r\n  type: 'completion' | 'chat' | 'assistant';\r\n  instructions: string | null;\r\n  createdAt: string; // ISO 8601\r\n  updatedAt: string; // ISO 8601\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\feedback.model.ts",
+    "interfaces": [
+      "export interface Feedback {\r\n  id: string; // Unique identifier for the feedback\r\n  targetId: string; // ID of the target entity (assistant, memory, or task)\r\n  targetType: 'assistant' | 'memory' | 'task'; // Type of entity receiving feedback\r\n  userId?: string; // ID of the user providing feedback (optional)\r\n  rating: number; // Feedback rating (e.g., 1-5 stars)\r\n  comments?: string; // Additional feedback comments (optional)\r\n  createdAt: Date; // Timestamp of feedback creation\r\n  updatedAt: Date; // Timestamp of feedback update\r\n}",
+      "export interface FeedbackRow {\r\n  id: string; // Unique identifier for the feedback\r\n  target_id: string; // ID of the target entity (assistant, memory, or task)\r\n  target_type: 'assistant' | 'memory' | 'task'; // Type of entity receiving feedback\r\n  user_id?: string; // ID of the user providing feedback (optional)\r\n  rating: number; // Feedback rating (e.g., 1-5 stars)\r\n  comments?: string; // Additional feedback comments (optional)\r\n  createdAt: Date; // Timestamp of feedback creation\r\n  updatedAt: Date; // Timestamp of feedback update\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\focused-memory.model.ts",
+    "interfaces": [
+      "export interface OwnedMemoryRow {\r\n  assistant_id: string; // Assistant owning the memory\r\n  memory_id: string; // Memory ID\r\n}",
+      "export interface OwnedMemory {\r\n  assistantId: string; // Assistant owning the memory\r\n  memoryId: string; // Memory ID\r\n}",
+      "export interface FocusedMemoryRow {\r\n  memory_focus_id: string; // ID of the memory focus rule\r\n  memory_id: string; // Memory ID\r\n}",
+      "export interface FocusedMemory {\r\n  memoryFocusId: string; // ID of the memory focus rule\r\n  memoryId: string; // Memory ID\r\n}",
+      "export interface MemoryFocusRuleRow {\r\n  id: string; // Unique identifier for the focus rule\r\n  assistant_id: string; // Associated assistant\r\n  maxResults: number; // Maximum number of memories\r\n  relationshipTypes: string | null; // Serialized JSON\r\n  priorityTags: string | null; // Serialized JSON\r\n  createdAt: string; // ISO 8601\r\n  updatedAt: string; // ISO 8601\r\n}",
+      "export interface MemoryFocusRule {\r\n  id: string;\r\n  assistantId: string;\r\n  maxResults: number;\r\n  relationshipTypes: string[]; // Parsed JSON array\r\n  priorityTags: string[]; // Parsed JSON array\r\n  createdAt: Date;\r\n  updatedAt: Date;\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\memory.model.ts",
+    "interfaces": [
+      "export interface Memory {\r\n  id: string;\r\n  type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';\r\n  tags: Tag[];\r\n  description: string | null; // Nullable in the database\r\n  data: Record<string, unknown> | null; // Nullable in the database\r\n  createdAt: Date | null;\r\n  updatedAt: Date | null;\r\n}",
+      "export interface MemoryRow {\r\n  id: string;\r\n  type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';\r\n  description: string | null;\r\n  data: string | null; // Serialized JSON in the database\r\n  createdAt: string; // ISO 8601 string\r\n  updatedAt: string; // ISO 8601 string\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\promotion-criteria.model.ts",
+    "interfaces": [
+      "export interface PromotionCriteria {\r\n  assistantId: string; // ID of the assistant\r\n  criteria: {\r\n    positiveFeedbackThreshold: number; // Minimum positive feedback count\r\n    tasksCompletedThreshold: number; // Minimum tasks completed\r\n    memoryExpansion: boolean; // Whether to add more memories upon promotion\r\n  };\r\n  nextLevel: 'chat' | 'assistant'; // Target level after promotion\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\relationship.model.ts",
+    "interfaces": [
+      "export interface RelationshipGraph {\r\n  id: string; // Unique identifier for the relationship\r\n  type: 'assistant' | 'memory' | 'task'; // Type of the source entity\r\n  targetId: string; // ID of the related entity\r\n  relationshipType: 'related_to' | 'part_of' | 'example_of' | 'derived_from' | 'depends_on' | 'blocks' | 'subtask_of'; // Type of relationship\r\n  createdAt: Date; // Relationship creation timestamp\r\n  updatedAt: Date; // Last update timestamp\r\n}",
+      "export interface RelationshipGraphRow {\r\n  id: string; // Unique identifier for the relationship\r\n  type: 'assistant' | 'memory' | 'task'; // Type of the source entity\r\n  target_id: string; // ID of the related entity\r\n  relationship_type: 'related_to' | 'part_of' | 'example_of' | 'derived_from' | 'depends_on' | 'blocks' | 'subtask_of'; // Type of relationship\r\n  createdAt: Date; // Relationship creation timestamp\r\n  updatedAt: Date; // Last update timestamp\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\service-models\\connector.service.model.ts",
+    "interfaces": [
+      "export interface ConnectorService {\r\n  executeTask(task: Task): Promise<Task>; // Orchestrates a task by selecting the appropriate assistant and memories\r\n  retrieveRelevantMemories(taskTags: string[], assistant: Assistant): Promise<OwnedMemory[]>; // Fetches relevant memories for a task\r\n  logFeedback(feedback: Feedback): Promise<void>; // Logs feedback for assistants or tasks\r\n  analyzePerformance(assistantId: string): Promise<void>; // Analyzes and adjusts assistant based on performance\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\tag.model.ts",
+    "interfaces": [
+      "export interface TagRow {\r\n  id: string; // Unique tag ID\r\n  name: string; // Tag name\r\n}",
+      "export interface Tag {\r\n  id: string; // Unique tag ID\r\n  name: string; // Tag name\r\n}",
+      "export interface MemoryTagRow {\r\n  memory_id: string; // ID of the memory\r\n  tag_id: string; // ID of the tag\r\n}",
+      "export interface AssistantTagRow {\r\n  assistant_id: string; // ID of the assistant\r\n  tag_id: string; // ID of the tag\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\models\\task.model.ts",
+    "interfaces": [
+      "export interface Task {\r\n  id: string; // Unique identifier for the task\r\n  description: string; // Detailed description of the task\r\n  assignedAssistant: string; // ID of the assistant assigned to this task\r\n  status: 'pending' | 'in_progress' | 'completed' | 'failed'; // Task status\r\n  inputData?: Record<string, unknown>; // Input data for the task\r\n  outputData?: Record<string, unknown>; // Output data generated by the task\r\n  createdAt: Date; // Task creation timestamp\r\n  updatedAt: Date; // Task last update timestamp\r\n}",
+      "export interface TaskRow {\r\n  id: string; // Unique identifier for the task\r\n  description: string; // Detailed description of the task\r\n  assignedAssistant: string; // ID of the assistant assigned to this task\r\n  status: 'pending' | 'in_progress' | 'completed' | 'failed'; // Task status\r\n  inputData?: string; // Record<string, unknown>; // Input data for the task\r\n  outputData?: string; // Record<string, unknown>; // Output data generated by the task\r\n  createdAt: Date; // Task creation timestamp\r\n  updatedAt: Date; // Task last update timestamp\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\services\\gpt-api\\gpt-api-model-helper.ts",
+    "interfaces": [
+      "export interface PromptEvaluation {\r\n  estimatedInputTokens: number;\r\n  requiredOutputTokens: number;\r\n  intelligenceLevel: 'basic' | 'intermediate' | 'advanced';\r\n  suggestedModel: string;\r\n  availableResponseTokens: number;\r\n  isFeasible: boolean;\r\n  recommendations: string[];\r\n}",
+      "export interface Model {\r\n  alias: string;\r\n  contextWindow: number; // Maximum tokens for context (input + output)\r\n  maxOutputTokens: number;\r\n  description: string;\r\n  useCase: string;\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\services\\gpt-api\\gpt-api-models.model.ts",
+    "interfaces": [
+      "export interface GptAssistantResponse {\r\n  id: string;\r\n  name?: string;\r\n  description?: string;\r\n  instructions?: string;\r\n  tools?: { type: string }[];\r\n  metadata?: Record<string, string>;\r\n  temperature?: number;\r\n  top_p?: number;\r\n}",
+      "export interface GptAssistantCreateRequest {\r\n  model: string;\r\n  instructions?: string;\r\n  name?: string;\r\n  description?: string;\r\n  tools?: AssistantTool[];\r\n  metadata?: Record<string, string>;\r\n  temperature?: number;\r\n  top_p?: number;\r\n  response_format?: AssistantResponseFormatOption | null | undefined;\r\n}"
+    ]
+  },
+  {
+    "file": "C:\\Users\\Ubaby\\NodeJS Projects\\gpt-assistants-api\\gpt-assistants-api\\src\\transformers\\assistant-full.transformer.ts",
+    "interfaces": [
+      "export interface FullAssistantRows {\r\n  // Assistant fields\r\n  assistant_id: string;\r\n  assistant_name: string;\r\n  assistant_description: string;\r\n  assistant_type: 'completion' | 'chat' | 'assistant';\r\n  assistant_instructions: string | null;\r\n  avg_rating: number;\r\n  total_feedback: number;\r\n  assistant_createdAt: string; // ISO 8601 date\r\n  assistant_updatedAt: string; // ISO 8601 date\r\n\r\n  // Assistant tag fields (relational tags)\r\n  assistant_tag_id: string | null;\r\n  assistant_tag_name: string | null;\r\n\r\n  // Focus rule fields\r\n  focus_rule_id: string | null;\r\n  focus_rule_maxResults: number | null;\r\n  focus_rule_relationshipTypes: string | null; // Serialized JSON\r\n  focus_rule_priorityTags: string | null; // Serialized JSON\r\n  focus_rule_createdAt: string | null; // ISO 8601 date\r\n  focus_rule_updatedAt: string | null; // ISO 8601 date\r\n\r\n  // Memory fields\r\n  memory_id: string | null;\r\n  memory_type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta' | null;\r\n  memory_description: string | null;\r\n  memory_data: string | null; // Serialized JSON\r\n  memory_createdAt: string | null; // ISO 8601 date\r\n  memory_updatedAt: string | null; // ISO 8601 date\r\n\r\n  // Memory tag fields (relational tags)\r\n  memory_tag_id: string | null;\r\n  memory_tag_name: string | null;\r\n}"
+    ]
+  }
+]

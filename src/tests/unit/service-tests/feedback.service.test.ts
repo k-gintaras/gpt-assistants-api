@@ -1,10 +1,12 @@
 import Database from 'better-sqlite3';
 import { Feedback } from '../../../models/feedback.model';
-import { feedbackService } from '../../../services/feedback.service';
+import { FeedbackService } from '../../../services/sqlite-services/feedback.service';
 
+let feedbackService: FeedbackService;
 describe('Feedback Service', () => {
   beforeAll(() => {
     const db = new Database(':memory:');
+    feedbackService = new FeedbackService(db);
     // Initialize tables
     db.exec(`
       CREATE TABLE IF NOT EXISTS feedback (
@@ -18,7 +20,6 @@ describe('Feedback Service', () => {
         updatedAt TEXT NOT NULL
       );
     `);
-    feedbackService.setDb(db);
   });
 
   afterAll(() => {

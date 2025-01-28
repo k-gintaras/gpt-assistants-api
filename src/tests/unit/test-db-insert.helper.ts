@@ -19,7 +19,7 @@ export const insertHelpers = {
 
   insertFullAssistantSetup(db: Database.Database, assistantId: string = '1') {
     // Insert the assistant
-    this.insertAssistant(db, assistantId);
+    this.insertAssistant(db, assistantId, false);
 
     // Insert tags and associate them with the assistant
     this.insertTags(db, assistantId);
@@ -32,17 +32,25 @@ export const insertHelpers = {
     this.insertFocusedMemory(db, '1', '2'); // Associate second memory
   },
 
-  insertAssistant(db: Database.Database, assistantId: string = '1') {
+  insertAssistant(db: Database.Database, assistantId: string = '1', isAssistant?: boolean) {
     db.prepare(
       `
-      INSERT OR IGNORE INTO assistants (id, name, description, type, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT OR IGNORE INTO assistants (id, name, description, type, model, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-    ).run(assistantId, `Test Assistant ${assistantId}`, `Description for Assistant ${assistantId}`, 'completion', new Date().toISOString(), new Date().toISOString());
+    ).run(
+      assistantId,
+      `Test Assistant ${assistantId}`,
+      `Description for Assistant ${assistantId}`,
+      isAssistant ? 'assistant' : 'chat', // Use valid type
+      'gpt-3.5-turbo', // Specify a model
+      new Date().toISOString(),
+      new Date().toISOString()
+    );
   },
 
   insertMemoryFocusRule(db: Database.Database, ruleId: string = '1', assistantId: string = '1') {
-    this.insertAssistant(db, assistantId);
+    this.insertAssistant(db, assistantId, false);
 
     db.prepare(
       `
@@ -78,7 +86,7 @@ export const insertHelpers = {
   },
 
   insertMemory(db: Database.Database, id: string) {
-    // Insert standalone memories
+    // Insert a single memory
     db.prepare(
       `
     INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)

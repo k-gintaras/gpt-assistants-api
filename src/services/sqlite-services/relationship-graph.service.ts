@@ -1,20 +1,24 @@
 import Database from 'better-sqlite3';
 import { generateUniqueId } from './unique-id.service';
-import { RelationshipGraph, RelationshipGraphRow } from '../models/relationship.model';
+import { RelationshipGraph, RelationshipGraphRow } from '../../models/relationship.model';
 
-export const relationshipGraphService = {
-  db: new Database(':memory:'),
+export class RelationshipGraphService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Override database instance
-  },
+  }
 
   // Fetch all relationships
   getAllRelationships(): RelationshipGraph[] {
     const stmt = this.db.prepare('SELECT * FROM relationship_graph');
     const results = stmt.all() as RelationshipGraphRow[];
     return results.map((row) => this.transformRow(row));
-  },
+  }
 
   // Fetch relationships by source ID and type
   getRelationshipsBySource(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
@@ -25,7 +29,7 @@ export const relationshipGraphService = {
   `);
     const results = stmt.all(targetId, type) as RelationshipGraphRow[];
     return results.map((row) => this.transformRow(row));
-  },
+  }
 
   // Add a new relationship
   async addRelationship(relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
@@ -41,7 +45,7 @@ export const relationshipGraphService = {
     stmt.run(id, relationship.type, relationship.targetId, relationship.relationshipType, createdAt, updatedAt);
 
     return id;
-  },
+  }
 
   // Update an existing relationship
   async updateRelationship(id: string, updates: Partial<Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
@@ -63,7 +67,7 @@ export const relationshipGraphService = {
     stmt.run(updates.type || null, updates.targetId || null, updates.relationshipType || null, new Date().toISOString(), id);
 
     return true;
-  },
+  }
 
   // Delete a relationship
   async deleteRelationship(id: string): Promise<boolean> {
@@ -74,7 +78,7 @@ export const relationshipGraphService = {
 
     const result = stmt.run(id);
     return result.changes > 0; // Returns true if the relationship was deleted
-  },
+  }
 
   // Transform database row to RelationshipGraph object
   transformRow(row: RelationshipGraphRow): RelationshipGraph {
@@ -86,5 +90,5 @@ export const relationshipGraphService = {
       createdAt: new Date(row.createdAt),
       updatedAt: new Date(row.updatedAt),
     };
-  },
-};
+  }
+}

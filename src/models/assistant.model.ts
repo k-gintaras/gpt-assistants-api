@@ -22,18 +22,18 @@ export interface Assistant {
   id: string;
   name: string;
   description: string;
-  type: 'completion' | 'chat' | 'assistant';
-  instructions?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  type: 'chat' | 'assistant';
+  model: string; // Added model field
+  createdAt: string; // ISO 8601 formatted date
+  updatedAt: string; // ISO 8601 formatted date
 }
 
 export interface AssistantRow {
   id: string;
   name: string;
   description: string;
-  type: 'completion' | 'chat' | 'assistant';
-  instructions: string | null;
+  type: 'chat' | 'assistant';
+  model: string; // Added model field
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
 }

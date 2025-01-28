@@ -12,9 +12,9 @@ export function transformAssistantRow(row: AssistantRow): Assistant {
     name: row.name,
     description: row.description,
     type: row.type,
-    instructions: row.instructions || undefined,
-    createdAt: new Date(row.createdAt),
-    updatedAt: new Date(row.updatedAt),
+    model: row.model, // New field
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 

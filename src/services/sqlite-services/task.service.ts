@@ -1,13 +1,17 @@
 import Database from 'better-sqlite3';
-import { Task, TaskRow } from '../models/task.model';
+import { Task, TaskRow } from '../../models/task.model';
 import { generateUniqueId } from './unique-id.service';
 
-export const taskService = {
-  db: new Database(':memory:'), // Default database instance
+export class TaskService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
 
   // Fetch all tasks
   getTaskById(id: string): Task | null {
@@ -23,7 +27,7 @@ export const taskService = {
       createdAt: new Date(result.createdAt),
       updatedAt: new Date(result.updatedAt),
     } as Task;
-  },
+  }
 
   getAllTasks(): Task[] {
     const stmt = this.db.prepare('SELECT * FROM tasks');
@@ -36,8 +40,7 @@ export const taskService = {
       createdAt: new Date(result.createdAt),
       updatedAt: new Date(result.updatedAt),
     })) as Task[];
-  },
-
+  }
   // Add a new task
   async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     const id = generateUniqueId(); // Generate a unique ID for the task
@@ -52,7 +55,7 @@ export const taskService = {
     stmt.run(id, task.description, task.assignedAssistant, task.status, JSON.stringify(task.inputData || null), JSON.stringify(task.outputData || null), createdAt, updatedAt);
 
     return id;
-  },
+  }
 
   // Update an existing task
   async updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
@@ -85,7 +88,7 @@ export const taskService = {
     );
 
     return true;
-  },
+  }
 
   // Delete a task by ID
   async deleteTask(id: string): Promise<boolean> {
@@ -97,7 +100,7 @@ export const taskService = {
     const result = stmt.run(id);
 
     return result.changes > 0; // Returns true if the task was deleted
-  },
+  }
 
   // Fetch tasks by status
   getTasksByStatus(status: Task['status']): Task[] {
@@ -108,7 +111,7 @@ export const taskService = {
     `);
 
     return stmt.all(status) as Task[];
-  },
+  }
 
   // Fetch tasks assigned to a specific assistant
   getTasksByAssistant(assistantId: string): Task[] {
@@ -119,5 +122,5 @@ export const taskService = {
     `);
 
     return stmt.all(assistantId) as Task[];
-  },
-};
+  }
+}

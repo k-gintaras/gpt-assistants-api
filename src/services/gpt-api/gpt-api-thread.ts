@@ -4,6 +4,12 @@ import { MessagesPage } from 'openai/resources/beta/threads/messages';
 import { getOpenAI } from './gpt-api-connector';
 import { Run } from 'openai/resources/beta/threads/runs/runs';
 
+export interface GptThreadMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+export type GptThreadMessageArray = GptThreadMessage[];
+
 /**
  * Creates a new thread for a specific purpose.
  * @param purpose - The purpose of the thread.
@@ -49,7 +55,7 @@ export async function addThreadMessage(threadId: string, role: 'user' | 'assista
  * @param messages - Array of message objects with roles and content.
  * @returns Array of message IDs.
  */
-export async function addMultipleMessages(threadId: string, messages: { role: 'user' | 'assistant'; content: string }[]): Promise<string[]> {
+export async function addMultipleMessages(threadId: string, messages: GptThreadMessageArray): Promise<string[]> {
   try {
     const openai = getOpenAI();
     const messageIds = await Promise.all(messages.map((msg) => openai.beta.threads.messages.create(threadId, msg).then((m) => m.id)));
@@ -173,6 +179,31 @@ export async function queryAssistant(assistantId: string, prompt: string, instru
     if (!threadId) throw new Error('Thread creation failed.');
 
     const messageId = await addThreadMessage(threadId, 'user', prompt);
+    if (!messageId) throw new Error('Failed to add user message.');
+
+    const run = await waitForRunCompletion(threadId, assistantId, instructions);
+    if (!run) throw new Error('Assistant run did not complete.');
+
+    return getAssistantReply(threadId);
+  } catch (error) {
+    console.error('Error querying assistant:', error);
+    return null;
+  }
+}
+
+/**
+ * Sends a prompt to the assistant and retrieves the response.
+ * @param assistantId - The assistant ID.
+ * @param prompt - The user's prompt.
+ * @param instructions - Optional instructions for the assistant.
+ * @returns The assistant's response as a string or null if any step fails.
+ */
+export async function queryAssistantWithMessages(assistantId: string, messages: GptThreadMessageArray, instructions?: string): Promise<string | null> {
+  try {
+    const threadId = await createNewThread('Direct Query', 'system');
+    if (!threadId) throw new Error('Thread creation failed.');
+
+    const messageId = await addMultipleMessages(threadId, messages);
     if (!messageId) throw new Error('Failed to add user message.');
 
     const run = await waitForRunCompletion(threadId, assistantId, instructions);

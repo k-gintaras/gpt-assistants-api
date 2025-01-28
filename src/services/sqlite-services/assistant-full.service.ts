@@ -1,18 +1,23 @@
-import { AssistantWithDetails, AssistantRow, FeedbackSummaryRow } from '../models/assistant.model';
-import { MemoryRow } from '../models/memory.model';
-import { MemoryFocusRuleRow } from '../models/focused-memory.model';
-import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../queries/assistant.queries';
-import { FullAssistantRows, transformFullAssistantResult } from '../transformers/assistant-full.transformer';
-import { transformAssistantWithDetails } from '../transformers/assistant.transformer';
-import { TagRow, Tag } from '../models/tag.model';
+import { AssistantWithDetails, AssistantRow, FeedbackSummaryRow } from '../../models/assistant.model';
+import { MemoryRow } from '../../models/memory.model';
+import { MemoryFocusRuleRow } from '../../models/focused-memory.model';
+import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../../queries/assistant.queries';
+import { FullAssistantRows, transformFullAssistantResult } from '../../transformers/assistant-full.transformer';
+import { transformAssistantWithDetails } from '../../transformers/assistant.transformer';
+import { TagRow, Tag } from '../../models/tag.model';
 import Database from 'better-sqlite3';
 
-export const fullAssistantService = {
-  db: new Database(':memory:'), // Default database instance
+export class FullAssistantService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
+
   /**
    * Fetch full assistant details using individual queries.
    */
@@ -101,7 +106,7 @@ export const fullAssistantService = {
       console.error('Error fetching full assistant details:', error);
       throw new Error('Failed to fetch assistant details.');
     }
-  },
+  }
 
   /**
    * Fetch full assistant details using an efficient single query.
@@ -116,5 +121,5 @@ export const fullAssistantService = {
       console.error('Error transforming full assistant details:', error);
       throw new Error('Failed to fetch assistant details efficiently.');
     }
-  },
-};
+  }
+}

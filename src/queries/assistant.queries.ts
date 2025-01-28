@@ -6,7 +6,7 @@ SELECT
   a.name AS assistant_name,
   a.description AS assistant_description,
   a.type AS assistant_type,
-  a.instructions AS assistant_instructions,
+  a.model AS assistant_model, -- Updated to include the model field
   a.createdAt AS assistant_createdAt,
   a.updatedAt AS assistant_updatedAt,
   
@@ -62,25 +62,38 @@ WHERE
   a.id = ?
 
 GROUP BY 
-  a.id, at.tag_id, t1.name, qs.id, qs.maxResults, qs.relationshipTypes, 
+  a.id, a.model, at.tag_id, t1.name, qs.id, qs.maxResults, qs.relationshipTypes, 
   qs.priorityTags, qs.createdAt, qs.updatedAt, 
   m.id, m.type, m.description, m.data, m.createdAt, m.updatedAt, 
   mt.tag_id, t2.name
 
 ORDER BY 
   m.createdAt DESC;
-
 `;
 
 export const GET_ASSISTANT_WITHOUT_MEMORIES = `
-  SELECT * 
+  SELECT 
+    id AS assistant_id,
+    name AS assistant_name,
+    description AS assistant_description,
+    type AS assistant_type,
+    model AS assistant_model, -- Include model in the query
+    createdAt AS assistant_createdAt,
+    updatedAt AS assistant_updatedAt
   FROM assistants 
-  WHERE id = ?
+  WHERE id = ?;
 `;
 
 export const buildGetAssistantWithFiltersQuery = (filters: { type?: string; tags?: string[] }): string => {
   let query = `
-    SELECT a.* 
+    SELECT 
+      a.id AS assistant_id,
+      a.name AS assistant_name,
+      a.description AS assistant_description,
+      a.type AS assistant_type,
+      a.model AS assistant_model,
+      a.createdAt AS assistant_createdAt,
+      a.updatedAt AS assistant_updatedAt
     FROM assistants a
     LEFT JOIN assistant_tags at ON a.id = at.assistant_id
     LEFT JOIN tags t ON at.tag_id = t.id

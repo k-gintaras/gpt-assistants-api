@@ -9,8 +9,8 @@ const mockAssistantRow: AssistantRow = {
   id: 'assistant-1',
   name: 'Test Assistant',
   description: 'A description for the assistant',
-  type: 'completion',
-  instructions: null,
+  type: 'chat', // Changed to 'chat' to reflect valid types
+  model: 'gpt-3.5-turbo', // New model field
   createdAt: '2023-01-01T00:00:00.000Z',
   updatedAt: '2023-01-02T00:00:00.000Z',
 };
@@ -57,10 +57,10 @@ describe('transformAssistantRow', () => {
     expect(result.id).toBe('assistant-1');
     expect(result.name).toBe('Test Assistant');
     expect(result.description).toBe('A description for the assistant');
-    expect(result.type).toBe('completion');
-    expect(result.instructions).toBeUndefined(); // Null should be transformed to undefined
-    expect(result.createdAt).toEqual(new Date('2023-01-01T00:00:00.000Z'));
-    expect(result.updatedAt).toEqual(new Date('2023-01-02T00:00:00.000Z'));
+    expect(result.type).toBe('chat'); // Reflect valid types
+    expect(result.model).toBe('gpt-3.5-turbo'); // Validate new model field
+    expect(result.createdAt).toEqual('2023-01-01T00:00:00.000Z');
+    expect(result.updatedAt).toEqual('2023-01-02T00:00:00.000Z');
   });
 });
 
@@ -71,6 +71,7 @@ describe('transformAssistantWithDetails', () => {
     expect(result).toBeDefined();
     expect(result.id).toBe('assistant-1');
     expect(result.name).toBe('Test Assistant');
+    expect(result.model).toBe('gpt-3.5-turbo'); // Validate model in detailed transformation
     expect(result.assistantTags).toHaveLength(2);
     expect(result.assistantTags).toEqual([
       { id: 'tag-3', name: 'Assistant Tag 1' },

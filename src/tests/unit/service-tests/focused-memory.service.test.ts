@@ -1,13 +1,14 @@
 import Database from 'better-sqlite3';
-import { focusedMemoryService } from '../../../services/focused-memory.service';
 import { testDbHelper } from '../test-db.helper';
 import { insertHelpers } from '../test-db-insert.helper';
+import { FocusedMemoryService } from '../../../services/sqlite-services/focused-memory.service';
 
 let db: Database.Database;
+let focusedMemoryService: FocusedMemoryService;
 
 beforeEach(() => {
   db = testDbHelper.initialize();
-  focusedMemoryService.setDb(db);
+  focusedMemoryService = new FocusedMemoryService(db);
 
   insertHelpers.insertAssistant(db, '1');
   insertHelpers.insertMemories(db); // Insert memories ids 1,2

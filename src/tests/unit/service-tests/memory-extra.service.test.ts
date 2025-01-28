@@ -1,13 +1,14 @@
-import { memoryExtraService } from '../../../services/memory-extra.service';
 import { testDbHelper } from '../test-db.helper';
 import { insertHelpers } from '../test-db-insert.helper';
 import Database from 'better-sqlite3';
+import { MemoryExtraService } from '../../../services/sqlite-services/memory-extra.service';
 
 let db: Database.Database;
+let memoryExtraService: MemoryExtraService;
 
 beforeEach(() => {
   db = testDbHelper.initialize();
-  memoryExtraService.setDb(db);
+  memoryExtraService = new MemoryExtraService(db);
 
   // Insert necessary data
   insertHelpers.insertAssistant(db, '1'); // Ensure assistant exists

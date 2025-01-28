@@ -1,0 +1,660 @@
+[
+  {
+    "file": "app-test.ts",
+    "functions": [],
+    "classes": []
+  },
+  {
+    "file": "app.ts",
+    "functions": [],
+    "classes": []
+  },
+  {
+    "folder": "controllers",
+    "content": [
+      {
+        "file": "assistant.controller.ts",
+        "functions": [],
+        "classes": []
+      }
+    ]
+  },
+  {
+    "folder": "data",
+    "content": []
+  },
+  {
+    "folder": "database",
+    "content": [
+      {
+        "file": "database.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "init.ts",
+        "functions": [],
+        "classes": []
+      }
+    ]
+  },
+  {
+    "file": "index.ts",
+    "functions": [],
+    "classes": []
+  },
+  {
+    "folder": "models",
+    "content": [
+      {
+        "file": "assistant.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "feedback.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "focused-memory.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "memory.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "promotion-criteria.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "relationship.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "folder": "service-models",
+        "content": [
+          {
+            "file": "connector.service.model.ts",
+            "functions": [],
+            "classes": []
+          }
+        ]
+      },
+      {
+        "file": "tag.model.ts",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "file": "task.model.ts",
+        "functions": [],
+        "classes": []
+      }
+    ]
+  },
+  {
+    "folder": "queries",
+    "content": [
+      {
+        "file": "assistant.queries.ts",
+        "functions": [],
+        "classes": []
+      }
+    ]
+  },
+  {
+    "folder": "routes",
+    "content": [
+      {
+        "file": "assistant.routes.ts",
+        "functions": [],
+        "classes": []
+      }
+    ]
+  },
+  {
+    "folder": "services",
+    "content": [
+      {
+        "folder": "gpt-api",
+        "content": [
+          {
+            "file": "gpt-api-assistant.ts",
+            "functions": [
+              "createAssistant(payload: GptAssistantCreateRequest):Assistant",
+              "getAssistantById(id: string):Assistant",
+              "updateAssistant(id: string, updates: GptAssistantCreateRequest):Promise<boolean>",
+              "deleteAssistant(id: string):Promise<boolean>"
+            ],
+            "classes": []
+          },
+          {
+            "file": "gpt-api-chat-completion.ts",
+            "functions": [
+              "createChatCompletion(model: string, messages: { role: \"user\" | \"developer\" | \"assistant\"; content: string; }[], options: { max_tokens?: number | undefined; temperature?: number | undefined; top_p?: number | undefined; n?: number | undefined; stop?: string | string[] | undefined; user?: string | undefined; store?: boolean | undefined; }):ChatCompletion",
+              "extractChatReply(completion: ChatCompletion):string | null",
+              "generateChatReply(model: string, messages: { role: \"user\" | \"developer\" | \"assistant\"; content: string; }[], options: { max_tokens?: number | undefined; temperature?: number | undefined; top_p?: number | undefined; stop?: string | string[] | undefined; user?: string | undefined; store?: boolean | undefined; }):Promise<string | null>",
+              "extendConversation(history: { role: \"user\" | \"developer\" | \"assistant\"; content: string; }[], newMessages: { role: \"user\" | \"developer\" | \"assistant\"; content: string; }[]):{ role: \"user\" | \"developer\" | \"assistant\"; content: string; }[]"
+            ],
+            "classes": []
+          },
+          {
+            "file": "gpt-api-connector.ts",
+            "functions": [
+              "initOpenAI(apiKey: string, project: string):void",
+              "getOpenAI():OpenAI"
+            ],
+            "classes": []
+          },
+          {
+            "file": "gpt-api-model-helper.ts",
+            "functions": [
+              "evaluatePrompt(inputTokens: number, outputTokens: number, intelligence: \"basic\" | \"intermediate\" | \"advanced\"):PromptEvaluation",
+              "estimateTokens(text: string):number",
+              "getSuitableModels(inputTokens: number, outputTokens: number):Model",
+              "estimateTokensFromWords(words: number):number",
+              "estimateTokensForResponse(inputWords: number, responseSize: \"sentence\" | \"paragraph\" | \"page\" | \"multi-page\"):{ inputTokens: number; outputTokens: number; totalTokens: number; }",
+              "estimateTokensFromPrompt(prompt: string, responseSize: \"sentence\" | \"paragraph\" | \"page\" | \"multi-page\"):{ inputTokens: number; outputTokens: number; totalTokens: number; }"
+            ],
+            "classes": []
+          },
+          {
+            "file": "gpt-api-models.model.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "file": "gpt-api-thread.ts",
+            "functions": [
+              "createNewThread(purpose: string, createdBy: string):Promise<string | null>",
+              "addThreadMessage(threadId: string, role: \"user\" | \"assistant\", content: string):Promise<string | null>",
+              "addMultipleMessages(threadId: string, messages: { role: \"user\" | \"assistant\"; content: string; }[]):Promise<string[]>",
+              "fetchThreadMessages(threadId: string, limit: number, order: \"asc\" | \"desc\"):MessagesPage",
+              "startAssistantRun(threadId: string, assistantId: string, instructions: string | undefined):Promise<string | null>",
+              "waitForRunCompletion(threadId: string, assistantId: string, instructions: string | undefined):Run",
+              "getRunDetails(threadId: string, runId: string):Run",
+              "extractAssistantReply(messages: MessagesPage):string | null",
+              "getAssistantReply(threadId: string):Promise<string | null>",
+              "queryAssistant(assistantId: string, prompt: string, instructions: string | undefined):Promise<string | null>"
+            ],
+            "classes": []
+          },
+          {
+            "file": "gpt-api.config.ts",
+            "functions": [],
+            "classes": []
+          }
+        ]
+      },
+      {
+        "folder": "sqlite-services",
+        "content": [
+          {
+            "file": "assistant-full.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "FullAssistantService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getFullAssistantWithDetails(id: string):AssistantWithDetails",
+                  "getFullAssistantWithDetailsEfficient(id: string):AssistantWithDetails"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "assistant.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "AssistantService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getAllAssistants():AssistantRow",
+                  "getAssistantById(id: string):AssistantRow",
+                  "addAssistant(assistant: Assistant):Promise<string>",
+                  "updateAssistant(id: string, updates: Assistant):Promise<boolean>",
+                  "deleteAssistant(id: string):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "feedback.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "FeedbackService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getFeedbackById(id: string):Feedback",
+                  "getFeedbackByTarget(targetId: string, targetType: \"assistant\" | \"memory\" | \"task\"):Feedback",
+                  "addFeedback(feedback: Feedback):Promise<string>",
+                  "updateFeedback(id: string, updates: Feedback):Promise<boolean>",
+                  "deleteFeedback(id: string):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "focused-memory.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "FocusedMemoryService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getFocusedMemoriesByAssistantId(assistantId: string):Memory",
+                  "getFocusedMemories(memoryFocusId: string):Memory",
+                  "addFocusedMemory(memoryFocusId: string, memoryId: string):Promise<boolean>",
+                  "removeFocusedMemory(memoryFocusId: string, memoryId: string):Promise<boolean>",
+                  "updateFocusedMemories(memoryFocusId: string, memoryIds: string[]):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "memory-extra.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "MemoryExtraService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getAllMemories():Memory",
+                  "getMemoriesByTags(tags: string[]):Memory",
+                  "updateMemoryTags(memoryId: string, newTags: string[]):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "memory-focus-rule.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "MemoryFocusRuleService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getMemoryFocusRules(assistantId: string):MemoryFocusRule",
+                  "updateMemoryFocusRule(id: string, updates: MemoryFocusRule):Promise<boolean>",
+                  "removeMemoryFocusRule(id: string):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "memory.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "MemoryService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "addMemory(memory: Memory):Promise<string>",
+                  "removeMemory(memoryId: string):Promise<void>",
+                  "updateMemory(id: string, updates: Memory):Promise<void>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "owned-memory.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "OwnedMemoryService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getMemoriesByAssistantId(assistantId: string):Memory",
+                  "getOwnedMemories(assistantId: string):Memory",
+                  "addOwnedMemory(assistantId: string, memoryId: string):Promise<boolean>",
+                  "removeOwnedMemory(assistantId: string, memoryId: string):Promise<boolean>",
+                  "updateOwnedMemories(assistantId: string, memoryIds: string[]):Promise<boolean>"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "relationship-graph.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "RelationshipGraphService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getAllRelationships():RelationshipGraph",
+                  "getRelationshipsBySource(targetId: string, type: \"assistant\" | \"memory\" | \"task\"):RelationshipGraph",
+                  "addRelationship(relationship: RelationshipGraph):Promise<string>",
+                  "updateRelationship(id: string, updates: RelationshipGraph):Promise<boolean>",
+                  "deleteRelationship(id: string):Promise<boolean>",
+                  "transformRow(row: RelationshipGraphRow):RelationshipGraph"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "tag-extra.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "TagExtraService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getTagsByEntity(entityId: string, entityType: \"assistant\" | \"memory\" | \"task\"):Tag",
+                  "addTagToEntity(entityId: string, tagId: string, entityType: \"assistant\" | \"memory\" | \"task\"):Promise<boolean>",
+                  "removeTagFromEntity(entityId: string, tagId: string, entityType: \"assistant\" | \"memory\" | \"task\"):Promise<boolean>",
+                  "getTableNameForEntity(entityType: \"assistant\" | \"memory\" | \"task\"):string"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "tag.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "TagService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "addTag(tag: Tag):Promise<string>",
+                  "removeTag(tagId: string):Promise<void>",
+                  "updateTag(id: string, updates: Tag):Promise<void>",
+                  "getTagById(tagId: string):Tag",
+                  "getAllTags():Tag"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "task.service.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "TaskService",
+                "methods": [
+                  "setDb(newDb: BetterSqlite3.Database):void",
+                  "getTaskById(id: string):Task",
+                  "getAllTasks():Task",
+                  "addTask(task: Task):Promise<string>",
+                  "updateTask(id: string, updates: Task):Promise<boolean>",
+                  "deleteTask(id: string):Promise<boolean>",
+                  "getTasksByStatus(status: \"pending\" | \"in_progress\" | \"completed\" | \"failed\"):Task",
+                  "getTasksByAssistant(assistantId: string):Task"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "unique-id.service.ts",
+            "functions": [
+              "generateUniqueId():`${string}-${string}-${string}-${string}-${string}`"
+            ],
+            "classes": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "folder": "tests",
+    "content": [
+      {
+        "folder": "integration",
+        "content": [
+          {
+            "file": "gpt-api-chat-completion.integration.test.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "file": "gpt-assistant.integration.test.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "file": "gpt-threads.integration.test.ts",
+            "functions": [],
+            "classes": []
+          }
+        ]
+      },
+      {
+        "folder": "unit",
+        "content": [
+          {
+            "folder": "gpt-tests",
+            "content": [
+              {
+                "file": "gpt-api-thread.example.ts",
+                "functions": [
+                  "addMessage(threadId: string, role: \"user\" | \"assistant\", content: string):Promise<string | null>",
+                  "runAssistant(threadId: string, assistantId: string):Promise<string | null>",
+                  "runAssistantAndPoll(threadId: string, assistantId: string, instructions: string | undefined):Run",
+                  "getAllMessages(threadId: string, limit: number, order: \"asc\" | \"desc\"):MessagesPage",
+                  "extractAssistantResponse(messages: MessagesPage):string | null",
+                  "getAssistantResponse(threadId: string):Promise<string | null>",
+                  "getRunResults(threadId: string, runId: string):Run",
+                  "getLastAssistantMessage(threadId: string):MessagesPage",
+                  "queryAssistant(assistantId: string, prompt: string):Promise<string | null>",
+                  "addMessages(threadId: string, messages: { role: \"user\" | \"assistant\"; content: string; }[]):Promise<string[]>",
+                  "getMessages(threadId: string, limit: number, order: \"asc\" | \"desc\"):MessagesPage",
+                  "initializeRun(threadId: string, assistantId: string):Promise<string | null>",
+                  "pollRunStatus(threadId: string, runId: string):Run",
+                  "addUserPrompt(threadId: string, prompt: string):Promise<string | null>",
+                  "promptAssistant(threadId: string, assistantId: string, prompt: string):Promise<void>",
+                  "promptAssistantSimple(threadId: string, assistantId: string, prompt: string, instructions: string | undefined):Promise<string | null>"
+                ],
+                "classes": []
+              },
+              {
+                "file": "gpt-assistant-with-functions.example.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "gpt-assistant.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "gpt-crud.example.ts",
+                "functions": [],
+                "classes": []
+              }
+            ]
+          },
+          {
+            "folder": "other-tests",
+            "content": [
+              {
+                "file": "assistant.queries.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "gpt-api-model.helper.test.ts",
+                "functions": [],
+                "classes": []
+              }
+            ]
+          },
+          {
+            "folder": "service-tests",
+            "content": [
+              {
+                "file": "assistant-full.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "assistant.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "database.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "feedback.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "focused-memory.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "memory-extra.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "memory-focus-rule.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "memory.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "owned-memory.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "relationship-graph.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "tag-extra.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "tag.service.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "task.service.test.ts",
+                "functions": [],
+                "classes": []
+              }
+            ]
+          },
+          {
+            "file": "test-db-insert.helper.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "file": "test-db-return.helper.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "file": "test-db.helper.ts",
+            "functions": [],
+            "classes": [
+              {
+                "className": "TestDbHelper",
+                "methods": [
+                  "initialize():BetterSqlite3.Database",
+                  "reset():void",
+                  "close():void",
+                  "getDb():BetterSqlite3.Database",
+                  "loadSchema():void"
+                ]
+              }
+            ]
+          },
+          {
+            "file": "test-object.helper.ts",
+            "functions": [],
+            "classes": []
+          },
+          {
+            "folder": "transformer-tests",
+            "content": [
+              {
+                "file": "assistant-full.transformer.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "assistant.transformer.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "memory-focus-rule.transformer.test.ts",
+                "functions": [],
+                "classes": []
+              },
+              {
+                "file": "memory.transformer.test.ts",
+                "functions": [],
+                "classes": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "folder": "transformers",
+    "content": [
+      {
+        "file": "assistant-full.transformer.ts",
+        "functions": [
+          "transformFullAssistantResult(rows: FullAssistantRows):AssistantWithDetails"
+        ],
+        "classes": []
+      },
+      {
+        "file": "assistant.transformer.ts",
+        "functions": [
+          "transformAssistantRow(row: AssistantRow):Assistant",
+          "transformAssistantWithDetails(assistantRow: AssistantRow, memoryRows: MemoryRow, memoryTags: Tag, assistantTags: TagRow, memoryFocusRuleRow: MemoryFocusRuleRow, feedbackSummaryRows: FeedbackSummaryRow):AssistantWithDetails"
+        ],
+        "classes": []
+      },
+      {
+        "file": "memory-focus-rule.transformer.ts",
+        "functions": [
+          "transformMemoryFocusRuleRow(row: MemoryFocusRuleRow):MemoryFocusRule"
+        ],
+        "classes": []
+      },
+      {
+        "file": "memory.transformer.ts",
+        "functions": [
+          "transformMemoryRow(row: MemoryRow, tags: Tag):Memory"
+        ],
+        "classes": []
+      },
+      {
+        "file": "tag.transformer.ts",
+        "functions": [
+          "transformTagRow(row: TagRow):Tag"
+        ],
+        "classes": []
+      }
+    ]
+  }
+]

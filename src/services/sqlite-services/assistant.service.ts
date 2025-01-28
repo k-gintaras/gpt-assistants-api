@@ -1,25 +1,30 @@
 import Database from 'better-sqlite3';
-import { Assistant, AssistantRow } from '../models/assistant.model';
+import { Assistant, AssistantRow } from '../../models/assistant.model';
 import { generateUniqueId } from './unique-id.service';
 
-export const assistantService = {
-  db: new Database(':memory:'), // Default database instance
+export class AssistantService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
+
   // Fetch all assistants
   getAllAssistants(): AssistantRow[] {
     const stmt = this.db.prepare('SELECT * FROM assistants');
     return stmt.all() as AssistantRow[];
-  },
+  }
 
   // Fetch a single assistant by ID
   getAssistantById(id: string): AssistantRow | null {
     const stmt = this.db.prepare('SELECT * FROM assistants WHERE id = ?');
     const result = stmt.get(id);
     return result ? (result as AssistantRow) : null;
-  },
+  }
 
   // Add a new assistant
   async addAssistant(assistant: Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
@@ -28,14 +33,14 @@ export const assistantService = {
     const updatedAt = createdAt;
 
     const stmt = this.db.prepare(`
-      INSERT INTO assistants (id, name, description, type, instructions, createdAt, updatedAt)
+      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, assistant.name, assistant.description, assistant.type, assistant.instructions || null, createdAt, updatedAt);
+    stmt.run(id, assistant.name, assistant.description, assistant.type, assistant.model, createdAt, updatedAt);
 
     return id;
-  },
+  }
 
   // Update an existing assistant
   async updateAssistant(id: string, updates: Partial<Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
@@ -51,7 +56,7 @@ export const assistantService = {
         name = COALESCE(?, name),
         description = COALESCE(?, description),
         type = COALESCE(?, type),
-        instructions = COALESCE(?, instructions),
+        model = COALESCE(?, model),
         updatedAt = ?
       WHERE id = ?
     `);
@@ -60,13 +65,13 @@ export const assistantService = {
       updates.name || null,
       updates.description || null,
       updates.type || null,
-      updates.instructions || null,
+      updates.model || null,
       new Date().toISOString(), // updatedAt
       id
     );
 
     return true;
-  },
+  }
 
   // Delete an assistant by ID
   async deleteAssistant(id: string): Promise<boolean> {
@@ -78,5 +83,5 @@ export const assistantService = {
     const result = stmt.run(id);
 
     return result.changes > 0; // Returns true if the assistant was deleted
-  },
-};
+  }
+}

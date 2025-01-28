@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { Task } from '../../../models/task.model';
-import { taskService } from '../../../services/task.service';
-
+import { TaskService } from '../../../services/sqlite-services/task.service';
+let taskService: TaskService;
 describe('Task Service', () => {
   beforeAll(() => {
     const db = new Database(':memory:');
@@ -18,7 +18,7 @@ describe('Task Service', () => {
         updatedAt TEXT NOT NULL
       );
     `);
-    taskService.setDb(db);
+    taskService = new TaskService(db);
   });
 
   afterAll(() => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Assistant } from '../models/assistant.model';
-import { assistantService } from '../services/assistant.service';
+import { assistantService } from '../services/sqlite-services/assistant.service';
 
 export const getAllAssistants = async (_req: Request, res: Response) => {
   try {

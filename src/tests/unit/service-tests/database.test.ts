@@ -20,15 +20,15 @@ afterEach(() => {
 
 describe('Advanced Database Schema Tests', () => {
   // Helper functions
-  const insertAssistant = (id: string, type: string = 'completion') => {
+  const insertAssistant = (id: string, type: string = 'chat', model: string = 'gpt-3.5-turbo') => {
     return db
       .prepare(
         `
-      INSERT INTO assistants (id, name, type, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO assistants (id, name, type, model, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?)
     `
       )
-      .run(id, `Assistant ${id}`, type, new Date().toISOString(), new Date().toISOString());
+      .run(id, `Assistant ${id}`, type, model, new Date().toISOString(), new Date().toISOString());
   };
 
   const insertMemory = (id: string, type: string = 'knowledge') => {
@@ -41,43 +41,6 @@ describe('Advanced Database Schema Tests', () => {
       )
       .run(id, type, `Memory ${id}`, new Date().toISOString(), new Date().toISOString());
   };
-
-  // const insertUser = (id: string) => {
-  //   return db
-  //     .prepare(
-  //       `
-  //     INSERT INTO users (id, name, defaultAssistantType, feedbackFrequency, createdAt, updatedAt)
-  //     VALUES (?, ?, ?, ?, ?, ?)
-  //   `
-  //     )
-  //     .run(id, `User ${id}`, 'completion', 'sometimes', new Date().toISOString(), new Date().toISOString());
-  // };
-
-  describe('Assistants', () => {
-    // ! redundant, there is no direct tags
-    // test('should handle JSON arrays in tags field', () => {
-    //   const tags = JSON.stringify(['tag1', 'tag2']);
-    //   const stmt = db.prepare(`
-    //     INSERT INTO assistants (id, name, type, tags, createdAt, updatedAt)
-    //     VALUES (?, ?, ?, ?, ?, ?)
-    //   `);
-    //   expect(() => stmt.run('1', 'Test', 'completion', tags, new Date().toISOString(), new Date().toISOString())).not.toThrow();
-    //   const result = db.prepare('SELECT tags FROM assistants WHERE id = ?').get('1') as { tags: string };
-    //   expect(JSON.parse(result.tags)).toEqual(['tag1', 'tag2']);
-    // });
-    // test('should track feedback counts correctly', () => {
-    //   insertAssistant('1');
-    //   const updateFeedback = db.prepare(`
-    //     UPDATE assistants
-    //     SET feedback_positive = feedback_positive + 1,
-    //         feedback_lastFeedbackDate = ?
-    //     WHERE id = ?
-    //   `);
-    //   updateFeedback.run(new Date().toISOString(), '1');
-    //   const result = db.prepare('SELECT feedback_positive FROM assistants WHERE id = ?').get('1') as { feedback_positive: number };
-    //   expect(result.feedback_positive).toBe(1);
-    // });
-  });
 
   describe('Memory Management', () => {
     test('should handle complex memory relationships', () => {
@@ -110,7 +73,7 @@ describe('Advanced Database Schema Tests', () => {
     });
 
     test('should enforce memory focus rules', () => {
-      insertAssistant('a1');
+      insertAssistant('a1', 'assistant', 'gpt-4');
 
       const createRule = db.prepare(`
         INSERT INTO memory_focus_rules (id, assistant_id, maxResults, relationshipTypes, priorityTags, createdAt, updatedAt)
@@ -129,7 +92,7 @@ describe('Advanced Database Schema Tests', () => {
 
   describe('Task Management', () => {
     test('should handle task lifecycle', () => {
-      insertAssistant('a1');
+      insertAssistant('a1', 'chat', 'gpt-3.5-turbo');
 
       const createTask = db.prepare(`
         INSERT INTO tasks (id, description, assignedAssistant, status, inputData, createdAt, updatedAt)
@@ -162,26 +125,6 @@ describe('Advanced Database Schema Tests', () => {
     });
   });
 
-  // ! redundant, user stuff is basically assistant and task
-  // describe('User Queries', () => {
-  //   test('should track user queries and results', () => {
-  //     insertUser('u1');
-
-  //     const createQuery = db.prepare(`
-  //       INSERT INTO queries (id, userId, input, results, createdAt, updatedAt)
-  //       VALUES (?, ?, ?, ?, ?, ?)
-  //     `);
-
-  //     const results = JSON.stringify(['result1', 'result2']);
-  //     const now = new Date().toISOString();
-
-  //     expect(() => createQuery.run('q1', 'u1', 'test query', results, now, now)).not.toThrow();
-
-  //     const query = db.prepare('SELECT * FROM queries WHERE id = ?').get('q1') as { results: string };
-  //     expect(JSON.parse(query.results)).toEqual(['result1', 'result2']);
-  //   });
-  // });
-
   describe('Tags and Relationships', () => {
     test('should manage entity tagging', () => {
       // Create tags
@@ -190,7 +133,7 @@ describe('Advanced Database Schema Tests', () => {
       createTag.run('t2', 'urgent');
 
       // Create assistant and memory
-      insertAssistant('a1');
+      insertAssistant('a1', 'assistant', 'gpt-4');
       insertMemory('m1');
 
       // Tag assistant

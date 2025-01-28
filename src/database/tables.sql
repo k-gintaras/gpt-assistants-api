@@ -3,10 +3,10 @@ CREATE TABLE IF NOT EXISTS assistants (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
-  type TEXT CHECK(type IN ('completion', 'chat', 'assistant')) NOT NULL,
-  instructions TEXT,
+  type TEXT CHECK(type IN ('chat', 'assistant')) NOT NULL,
+  model TEXT NOT NULL, -- Specifies the GPT model
   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
-  updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
+  updatedAt TEXT NOT NULL -- ISO 8601 formatted date
 );
 
 

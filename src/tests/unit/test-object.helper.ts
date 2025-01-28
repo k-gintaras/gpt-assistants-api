@@ -5,9 +5,9 @@ export const testFullAssistantObject: AssistantWithDetails = {
   name: 'Test Assistant',
   description: 'A test assistant',
   type: 'chat',
-  instructions: undefined,
-  createdAt: new Date('2025-01-01T10:00:00Z'),
-  updatedAt: new Date('2025-01-02T10:00:00Z'),
+  model: 'gpt-4o',
+  createdAt: '2025-01-01T10:00:00Z',
+  updatedAt: '2025-01-02T10:00:00Z',
   assistantTags: [
     { id: 'tag1', name: 'Test Tag 1' },
     { id: 'tag2', name: 'Test Tag 2' },

@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
-import { tagExtraService } from '../../../services/tag-extra.service';
-
+import { TagExtraService } from '../../../services/sqlite-services/tag-extra.service';
+let tagExtraService: TagExtraService;
 describe('Tag Extra Service', () => {
   beforeAll(() => {
     const db = new Database(':memory:');
@@ -29,7 +29,7 @@ describe('Tag Extra Service', () => {
         PRIMARY KEY (task_id, tag_id)
       );
     `);
-    tagExtraService.setDb(db);
+    tagExtraService = new TagExtraService(db);
   });
 
   afterAll(() => {

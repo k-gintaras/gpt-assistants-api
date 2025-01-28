@@ -34,13 +34,14 @@ export const models: Record<string, Model> = {
     description: 'Fast, affordable, smaller model.',
     useCase: 'Cost-effective tasks, fine-tuning.',
   },
-  o1: {
-    alias: 'o1',
-    contextWindow: 200000,
-    maxOutputTokens: 100000,
-    description: 'Advanced reasoning with step-by-step logic.',
-    useCase: 'Solving hard problems, detailed reasoning.',
-  },
+  // ! not available
+  // o1: {
+  //   alias: 'o1',
+  //   contextWindow: 200000,
+  //   maxOutputTokens: 100000,
+  //   description: 'Advanced reasoning with step-by-step logic.',
+  //   useCase: 'Solving hard problems, detailed reasoning.',
+  // },
   'o1-mini': {
     alias: 'o1-mini',
     contextWindow: 128000,

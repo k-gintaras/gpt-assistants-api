@@ -1,13 +1,14 @@
-import { memoryService } from '../../../services/memory.service';
 import { testDbHelper } from '../test-db.helper';
 import Database from 'better-sqlite3';
 import { Memory, MemoryRow } from '../../../models/memory.model';
+import { MemoryService } from '../../../services/sqlite-services/memory.service';
 
 let db: Database.Database;
+let memoryService: MemoryService;
 
 beforeEach(() => {
   db = testDbHelper.initialize();
-  memoryService.setDb(db);
+  memoryService = new MemoryService(db);
 
   // Insert some sample tags for association
   db.prepare(`INSERT INTO tags (id, name) VALUES ('1', 'tag1'), ('2', 'tag2'), ('3', 'tag3')`).run();

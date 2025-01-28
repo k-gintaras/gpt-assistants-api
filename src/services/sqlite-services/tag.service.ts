@@ -1,13 +1,17 @@
 import { generateUniqueId } from './unique-id.service';
-import { Tag } from '../models/tag.model';
+import { Tag } from '../../models/tag.model';
 import Database from 'better-sqlite3';
 
-export const tagService = {
-  db: new Database(':memory:'), // Default database instance
+export class TagService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
-  },
+  }
 
   /**
    * Add a new tag.
@@ -23,7 +27,7 @@ export const tagService = {
     stmt.run(id, tag.name);
 
     return id;
-  },
+  }
 
   /**
    * Remove a tag by ID.
@@ -31,8 +35,7 @@ export const tagService = {
   async removeTag(tagId: string): Promise<void> {
     const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?');
     stmt.run(tagId);
-  },
-
+  }
   /**
    * Update an existing tag.
    */
@@ -44,7 +47,7 @@ export const tagService = {
     `);
 
     stmt.run(updates.name || null, id);
-  },
+  }
 
   /**
    * Fetch a tag by ID.
@@ -56,7 +59,7 @@ export const tagService = {
 
     const result = stmt.get(tagId);
     return result ? (result as Tag) : null;
-  },
+  }
 
   /**
    * Fetch all tags.
@@ -67,5 +70,5 @@ export const tagService = {
     `);
 
     return stmt.all() as Tag[];
-  },
-};
+  }
+}

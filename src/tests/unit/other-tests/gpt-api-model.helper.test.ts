@@ -64,7 +64,7 @@ describe('Token Utility Functions', () => {
           alias: 'gpt-4o',
         }),
         expect.objectContaining({
-          alias: 'o1',
+          alias: 'o1-mini',
         }),
       ])
     );
@@ -84,7 +84,7 @@ describe('Token Utility Functions', () => {
 
 describe('Model Definitions', () => {
   it('should include all defined models', () => {
-    const expectedModels = ['gpt-4o', 'gpt-4o-mini', 'o1', 'o1-mini', 'gpt-4-turbo', 'gpt-3.5-turbo-16k'];
+    const expectedModels = ['gpt-4o', 'gpt-4o-mini', 'o1-mini', 'gpt-4-turbo', 'gpt-3.5-turbo-16k'];
     const actualModels = Object.keys(models);
     expect(actualModels).toEqual(expect.arrayContaining(expectedModels));
   });

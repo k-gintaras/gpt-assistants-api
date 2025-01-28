@@ -13,6 +13,7 @@ digraph G {
   "routes" [shape=folder];
   "services" [shape=folder];
   "gpt-api" [shape=folder];
+  "sqlite-services" [shape=folder];
   "tests" [shape=folder];
   "integration" [shape=folder];
   "unit" [shape=folder];
@@ -23,6 +24,7 @@ digraph G {
   "transformers" [shape=folder];
   "models" -> "service-models";
   "services" -> "gpt-api";
+  "services" -> "sqlite-services";
   "tests" -> "integration";
   "tests" -> "unit";
   "unit" -> "gpt-tests";

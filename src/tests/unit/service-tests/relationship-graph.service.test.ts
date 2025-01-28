@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3';
-import { relationshipGraphService } from '../../../services/relationship-graph.service';
 import { RelationshipGraph } from '../../../models/relationship.model';
+import { RelationshipGraphService } from '../../../services/sqlite-services/relationship-graph.service';
 
+let relationshipGraphService: RelationshipGraphService;
 describe('Relationship Graph Service', () => {
   beforeAll(() => {
     const db = new Database(':memory:');
@@ -16,7 +17,7 @@ describe('Relationship Graph Service', () => {
         updatedAt TEXT NOT NULL
       );
     `);
-    relationshipGraphService.setDb(db);
+    relationshipGraphService = new RelationshipGraphService(db);
   });
 
   afterAll(() => {

@@ -1,14 +1,14 @@
 import Database from 'better-sqlite3';
-import { fullAssistantService } from '../../../services/assistant-full.service';
+import { FullAssistantService } from '../../../services/sqlite-services/assistant-full.service';
 import { testDbHelper } from '../test-db.helper';
 import { insertHelpers } from '../test-db-insert.helper';
 import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../../../queries/assistant.queries';
 
 let db: Database.Database;
-
+let fullAssistantService: FullAssistantService;
 beforeEach(() => {
   db = testDbHelper.initialize();
-  fullAssistantService.setDb(db);
+  fullAssistantService = new FullAssistantService(db);
   insertHelpers.insertFullAssistantSetup(db, '1');
 });
 

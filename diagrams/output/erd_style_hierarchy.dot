@@ -1,0 +1,83 @@
+
+digraph G {
+  rankdir=TB; // Change layout to Top-to-Bottom
+  nodesep=0.5; // Adjust horizontal spacing
+  ranksep=1;   // Adjust vertical spacing
+  node [fontname="Arial"];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">src</TD></TR>
+  <TR><TD>app-test.ts</TD></TR><TR><TD>app.ts</TD></TR><TR><TD>index.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\controllers_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">controllers</TD></TR>
+  <TR><TD>assistant.controller.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\data_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">data</TD></TR>
+  
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\database_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">database</TD></TR>
+  <TR><TD>database.ts</TD></TR><TR><TD>init.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\models_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">models</TD></TR>
+  <TR><TD>assistant.model.ts</TD></TR><TR><TD>feedback.model.ts</TD></TR><TR><TD>focused-memory.model.ts</TD></TR><TR><TD>memory.model.ts</TD></TR><TR><TD>promotion-criteria.model.ts</TD></TR><TR><TD>relationship.model.ts</TD></TR><TR><TD>tag.model.ts</TD></TR><TR><TD>task.model.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\models\service-models_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">service-models</TD></TR>
+  <TR><TD>connector.service.model.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\queries_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">queries</TD></TR>
+  <TR><TD>assistant.queries.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\routes_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">routes</TD></TR>
+  <TR><TD>assistant.routes.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\services_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">services</TD></TR>
+  
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\services\gpt-api_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">gpt-api</TD></TR>
+  <TR><TD>gpt-api-assistant.ts</TD></TR><TR><TD>gpt-api-chat-completion.ts</TD></TR><TR><TD>gpt-api-connector.ts</TD></TR><TR><TD>gpt-api-model-helper.ts</TD></TR><TR><TD>gpt-api-models.model.ts</TD></TR><TR><TD>gpt-api-thread.ts</TD></TR><TR><TD>gpt-api.config.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\services\sqlite-services_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">sqlite-services</TD></TR>
+  <TR><TD>assistant-full.service.ts</TD></TR><TR><TD>assistant.service.ts</TD></TR><TR><TD>feedback.service.ts</TD></TR><TR><TD>focused-memory.service.ts</TD></TR><TR><TD>memory-extra.service.ts</TD></TR><TR><TD>memory-focus-rule.service.ts</TD></TR><TR><TD>memory.service.ts</TD></TR><TR><TD>owned-memory.service.ts</TD></TR><TR><TD>relationship-graph.service.ts</TD></TR><TR><TD>tag-extra.service.ts</TD></TR><TR><TD>tag.service.ts</TD></TR><TR><TD>task.service.ts</TD></TR><TR><TD>unique-id.service.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">tests</TD></TR>
+  
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\integration_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">integration</TD></TR>
+  <TR><TD>gpt-api-chat-completion.integration.test.ts</TD></TR><TR><TD>gpt-assistant.integration.test.ts</TD></TR><TR><TD>gpt-threads.integration.test.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\unit_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">unit</TD></TR>
+  <TR><TD>test-db-insert.helper.ts</TD></TR><TR><TD>test-db-return.helper.ts</TD></TR><TR><TD>test-db.helper.ts</TD></TR><TR><TD>test-object.helper.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\unit\gpt-tests_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">gpt-tests</TD></TR>
+  <TR><TD>gpt-api-thread.example.ts</TD></TR><TR><TD>gpt-assistant-with-functions.example.ts</TD></TR><TR><TD>gpt-assistant.test.ts</TD></TR><TR><TD>gpt-crud.example.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\unit\other-tests_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">other-tests</TD></TR>
+  <TR><TD>assistant.queries.test.ts</TD></TR><TR><TD>gpt-api-model.helper.test.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\unit\service-tests_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">service-tests</TD></TR>
+  <TR><TD>assistant-full.service.test.ts</TD></TR><TR><TD>assistant.service.test.ts</TD></TR><TR><TD>database.test.ts</TD></TR><TR><TD>feedback.service.test.ts</TD></TR><TR><TD>focused-memory.service.test.ts</TD></TR><TR><TD>memory-extra.service.test.ts</TD></TR><TR><TD>memory-focus-rule.service.test.ts</TD></TR><TR><TD>memory.service.test.ts</TD></TR><TR><TD>owned-memory.service.test.ts</TD></TR><TR><TD>relationship-graph.service.test.ts</TD></TR><TR><TD>tag-extra.service.test.ts</TD></TR><TR><TD>tag.service.test.ts</TD></TR><TR><TD>task.service.test.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\tests\unit\transformer-tests_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">transformer-tests</TD></TR>
+  <TR><TD>assistant-full.transformer.test.ts</TD></TR><TR><TD>assistant.transformer.test.ts</TD></TR><TR><TD>memory-focus-rule.transformer.test.ts</TD></TR><TR><TD>memory.transformer.test.ts</TD></TR>
+</TABLE>>];
+  "C:\Users\Ubaby\NodeJS Projects\gpt-assistants-api\gpt-assistants-api\src\transformers_files" [shape=plaintext label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD COLSPAN="1" BGCOLOR="lightblue">transformers</TD></TR>
+  <TR><TD>assistant-full.transformer.ts</TD></TR><TR><TD>assistant.transformer.ts</TD></TR><TR><TD>memory-focus-rule.transformer.ts</TD></TR><TR><TD>memory.transformer.ts</TD></TR><TR><TD>tag.transformer.ts</TD></TR>
+</TABLE>>];
+}

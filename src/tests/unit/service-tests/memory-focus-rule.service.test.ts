@@ -1,12 +1,13 @@
-import { memoryFocusRuleService } from '../../../services/memory-focus-rule.service';
 import { testDbHelper } from '../test-db.helper';
 import { insertHelpers } from '../test-db-insert.helper';
+import { MemoryFocusRuleService } from '../../../services/sqlite-services/memory-focus-rule.service';
 
 let db;
+let memoryFocusRuleService: MemoryFocusRuleService;
 
 beforeEach(() => {
   db = testDbHelper.initialize();
-  memoryFocusRuleService.setDb(db);
+  memoryFocusRuleService = new MemoryFocusRuleService(db);
 
   // Insert initial data for tests
   insertHelpers.insertAssistant(db, '1'); // Ensure the assistant exists

@@ -1,15 +1,14 @@
-import { ownedMemoryService } from '../../../services/owned-memory.service';
 import { testDbHelper } from '../test-db.helper';
 import Database from 'better-sqlite3';
 import { insertHelpers } from '../test-db-insert.helper';
 import { OwnedMemoryRow } from '../../../models/focused-memory.model';
+import { OwnedMemoryService } from '../../../services/sqlite-services/owned-memory.service';
 
 let db: Database.Database;
-
+let ownedMemoryService: OwnedMemoryService;
 beforeEach(() => {
   db = testDbHelper.initialize();
-  ownedMemoryService.setDb(db);
-
+  ownedMemoryService = new OwnedMemoryService(db);
   // Insert test data
   insertHelpers.insertAssistant(db, '1'); // Ensure the assistant exists
   insertHelpers.insertMemories(db); // Insert memories

@@ -1,12 +1,16 @@
 import Database from 'better-sqlite3';
-import { Tag } from '../models/tag.model';
+import { Tag } from '../../models/tag.model';
 
-export const tagExtraService = {
-  db: new Database(':memory:'),
+export class TagExtraService {
+  db = new Database(':memory:'); // Default database instance
+
+  constructor(newDb: Database.Database) {
+    this.setDb(newDb);
+  }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Override the database instance
-  },
+  }
 
   // Fetch tags associated with an entity
   getTagsByEntity(entityId: string, entityType: 'memory' | 'assistant' | 'task'): Tag[] {
@@ -18,7 +22,7 @@ export const tagExtraService = {
       WHERE et.${entityType}_id = ?
     `);
     return stmt.all(entityId) as Tag[];
-  },
+  }
 
   // Associate a tag with an entity
   async addTagToEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
@@ -36,7 +40,7 @@ export const tagExtraService = {
       console.error('Error adding tag to entity:', error);
       return false;
     }
-  },
+  }
 
   // Remove a tag from an entity
   async removeTagFromEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
@@ -49,7 +53,7 @@ export const tagExtraService = {
 
     const result = stmt.run(entityId, tagId);
     return result.changes > 0;
-  },
+  }
 
   // Utility: Map entity type to table name
   getTableNameForEntity(entityType: 'memory' | 'assistant' | 'task'): string {
@@ -59,5 +63,5 @@ export const tagExtraService = {
       task: 'task_tags',
     };
     return tableMap[entityType];
-  },
-};
+  }
+}
