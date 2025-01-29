@@ -1,9 +1,9 @@
 import { MemoryFocusRule } from './focused-memory.model';
-import { Memory } from './memory.model';
+import { MemoryWithTags } from './memory.model';
 import { Tag } from './tag.model';
 
 export interface AssistantWithDetails extends Assistant {
-  focusedMemories: Memory[]; // Relevant memories based on the assistant's focus
+  focusedMemories: MemoryWithTags[]; // Relevant memories based on the assistant's focus
   memoryFocusRule?: MemoryFocusRule; // Rules guiding memory selection
   assistantTags?: Tag[]; // Tags associated with the assistant
   feedbackSummary: FeedbackSummary; // Aggregate feedback calculated from tasks

@@ -1,5 +1,6 @@
 import { AssistantWithDetails, FeedbackSummary } from '../models/assistant.model';
-import { Memory } from '../models/memory.model';
+import { MemoryFocusRule } from '../models/focused-memory.model';
+import { Memory, MemoryRow, MemoryWithTags } from '../models/memory.model';
 import { Tag } from '../models/tag.model';
 import { transformMemoryRow } from './memory.transformer';
 
@@ -45,7 +46,6 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     throw new Error('No rows provided for transformation.');
   }
 
-  // Extract assistant details from the first row
   const firstRow = rows[0];
   const feedbackSummary: FeedbackSummary = {
     avgRating: firstRow.avg_rating || 0,
@@ -57,38 +57,47 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     name: firstRow.assistant_name,
     description: firstRow.assistant_description,
     type: firstRow.assistant_type,
-    model: firstRow.assistant_model, // Added model field
+    model: firstRow.assistant_model,
     assistantTags: [], // Populated below
     createdAt: firstRow.assistant_createdAt,
     updatedAt: firstRow.assistant_updatedAt,
-    focusedMemories: [],
-    memoryFocusRule: undefined,
+    focusedMemories: transformMemoriesWithTags(rows),
+    memoryFocusRule: transformMemoryFocusRule(firstRow),
     feedbackSummary,
   };
 
-  // Group assistant tags
-  const assistantTagsMap = new Map<string, Tag>();
-  rows.forEach((row) => {
-    if (row.assistant_tag_id && row.assistant_tag_name) {
-      if (!assistantTagsMap.has(row.assistant_tag_id)) {
-        assistantTagsMap.set(row.assistant_tag_id, {
-          id: row.assistant_tag_id,
-          name: row.assistant_tag_name,
-        });
-      }
-    }
-  });
-  assistant.assistantTags = Array.from(assistantTagsMap.values());
+  const tags: Tag[] = rows
+    .filter((row: FullAssistantRows) => row.assistant_tag_id && row.assistant_tag_name) // Filter out invalid rows
+    .map((row: FullAssistantRows) => ({ id: row.assistant_tag_id!, name: row.assistant_tag_name! })); // Map to Tag objects
 
-  // Group and transform focused memories
-  const focusedMemoriesMap = new Map<string, { row: FullAssistantRows; tags: Tag[] }>();
+  // Remove duplicates by using a Map
+  assistant.assistantTags = Array.from(new Map(tags.map((tag) => [tag.id, tag])).values());
+
+  return assistant;
+}
+
+function transformMemoriesWithTags(rows: FullAssistantRows[]): MemoryWithTags[] {
+  const memoriesMap = new Map<string, { memory: MemoryRow; tags: Tag[] }>();
+
   rows.forEach((row) => {
     if (row.memory_id) {
-      if (!focusedMemoriesMap.has(row.memory_id)) {
-        focusedMemoriesMap.set(row.memory_id, { row, tags: [] });
+      const memoryId = row.memory_id;
+      if (!memoriesMap.has(memoryId)) {
+        memoriesMap.set(memoryId, {
+          memory: {
+            id: memoryId,
+            type: row.memory_type as Memory['type'],
+            description: row.memory_description,
+            data: row.memory_data,
+            createdAt: row.memory_createdAt!,
+            updatedAt: row.memory_updatedAt!,
+          },
+          tags: [],
+        });
       }
+
       if (row.memory_tag_id && row.memory_tag_name) {
-        focusedMemoriesMap.get(row.memory_id)?.tags.push({
+        memoriesMap.get(memoryId)?.tags.push({
           id: row.memory_tag_id,
           name: row.memory_tag_name,
         });
@@ -96,39 +105,20 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     }
   });
 
-  assistant.focusedMemories = Array.from(focusedMemoriesMap.values())
-    .map(({ row, tags }) => {
-      if (!row.memory_id || !row.memory_type) {
-        console.warn(`Skipping row with incomplete memory details: ${JSON.stringify(row)}`);
-        return null;
-      }
+  return Array.from(memoriesMap.values()).map(({ memory, tags }) => transformMemoryRow(memory, tags));
+}
 
-      return transformMemoryRow(
-        {
-          id: row.memory_id,
-          type: row.memory_type as Memory['type'], // Cast safely after null-check
-          description: row.memory_description || null,
-          data: row.memory_data,
-          createdAt: row.memory_createdAt!,
-          updatedAt: row.memory_updatedAt!,
-        },
-        tags
-      );
-    })
-    .filter((memory): memory is Memory => memory !== null); // Filter out nulls
+// Helper to transform focus rules
+function transformMemoryFocusRule(row: FullAssistantRows): MemoryFocusRule | undefined {
+  if (!row.focus_rule_id) return undefined;
 
-  // Transform memory focus rule (if exists)
-  if (firstRow.focus_rule_id) {
-    assistant.memoryFocusRule = {
-      id: firstRow.focus_rule_id,
-      assistantId: firstRow.assistant_id,
-      maxResults: firstRow.focus_rule_maxResults || 0,
-      relationshipTypes: JSON.parse(firstRow.focus_rule_relationshipTypes || '[]'),
-      priorityTags: JSON.parse(firstRow.focus_rule_priorityTags || '[]'),
-      createdAt: firstRow.focus_rule_createdAt ? new Date(firstRow.focus_rule_createdAt) : new Date(),
-      updatedAt: firstRow.focus_rule_updatedAt ? new Date(firstRow.focus_rule_updatedAt) : new Date(),
-    };
-  }
-
-  return assistant;
+  return {
+    id: row.focus_rule_id,
+    assistantId: row.assistant_id,
+    maxResults: row.focus_rule_maxResults || 0,
+    relationshipTypes: JSON.parse(row.focus_rule_relationshipTypes || '[]'),
+    priorityTags: JSON.parse(row.focus_rule_priorityTags || '[]'),
+    createdAt: row.focus_rule_createdAt ? new Date(row.focus_rule_createdAt) : new Date(),
+    updatedAt: row.focus_rule_updatedAt ? new Date(row.focus_rule_updatedAt) : new Date(),
+  };
 }

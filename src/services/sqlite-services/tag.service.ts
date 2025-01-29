@@ -32,21 +32,26 @@ export class TagService {
   /**
    * Remove a tag by ID.
    */
-  async removeTag(tagId: string): Promise<void> {
+  async removeTag(tagId: string): Promise<boolean> {
     const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?');
-    stmt.run(tagId);
+    const result = stmt.run(tagId);
+    return result.changes > 0;
   }
   /**
    * Update an existing tag.
    */
-  async updateTag(id: string, updates: Partial<Omit<Tag, 'id'>>): Promise<void> {
+  async updateTag(id: string, updates: Partial<Omit<Tag, 'id'>>): Promise<boolean> {
     const stmt = this.db.prepare(`
       UPDATE tags
       SET name = COALESCE(?, name)
       WHERE id = ?
     `);
 
-    stmt.run(updates.name || null, id);
+    const result = stmt.run(updates.name || null, id);
+    if (result.changes === 0) {
+      return false;
+    }
+    return true;
   }
 
   /**

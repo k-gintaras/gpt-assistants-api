@@ -36,8 +36,7 @@ export class TagExtraService {
     try {
       stmt.run(entityId, tagId);
       return true;
-    } catch (error) {
-      console.error('Error adding tag to entity:', error);
+    } catch {
       return false;
     }
   }

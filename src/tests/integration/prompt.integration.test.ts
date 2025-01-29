@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { PromptService } from '../../services/prompt.service';
+import { PromptService } from '../../services/orchestrator-services/prompt.service';
 import { insertHelpers } from '../unit/test-db-insert.helper';
 import { testDbHelper } from '../unit/test-db.helper';
 

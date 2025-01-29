@@ -13,34 +13,32 @@ export class TaskService {
     this.db = newDb; // Allow overriding the database instance
   }
 
-  // Fetch all tasks
+  // Fetch task by ID
   getTaskById(id: string): Task | null {
     const stmt = this.db.prepare('SELECT * FROM tasks WHERE id = ?');
-    const result = stmt.get(id) as TaskRow;
+    const result = stmt.get(id) as TaskRow | undefined;
 
     if (!result) return null;
 
     return {
       ...result,
-      inputData: result.inputData ? JSON.parse(result.inputData) : undefined,
-      outputData: result.outputData ? JSON.parse(result.outputData) : undefined,
       createdAt: new Date(result.createdAt),
       updatedAt: new Date(result.updatedAt),
-    } as Task;
+    };
   }
 
+  // Fetch all tasks
   getAllTasks(): Task[] {
     const stmt = this.db.prepare('SELECT * FROM tasks');
     const results = stmt.all() as TaskRow[];
 
     return results.map((result) => ({
       ...result,
-      inputData: result.inputData ? JSON.parse(result.inputData) : undefined,
-      outputData: result.outputData ? JSON.parse(result.outputData) : undefined,
       createdAt: new Date(result.createdAt),
       updatedAt: new Date(result.updatedAt),
-    })) as Task[];
+    }));
   }
+
   // Add a new task
   async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     const id = generateUniqueId(); // Generate a unique ID for the task
@@ -52,14 +50,23 @@ export class TaskService {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, task.description, task.assignedAssistant, task.status, JSON.stringify(task.inputData || null), JSON.stringify(task.outputData || null), createdAt, updatedAt);
+    stmt.run(
+      id,
+      task.description,
+      task.assignedAssistant,
+      task.status,
+      task.inputData || null, // Save as a string
+      task.outputData || null, // Save as a string
+      createdAt,
+      updatedAt
+    );
 
     return id;
   }
 
   // Update an existing task
   async updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
-    const existingTask = this.db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as Task | undefined;
+    const existingTask = this.db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as TaskRow | undefined;
 
     if (!existingTask) {
       throw new Error(`Task with ID ${id} not found.`);
@@ -81,9 +88,9 @@ export class TaskService {
       updates.description || null,
       updates.assignedAssistant || null,
       updates.status || null,
-      updates.inputData ? JSON.stringify(updates.inputData) : null,
-      updates.outputData ? JSON.stringify(updates.outputData) : null,
-      new Date().toISOString(), // updatedAt
+      updates.inputData || null, // Save as a string
+      updates.outputData || null, // Save as a string
+      new Date().toISOString(),
       id
     );
 
@@ -99,7 +106,7 @@ export class TaskService {
 
     const result = stmt.run(id);
 
-    return result.changes > 0; // Returns true if the task was deleted
+    return result.changes > 0;
   }
 
   // Fetch tasks by status
@@ -110,7 +117,13 @@ export class TaskService {
       WHERE status = ?
     `);
 
-    return stmt.all(status) as Task[];
+    const results = stmt.all(status) as TaskRow[];
+
+    return results.map((result) => ({
+      ...result,
+      createdAt: new Date(result.createdAt),
+      updatedAt: new Date(result.updatedAt),
+    }));
   }
 
   // Fetch tasks assigned to a specific assistant
@@ -121,6 +134,12 @@ export class TaskService {
       WHERE assignedAssistant = ?
     `);
 
-    return stmt.all(assistantId) as Task[];
+    const results = stmt.all(assistantId) as TaskRow[];
+
+    return results.map((result) => ({
+      ...result,
+      createdAt: new Date(result.createdAt),
+      updatedAt: new Date(result.updatedAt),
+    }));
   }
 }

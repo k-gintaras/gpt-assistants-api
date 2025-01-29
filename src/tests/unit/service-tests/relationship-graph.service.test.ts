@@ -52,7 +52,7 @@ describe('Relationship Graph Service', () => {
 
     const relationshipId = await relationshipGraphService.addRelationship(relationship);
 
-    const relationships = relationshipGraphService.getRelationshipsBySource('task1', 'assistant');
+    const relationships = relationshipGraphService.getRelationshipsBySource('task1');
     expect(relationships.length).toBe(1);
     expect(relationships[0].id).toBe(relationshipId);
     expect(relationships[0].type).toBe('assistant');

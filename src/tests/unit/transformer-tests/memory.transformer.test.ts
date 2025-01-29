@@ -25,7 +25,7 @@ describe('transformMemoryRow', () => {
       type: 'instruction',
       tags,
       description: 'Test description',
-      data: { key: 'value' },
+      data: '{"key":"value"}',
       createdAt: new Date('2025-01-01T00:00:00Z'),
       updatedAt: new Date('2025-01-02T00:00:00Z'),
     });
@@ -52,18 +52,5 @@ describe('transformMemoryRow', () => {
       createdAt: new Date('2025-01-03T00:00:00Z'),
       updatedAt: new Date('2025-01-04T00:00:00Z'),
     });
-  });
-
-  it('throws an error for invalid JSON in data', () => {
-    const row: MemoryRow = {
-      id: 'memory3',
-      type: 'meta',
-      description: 'Invalid JSON test',
-      data: '{invalidJson}',
-      createdAt: '2025-01-05T00:00:00Z',
-      updatedAt: '2025-01-06T00:00:00Z',
-    };
-
-    expect(() => transformMemoryRow(row, tags)).toThrow(SyntaxError);
   });
 });

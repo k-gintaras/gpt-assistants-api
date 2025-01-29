@@ -20,16 +20,6 @@ CREATE TABLE IF NOT EXISTS memories (
   updatedAt TEXT NOT NULL -- ISO 8601 formatted date
 );
 
--- Memory relationships table
-CREATE TABLE IF NOT EXISTS memory_relationships (
-  id TEXT PRIMARY KEY,
-  source_memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
-  target_memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
-  relationship_type TEXT CHECK(relationship_type IN ('related_to', 'part_of', 'example_of', 'derived_from')) NOT NULL,
-  createdAt TEXT NOT NULL, -- ISO 8601 formatted date
-  updatedAt TEXT NOT NULL -- ISO 8601 formatted date
-);
-
 -- Owned memories
 CREATE TABLE IF NOT EXISTS owned_memories (
   assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
@@ -68,11 +58,11 @@ CREATE TABLE IF NOT EXISTS tasks (
   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
 );
 
+
 CREATE TABLE IF NOT EXISTS feedback (
   id TEXT PRIMARY KEY,
   target_id TEXT NOT NULL, -- ID of the target entity (assistant, memory, or task)
   target_type TEXT CHECK(target_type IN ('assistant', 'memory', 'task')) NOT NULL, -- Target type
-  user_id TEXT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL, -- Optional user ID
   rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5), -- Rating (1-5 stars)
   comments TEXT, -- Optional feedback comments
   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
@@ -113,6 +103,42 @@ CREATE TABLE task_tags (
   PRIMARY KEY (task_id, tag_id)
 );
 
+-- TODO: implement this later, easier search... create sql to drop all this.. to reset db
+-- Improve search: 
+-- CREATE VIEW entity_tags AS
+-- SELECT 'assistant' AS entity_type, assistant_id AS entity_id, tag_id
+-- FROM assistant_tags
+-- UNION ALL
+-- SELECT 'memory' AS entity_type, memory_id AS entity_id, tag_id
+-- FROM memory_tags
+-- UNION ALL
+-- SELECT 'task' AS entity_type, task_id AS entity_id, tag_id
+-- FROM task_tags;
+
+-- -- easher to get focused memories
+-- CREATE VIEW focused_memory_details AS
+-- SELECT 
+--   fm.memory_focus_id,
+--   fm.memory_id,
+--   m.type AS memory_type,
+--   m.description AS memory_description,
+--   m.data AS memory_data,
+--   m.createdAt AS memory_created_at,
+--   m.updatedAt AS memory_updated_at,
+--   r.relationship_type,
+--   r.source_memory_id,
+--   r.target_memory_id
+-- FROM focused_memories fm
+-- JOIN memories m ON fm.memory_id = m.id
+-- LEFT JOIN memory_relationships r ON r.source_memory_id = m.id;
+
+-- -- search memories
+-- CREATE VIRTUAL TABLE memories_fts USING fts5(description, data);
+-- INSERT INTO memories_fts(rowid, description, data)
+-- SELECT id, description, data FROM memories;
+
+
+
 -- ! future maybe, when assistants can promote other assistants to use higher capabilities
 -- Promotion tables
 -- CREATE TABLE IF NOT EXISTS promotion_criteria (
@@ -126,27 +152,3 @@ CREATE TABLE task_tags (
 --   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
 -- );
 
-
--- ! reduntant for now, users are assistants really
--- ! redundant for now queries are tasks 
--- -- Users table
--- CREATE TABLE IF NOT EXISTS users (
---   id TEXT PRIMARY KEY,
---   name TEXT NOT NULL,
---   defaultAssistantType TEXT CHECK(defaultAssistantType IN ('completion', 'chat', 'assistant')) NOT NULL,
---   feedbackFrequency TEXT CHECK(feedbackFrequency IN ('always', 'sometimes', 'never')) NOT NULL,
---   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
---   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
--- );
-
--- -- Queries table
--- CREATE TABLE IF NOT EXISTS queries (
---   id TEXT PRIMARY KEY,
---   userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
---   tags TEXT, -- Stored as a serialized JSON array
---   input TEXT NOT NULL,
---   context TEXT, -- Optional query context
---   results TEXT, -- Serialized JSON array for result IDs
---   createdAt TEXT NOT NULL, -- ISO 8601 formatted date
---   updatedAt TEXT NOT NULL  -- ISO 8601 formatted date
--- );

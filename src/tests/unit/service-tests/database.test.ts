@@ -43,35 +43,6 @@ describe('Advanced Database Schema Tests', () => {
   };
 
   describe('Memory Management', () => {
-    test('should handle complex memory relationships', () => {
-      // Create memories
-      insertMemory('m1');
-      insertMemory('m2');
-      insertMemory('m3');
-
-      // Create relationships
-      const relationStmt = db.prepare(`
-        INSERT INTO memory_relationships (id, source_memory_id, target_memory_id, relationship_type, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `);
-
-      const now = new Date().toISOString();
-      expect(() => relationStmt.run('r1', 'm1', 'm2', 'related_to', now, now)).not.toThrow();
-      expect(() => relationStmt.run('r2', 'm2', 'm3', 'part_of', now, now)).not.toThrow();
-
-      // Query relationships
-      const relationships = db
-        .prepare(
-          `
-        SELECT * FROM memory_relationships 
-        WHERE source_memory_id = ? OR target_memory_id = ?
-      `
-        )
-        .all('m2', 'm2');
-
-      expect(relationships).toHaveLength(2);
-    });
-
     test('should enforce memory focus rules', () => {
       insertAssistant('a1', 'assistant', 'gpt-4');
 

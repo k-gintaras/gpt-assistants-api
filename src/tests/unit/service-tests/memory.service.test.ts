@@ -22,25 +22,15 @@ afterAll(() => {
   testDbHelper.close();
 });
 
-describe('Memory Service Tests', () => {
+describe('MemoryService Tests', () => {
   test('addMemory - should add a new memory and return its ID', async () => {
     const memoryData: Omit<Memory, 'id' | 'createdAt' | 'updatedAt'> = {
       type: 'knowledge',
-      tags: [
-        { id: '1', name: 'tag1' },
-        { id: '2', name: 'tag2' },
-      ],
       description: 'Test memory description',
-      data: { key: 'value' },
+      data: JSON.stringify({ key: 'value' }),
     };
 
     const memoryId = await memoryService.addMemory(memoryData);
-    db.prepare(
-      `
-    INSERT INTO memory_tags (memory_id, tag_id)
-    VALUES ('${memoryId}', '1'), ('${memoryId}', '2')
-  `
-    ).run();
 
     expect(memoryId).toBeDefined();
 
@@ -48,98 +38,102 @@ describe('Memory Service Tests', () => {
     expect(memoryRow).toBeDefined();
     expect(memoryRow.type).toBe('knowledge');
     expect(memoryRow.description).toBe('Test memory description');
-    expect(memoryRow.data).toBe(JSON.stringify({ key: 'value' }));
-
-    const memoryTags = db.prepare('SELECT tag_id FROM memory_tags WHERE memory_id = ?').all(memoryId) as { tag_id: string }[];
-    expect(memoryTags.map((tag) => tag.tag_id)).toEqual(['1', '2']);
+    expect(JSON.parse(memoryRow.data!)).toEqual({ key: 'value' });
   });
 
-  test('removeMemory - should remove an existing memory and its tags', async () => {
-    // Insert memory with tags
+  test('removeMemory - should remove an existing memory', async () => {
+    // Insert a memory
     db.prepare(
       `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
-       VALUES ('test-unique-id', 'knowledge', 'To remove', '{"key":"value"}', ?, ?)`
+       VALUES ('test-id', 'knowledge', 'To remove', '{"key":"value"}', ?, ?)`
     ).run(new Date().toISOString(), new Date().toISOString());
-    db.prepare(`INSERT INTO memory_tags (memory_id, tag_id) VALUES ('test-unique-id', '1'), ('test-unique-id', '2')`).run();
 
-    await memoryService.removeMemory('test-unique-id');
+    await memoryService.removeMemory('test-id');
 
-    const memoryRows = db.prepare('SELECT * FROM memories WHERE id = ?').all('test-unique-id');
+    const memoryRows = db.prepare('SELECT * FROM memories WHERE id = ?').all('test-id');
     expect(memoryRows).toHaveLength(0);
-
-    const tagRows = db.prepare('SELECT * FROM memory_tags WHERE memory_id = ?').all('test-unique-id');
-    expect(tagRows).toHaveLength(0);
   });
 
-  test('updateMemory - should update an existing memory and its tags', async () => {
-    // Insert memory with tags
+  test('updateMemory - should update an existing memory', async () => {
+    // Insert a memory
     db.prepare(
       `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
-       VALUES ('test-unique-id', 'knowledge', 'Original description', '{"key":"original"}', ?, ?)`
+       VALUES ('test-id', 'knowledge', 'Original description', '{"key":"original"}', ?, ?)`
     ).run(new Date().toISOString(), new Date().toISOString());
-    db.prepare(`INSERT INTO memory_tags (memory_id, tag_id) VALUES ('test-unique-id', '1')`).run();
 
     const updates = {
       description: 'Updated description',
-      data: { key: 'updated' },
-      tags: [
-        { id: '2', name: 'tag2' },
-        { id: '3', name: 'tag3' },
-      ],
+      data: JSON.stringify({ key: 'updated' }),
     };
 
-    await memoryService.updateMemory('test-unique-id', updates);
-    db.prepare(
-      `
-    INSERT INTO memory_tags (memory_id, tag_id)
-    VALUES ('test-unique-id', '2'), ('test-unique-id', '3')
-  `
-    ).run();
+    await memoryService.updateMemory('test-id', updates);
 
-    const updatedRow = db.prepare('SELECT * FROM memories WHERE id = ?').get('test-unique-id') as MemoryRow;
+    const updatedRow = db.prepare('SELECT * FROM memories WHERE id = ?').get('test-id') as MemoryRow;
     expect(updatedRow.description).toBe('Updated description');
-    expect(updatedRow.data).toBe(JSON.stringify({ key: 'updated' }));
-
-    const memoryTags = db.prepare('SELECT tag_id FROM memory_tags WHERE memory_id = ?').all('test-unique-id') as { tag_id: string }[];
-    expect(memoryTags.map((tag) => tag.tag_id)).toEqual(['1', '2', '3']);
+    expect(JSON.parse(updatedRow.data!)).toEqual({ key: 'updated' });
   });
 
   test('updateMemory - should handle partial updates gracefully', async () => {
-    // Insert memory without tags
+    // Insert a memory
     db.prepare(
       `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
-       VALUES ('test-unique-id', 'knowledge', 'Original description', '{"key":"original"}', ?, ?)`
+       VALUES ('test-id', 'knowledge', 'Original description', '{"key":"original"}', ?, ?)`
     ).run(new Date().toISOString(), new Date().toISOString());
 
-    const updates: Memory = {
-      tags: [{ id: '1', name: 'tag1' }],
-      id: '',
-      type: 'knowledge',
-      description: null,
-      data: null,
-      createdAt: null,
-      updatedAt: null,
+    const updates = {
+      description: null, // Should retain the original description
     };
 
-    await memoryService.updateMemory('test-unique-id', updates);
-    db.prepare(
-      `
-    INSERT INTO memory_tags (memory_id, tag_id)
-    VALUES ('test-unique-id', '1')
-  `
-    ).run();
+    await memoryService.updateMemory('test-id', updates);
 
-    const updatedRow = db.prepare('SELECT * FROM memories WHERE id = ?').get('test-unique-id') as MemoryRow;
+    const updatedRow = db.prepare('SELECT * FROM memories WHERE id = ?').get('test-id') as MemoryRow;
     expect(updatedRow.description).toBe('Original description');
-
-    const memoryTags = db.prepare('SELECT tag_id FROM memory_tags WHERE memory_id = ?').all('test-unique-id') as { tag_id: string }[];
-    expect(memoryTags.map((tag) => tag.tag_id)).toEqual(['1']);
+    expect(JSON.parse(updatedRow.data!)).toEqual({ key: 'original' });
   });
 
-  test('updateMemory - should gracefully handle non-existent memory', async () => {
-    await expect(memoryService.updateMemory('non-existent-id', { description: 'Does not exist' })).resolves.not.toThrow();
+  test('updateMemory - should gracefully handle non-existent memory', () => {
+    const result = memoryService.updateMemory('non-existent-id', { description: 'Does not exist' });
 
+    // Ensure the result is false since the memory ID does not exist
+    expect(result).toBe(false);
+
+    // Check that no rows were updated in the database
     const rows = db.prepare('SELECT * FROM memories WHERE id = ?').all('non-existent-id');
     expect(rows).toHaveLength(0);
+  });
+
+  test('getMemoryById - should fetch a memory by ID', async () => {
+    // Insert a memory
+    db.prepare(
+      `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
+       VALUES ('test-id', 'knowledge', 'Test description', '{"key":"value"}', ?, ?)`
+    ).run(new Date().toISOString(), new Date().toISOString());
+
+    const memory = memoryService.getMemoryById('test-id');
+    expect(memory).toBeDefined();
+    expect(memory?.description).toBe('Test description');
+    expect(memory).toBeDefined();
+    expect(memory?.data).toBeDefined();
+    expect(JSON.parse(memory!.data!)).toEqual({ key: 'value' });
+  });
+
+  test('getAllMemories - should fetch all memories', async () => {
+    // Insert multiple memories
+    db.prepare(
+      `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
+       VALUES 
+       ('test-id-1', 'knowledge', 'Memory 1', '{"key":"value1"}', ?, ?),
+       ('test-id-2', 'instruction', 'Memory 2', '{"key":"value2"}', ?, ?)`
+    ).run(new Date().toISOString(), new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
+
+    const memories = memoryService.getAllMemories();
+    if (!memories) return;
+    expect(memories).toHaveLength(2);
+
+    const [memory1, memory2] = memories;
+    expect(memory1.description).toBe('Memory 1');
+    expect(JSON.parse(memory1.data!)).toEqual({ key: 'value1' });
+    expect(memory2.description).toBe('Memory 2');
+    expect(JSON.parse(memory2.data!)).toEqual({ key: 'value2' });
   });
 });

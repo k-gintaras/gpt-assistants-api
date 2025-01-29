@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { MemoryFocusRule, MemoryFocusRuleRow } from '../../models/focused-memory.model';
 import { transformMemoryFocusRuleRow } from '../../transformers/memory-focus-rule.transformer';
+import { generateUniqueId } from './unique-id.service';
 
 export class MemoryFocusRuleService {
   db = new Database(':memory:'); // Default database instance
@@ -12,6 +13,30 @@ export class MemoryFocusRuleService {
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
   }
+
+  async createMemoryFocusRule(assistantId: string, maxResults: number, relationshipTypes: string[] = [], priorityTags: string[] = []): Promise<MemoryFocusRule> {
+    const id = generateUniqueId();
+    const createdAt = new Date().toISOString();
+
+    const stmt = this.db.prepare(`
+      INSERT INTO memory_focus_rules (id, assistant_id, maxResults, relationshipTypes, priorityTags, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(id, assistantId, maxResults, JSON.stringify(relationshipTypes), JSON.stringify(priorityTags), createdAt, createdAt);
+
+    // Return the created rule as an object
+    return {
+      id,
+      assistantId,
+      maxResults,
+      relationshipTypes,
+      priorityTags,
+      createdAt: new Date(createdAt),
+      updatedAt: new Date(createdAt),
+    };
+  }
+
   async getMemoryFocusRules(assistantId: string): Promise<MemoryFocusRule | null> {
     const row = this.db
       .prepare(

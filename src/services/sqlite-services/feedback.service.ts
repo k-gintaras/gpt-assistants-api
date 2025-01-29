@@ -24,7 +24,6 @@ export class FeedbackService {
       id: result.id,
       targetId: result.target_id,
       targetType: result.target_type,
-      userId: result.user_id || undefined,
       rating: result.rating,
       comments: result.comments || undefined,
       createdAt: new Date(result.createdAt),
@@ -41,7 +40,6 @@ export class FeedbackService {
       id: result.id,
       targetId: result.target_id,
       targetType: result.target_type,
-      userId: result.user_id || undefined,
       rating: result.rating,
       comments: result.comments || undefined,
       createdAt: new Date(result.createdAt),
@@ -55,11 +53,11 @@ export class FeedbackService {
     const updatedAt = createdAt;
 
     const stmt = this.db.prepare(`
-      INSERT INTO feedback (id, target_id, target_type, user_id, rating, comments, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO feedback (id, target_id, target_type, rating, comments, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, feedback.targetId, feedback.targetType, feedback.userId || null, feedback.rating, feedback.comments || null, createdAt, updatedAt);
+    stmt.run(id, feedback.targetId, feedback.targetType, feedback.rating, feedback.comments || null, createdAt, updatedAt);
 
     return id;
   }
@@ -76,14 +74,13 @@ export class FeedbackService {
       SET
         target_id = COALESCE(?, target_id),
         target_type = COALESCE(?, target_type),
-        user_id = COALESCE(?, user_id),
         rating = COALESCE(?, rating),
         comments = COALESCE(?, comments),
         updatedAt = ?
       WHERE id = ?
     `);
 
-    stmt.run(updates.targetId || null, updates.targetType || null, updates.userId || null, updates.rating || null, updates.comments || null, new Date().toISOString(), id);
+    stmt.run(updates.targetId || null, updates.targetType || null, updates.rating || null, updates.comments || null, new Date().toISOString(), id);
 
     return true;
   }

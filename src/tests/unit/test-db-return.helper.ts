@@ -22,7 +22,7 @@ export const testFullAssistantRows: FullAssistantRows[] = [
     memory_id: 'memory1',
     memory_type: 'knowledge',
     memory_description: 'Test Memory Description',
-    memory_data: '{"key": "value"}',
+    memory_data: '{"key":"value"}',
     memory_createdAt: '2025-01-01T11:00:00Z',
     memory_updatedAt: '2025-01-02T11:00:00Z',
     memory_tag_id: 'memory-tag1',

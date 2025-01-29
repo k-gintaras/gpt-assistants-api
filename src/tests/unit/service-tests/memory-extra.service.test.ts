@@ -33,7 +33,7 @@ afterAll(() => {
   testDbHelper.close();
 });
 
-describe('memoryExtraService', () => {
+describe('MemoryExtraService Tests', () => {
   test('getAllMemories - should fetch all memories with tags', async () => {
     // Associate tags with memories
     db.prepare(
@@ -44,7 +44,8 @@ describe('memoryExtraService', () => {
     ).run();
 
     const memories = await memoryExtraService.getAllMemories();
-    expect(memories).toHaveLength(2); // before each insert memories adds 2 memories
+
+    expect(memories).toHaveLength(2); // Default test data adds 2 memories
     expect(memories[0].tags).toEqual(
       expect.arrayContaining([
         { id: '1', name: 'Tag1' },
@@ -60,7 +61,9 @@ describe('memoryExtraService', () => {
     VALUES ('1', '1'), ('1', '2')
   `
     ).run();
+
     const memories = await memoryExtraService.getMemoriesByTags(['Tag1']);
+
     expect(memories).toHaveLength(1);
     expect(memories[0].id).toBe('1');
     expect(memories[0].tags).toEqual([{ id: '1', name: 'Tag1' }]);
@@ -68,6 +71,7 @@ describe('memoryExtraService', () => {
 
   test('getMemoriesByTags - should return empty array for non-existent tags', async () => {
     const memories = await memoryExtraService.getMemoriesByTags(['NonExistentTag']);
+
     expect(memories).toEqual([]);
   });
 
@@ -75,8 +79,9 @@ describe('memoryExtraService', () => {
     await expect(memoryExtraService.getMemoriesByTags([])).rejects.toThrow('Tags array cannot be empty.');
   });
 
-  test('updateMemoryTags - should add and remove tags', async () => {
+  test('updateMemoryTags - should add and remove tags correctly', async () => {
     const result = await memoryExtraService.updateMemoryTags('1', ['Tag1', 'Tag2', 'Tag3']);
+
     expect(result).toBe(true);
 
     const memories = await memoryExtraService.getAllMemories();
@@ -91,10 +96,7 @@ describe('memoryExtraService', () => {
     // Remove Tag2
     await memoryExtraService.updateMemoryTags('1', ['Tag1']);
     const updatedMemories = await memoryExtraService.getAllMemories();
-    expect(updatedMemories[0].tags).toEqual([{ id: '1', name: 'Tag1' }]);
-  });
 
-  test('updateMemoryTags - should throw an error for non-existent memory', async () => {
-    await expect(memoryExtraService.updateMemoryTags('non-existent-id', ['Tag1'])).rejects.toThrow('Memory with ID non-existent-id not found.');
+    expect(updatedMemories[0].tags).toEqual([{ id: '1', name: 'Tag1' }]);
   });
 });

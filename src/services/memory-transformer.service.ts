@@ -1,4 +1,5 @@
-import { Memory } from '../models/memory.model';
+import { Memory, MemoryWithTags } from '../models/memory.model';
+import { INSTRUCTION_SEPARATOR } from './config.service';
 import { GptMessageArray } from './gpt-api/gpt-api-chat-completion';
 import { GptThreadMessageArray } from './gpt-api/gpt-api-thread';
 
@@ -57,5 +58,12 @@ export class MemoryTransformerService {
         content: memory.description || JSON.stringify(memory.data) || '',
       };
     });
+  }
+
+  getMemoriesToInstructions(memory: MemoryWithTags[] | Memory[]): string {
+    return memory
+      .filter((m) => m.type === 'instruction')
+      .map((m) => m.description)
+      .join(INSTRUCTION_SEPARATOR);
   }
 }

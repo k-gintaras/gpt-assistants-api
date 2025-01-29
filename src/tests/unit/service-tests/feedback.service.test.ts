@@ -13,7 +13,6 @@ describe('Feedback Service', () => {
         id TEXT PRIMARY KEY,
         target_id TEXT NOT NULL,
         target_type TEXT CHECK(target_type IN ('assistant', 'memory', 'task')) NOT NULL,
-        user_id TEXT DEFAULT NULL,
         rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
         comments TEXT,
         createdAt TEXT NOT NULL,
@@ -30,7 +29,6 @@ describe('Feedback Service', () => {
     const feedbackData: Omit<Feedback, 'id' | 'createdAt' | 'updatedAt'> = {
       targetId: 'task1',
       targetType: 'task',
-      userId: 'user1',
       rating: 4,
       comments: 'Great performance!',
     };
@@ -42,7 +40,6 @@ describe('Feedback Service', () => {
     expect(feedback).not.toBeNull();
     expect(feedback?.targetId).toBe('task1');
     expect(feedback?.targetType).toBe('task');
-    expect(feedback?.userId).toBe('user1');
     expect(feedback?.rating).toBe(4);
     expect(feedback?.comments).toBe('Great performance!');
   });
@@ -51,7 +48,6 @@ describe('Feedback Service', () => {
     const feedbackData: Omit<Feedback, 'id' | 'createdAt' | 'updatedAt'> = {
       targetId: 'task2',
       targetType: 'task',
-      userId: 'user2',
       rating: 3,
       comments: 'Good, but room for improvement.',
     };
@@ -75,7 +71,6 @@ describe('Feedback Service', () => {
     const feedbackData: Omit<Feedback, 'id' | 'createdAt' | 'updatedAt'> = {
       targetId: 'task3',
       targetType: 'task',
-      userId: 'user3',
       rating: 2,
       comments: 'Needs improvement.',
     };
@@ -94,7 +89,6 @@ describe('Feedback Service', () => {
     await feedbackService.addFeedback({
       targetId: 'memory1',
       targetType: 'memory',
-      userId: 'user4',
       rating: 4,
       comments: 'Helpful memory!',
     });
@@ -102,7 +96,6 @@ describe('Feedback Service', () => {
     await feedbackService.addFeedback({
       targetId: 'memory1',
       targetType: 'memory',
-      userId: 'user5',
       rating: 5,
       comments: 'Very insightful!',
     });

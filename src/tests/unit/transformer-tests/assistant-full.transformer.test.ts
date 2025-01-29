@@ -68,7 +68,7 @@ describe('transformFullAssistantResult', () => {
       id: '1',
       type: 'knowledge',
       description: 'Partial Memory',
-      data: { key: 'value' },
+      data: '{"key":"value"}',
     });
   });
 

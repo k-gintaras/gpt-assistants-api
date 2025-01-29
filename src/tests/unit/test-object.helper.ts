@@ -17,7 +17,7 @@ export const testFullAssistantObject: AssistantWithDetails = {
       id: 'memory1',
       type: 'knowledge',
       description: 'Test Memory Description',
-      data: { key: 'value' },
+      data: JSON.stringify({ key: 'value' }),
       createdAt: new Date('2025-01-01T11:00:00Z'),
       updatedAt: new Date('2025-01-02T11:00:00Z'),
       tags: [

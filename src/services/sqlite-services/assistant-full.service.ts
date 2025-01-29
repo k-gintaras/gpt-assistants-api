@@ -102,8 +102,7 @@ export class FullAssistantService {
 
       // Transform and return the AssistantWithDetails object
       return transformAssistantWithDetails(assistantRow, memoryRows, memoryTags, assistantTagRows, memoryFocusRuleRow, feedbackSummaryRow);
-    } catch (error) {
-      console.error('Error fetching full assistant details:', error);
+    } catch {
       throw new Error('Failed to fetch assistant details.');
     }
   }
@@ -117,8 +116,7 @@ export class FullAssistantService {
       if (rows.length === 0) return null;
 
       return transformFullAssistantResult(rows);
-    } catch (error) {
-      console.error('Error transforming full assistant details:', error);
+    } catch {
       throw new Error('Failed to fetch assistant details efficiently.');
     }
   }

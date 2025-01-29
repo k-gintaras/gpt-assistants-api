@@ -18,6 +18,10 @@ class TestDbHelper {
     return this.db;
   }
 
+  public initializeTarget(db: Database.Database) {
+    this.resetTarget(db); // Reset if already initialized
+  }
+
   /**
    * Resets the database by dropping all tables and reloading the schema.
    */
@@ -40,7 +44,6 @@ class TestDbHelper {
       'DROP TABLE IF EXISTS focused_memories;',
       'DROP TABLE IF EXISTS memory_focus_rules;',
       'DROP TABLE IF EXISTS owned_memories;',
-      'DROP TABLE IF EXISTS memory_relationships;',
       'DROP TABLE IF EXISTS memories;',
       'DROP TABLE IF EXISTS assistants;',
     ];
@@ -55,6 +58,37 @@ class TestDbHelper {
     });
 
     this.loadSchema();
+  }
+  public resetTarget(db: Database.Database): void {
+    // Drop tables in reverse dependency order
+    const dropStatements = [
+      'DROP TABLE IF EXISTS queries;',
+      'DROP TABLE IF EXISTS users;',
+      'DROP TABLE IF EXISTS relationship_graph;',
+      'DROP TABLE IF EXISTS promotion_criteria;',
+      'DROP TABLE IF EXISTS feedback;',
+      'DROP TABLE IF EXISTS tasks;',
+      'DROP TABLE IF EXISTS task_tags;',
+      'DROP TABLE IF EXISTS assistant_tags;',
+      'DROP TABLE IF EXISTS memory_tags;',
+      'DROP TABLE IF EXISTS tags;',
+      'DROP TABLE IF EXISTS focused_memories;',
+      'DROP TABLE IF EXISTS memory_focus_rules;',
+      'DROP TABLE IF EXISTS owned_memories;',
+      'DROP TABLE IF EXISTS memories;',
+      'DROP TABLE IF EXISTS assistants;',
+    ];
+
+    dropStatements.forEach((statement) => {
+      try {
+        db?.exec(statement);
+      } catch (error) {
+        console.error(`Failed to execute statement: ${statement}`, error);
+        console.log(error);
+      }
+    });
+
+    this.loadSchemaOnTarget(db);
   }
 
   /**
@@ -90,6 +124,15 @@ class TestDbHelper {
     }
     const sql = fs.readFileSync(sqlFilePath, 'utf8');
     this.db.exec(sql);
+  }
+
+  private loadSchemaOnTarget(db: Database.Database): void {
+    const sqlFilePath = path.resolve(__dirname, '../../database/tables.sql');
+    if (!fs.existsSync(sqlFilePath)) {
+      throw new Error(`SQL file not found at ${sqlFilePath}`);
+    }
+    const sql = fs.readFileSync(sqlFilePath, 'utf8');
+    db.exec(sql);
   }
 }
 

@@ -21,13 +21,24 @@ export class RelationshipGraphService {
   }
 
   // Fetch relationships by source ID and type
-  getRelationshipsBySource(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
+  getRelationshipsBySourceAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
     const stmt = this.db.prepare(`
     SELECT * 
     FROM relationship_graph 
     WHERE target_id = ? AND type = ?
   `);
     const results = stmt.all(targetId, type) as RelationshipGraphRow[];
+    return results.map((row) => this.transformRow(row));
+  }
+
+  // Fetch relationships by source ID and type
+  getRelationshipsBySource(targetId: string): RelationshipGraph[] {
+    const stmt = this.db.prepare(`
+    SELECT * 
+    FROM relationship_graph 
+    WHERE target_id = ?
+  `);
+    const results = stmt.all(targetId) as RelationshipGraphRow[];
     return results.map((row) => this.transformRow(row));
   }
 

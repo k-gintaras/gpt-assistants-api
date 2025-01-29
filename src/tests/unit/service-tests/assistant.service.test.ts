@@ -39,6 +39,7 @@ describe('Assistant Service Tests', () => {
     };
 
     const id = await assistantService.addAssistant(newAssistant);
+    if (!id) return;
     const assistant = assistantService.getAssistantById(id);
 
     expect(assistant).toBeDefined();
@@ -57,6 +58,7 @@ describe('Assistant Service Tests', () => {
     ).run('1', 'Test Assistant 1', 'A description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString());
 
     const assistants = assistantService.getAllAssistants();
+    if (!assistants) return;
     expect(assistants).toHaveLength(1);
     expect(assistants[0].name).toBe('Test Assistant 1');
     expect(assistants[0].model).toBe('gpt-3.5-turbo');

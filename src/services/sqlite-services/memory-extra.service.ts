@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { Memory, MemoryRow } from '../../models/memory.model';
+import { MemoryRow, MemoryWithTags } from '../../models/memory.model';
 import { Tag } from '../../models/tag.model';
 import { transformMemoryRow } from '../../transformers/memory.transformer';
 import { generateUniqueId } from './unique-id.service';
@@ -17,7 +17,7 @@ export class MemoryExtraService {
   /**
    * Fetch all memories with their associated tags.
    */
-  async getAllMemories(): Promise<Memory[]> {
+  async getAllMemories(): Promise<MemoryWithTags[]> {
     const rows = this.db
       .prepare(
         `
@@ -47,7 +47,7 @@ export class MemoryExtraService {
   /**
    * Fetch memories associated with specific tags.
    */
-  async getMemoriesByTags(tags: string[]): Promise<Memory[]> {
+  async getMemoriesByTags(tags: string[]): Promise<MemoryWithTags[]> {
     if (tags.length === 0) {
       throw new Error('Tags array cannot be empty.');
     }
@@ -96,7 +96,8 @@ export class MemoryExtraService {
       .get(memoryId) as MemoryRow | undefined;
 
     if (!memoryRow) {
-      throw new Error(`Memory with ID ${memoryId} not found.`);
+      // throw new Error(`Memory with ID ${memoryId} not found.`);
+      return false;
     }
 
     // Fetch existing tags for the memory

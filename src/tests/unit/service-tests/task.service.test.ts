@@ -1,7 +1,9 @@
 import Database from 'better-sqlite3';
 import { Task } from '../../../models/task.model';
 import { TaskService } from '../../../services/sqlite-services/task.service';
+
 let taskService: TaskService;
+
 describe('Task Service', () => {
   beforeAll(() => {
     const db = new Database(':memory:');
@@ -30,8 +32,8 @@ describe('Task Service', () => {
       description: 'Test Task',
       assignedAssistant: 'assistant1',
       status: 'pending',
-      inputData: { key: 'value' },
-      outputData: undefined,
+      inputData: '{"key": "value"}',
+      outputData: null,
     };
 
     const taskId = await taskService.addTask(taskData);
@@ -42,7 +44,7 @@ describe('Task Service', () => {
     expect(task?.description).toBe('Test Task');
     expect(task?.assignedAssistant).toBe('assistant1');
     expect(task?.status).toBe('pending');
-    expect(task?.inputData).toEqual({ key: 'value' });
+    expect(task?.inputData).toBe('{"key": "value"}');
     expect(task?.outputData).toBeNull();
   });
 
@@ -55,14 +57,9 @@ describe('Task Service', () => {
 
     const taskId = await taskService.addTask(taskData);
 
-    const updates: Task = {
+    const updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>> = {
       status: 'in_progress',
-      outputData: { result: 'success' },
-      id: '',
-      description: '',
-      assignedAssistant: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      outputData: '{"result": "success"}',
     };
 
     const updated = await taskService.updateTask(taskId, updates);
@@ -70,7 +67,7 @@ describe('Task Service', () => {
 
     const updatedTask = taskService.getTaskById(taskId);
     expect(updatedTask?.status).toBe('in_progress');
-    expect(updatedTask?.outputData).toEqual({ result: 'success' });
+    expect(updatedTask?.outputData).toBe('{"result": "success"}');
   });
 
   it('should delete a task', async () => {
@@ -126,13 +123,8 @@ describe('Task Service', () => {
   });
 
   it('should throw an error when updating a non-existent task', async () => {
-    const updates: Task = {
+    const updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>> = {
       status: 'completed',
-      id: '',
-      description: '',
-      assignedAssistant: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
 
     await expect(taskService.updateTask('nonexistent-task', updates)).rejects.toThrow('Task with ID nonexistent-task not found.');
