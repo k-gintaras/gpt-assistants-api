@@ -1,5 +1,3 @@
-// controllers/assistant.controller.ts
-
 import { Request, Response } from 'express';
 import { AssistantControllerService } from '../services/core-services/assistant.controller.service';
 import { respond } from './controller.helper';
@@ -12,6 +10,12 @@ export class AssistantController {
     this.assistantService = new AssistantControllerService(db);
   }
 
+  /**
+   * Retrieve all assistants.
+   * @response {200} { status: "success", message: "Assistants fetched successfully", data: Assistant[] }
+   * @response {404} { status: "error", message: "No assistants found." }
+   * @response {500} { status: "error", message: "Failed to retrieve assistants.", error: any }
+   */
   async getAllAssistants(req: Request, res: Response) {
     try {
       const assistantRows = await this.assistantService.getAllAssistants();
@@ -24,6 +28,13 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Retrieve an assistant by ID.
+   * @requestParams { id: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Assistant fetched successfully", data: Assistant }
+   * @response {404} { status: "error", message: "Assistant not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve assistant.", error: any }
+   */
   async getAssistantById(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -37,6 +48,13 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Retrieve an assistant with details by ID.
+   * @requestParams { id: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Full assistant fetched successfully", data: AssistantDetails }
+   * @response {404} { status: "error", message: "Full assistant not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve assistant details.", error: any }
+   */
   async getAssistantWithDetailsById(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -50,6 +68,13 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Create a simple assistant entry.
+   * @requestBody { name: string, type: string } The name and type of the assistant.
+   * @response {201} { status: "success", message: "Assistant created successfully" }
+   * @response {400} { status: "error", message: "Failed to create assistant." }
+   * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
+   */
   async createAssistantSimple(req: Request, res: Response) {
     const { name, type } = req.body;
     try {
@@ -63,6 +88,13 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Create a new assistant with full details.
+   * @requestBody { name: string, type: string, model: string, instructions: string } The full assistant details.
+   * @response {201} { status: "success", message: "Assistant created successfully", data: { id: string } }
+   * @response {400} { status: "error", message: "Failed to create assistant." }
+   * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
+   */
   async createAssistant(req: Request, res: Response) {
     const { name, type, model, instructions } = req.body;
     try {
@@ -76,6 +108,14 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Update an existing assistant.
+   * @requestParams { id: string } The assistant's ID.
+   * @requestBody { name?: string, type?: string, model?: string, instructions?: string } The fields to update.
+   * @response {200} { status: "success", message: "Assistant updated successfully" }
+   * @response {404} { status: "error", message: "Assistant not found." }
+   * @response {500} { status: "error", message: "Failed to update assistant.", error: any }
+   */
   async updateAssistant(req: Request, res: Response) {
     const { id } = req.params;
     const assistant = req.body;
@@ -90,6 +130,13 @@ export class AssistantController {
     }
   }
 
+  /**
+   * Delete an assistant.
+   * @requestParams { id: string } The assistant's ID.
+   * @response {200} { status: "success", message: "Assistant deleted successfully" }
+   * @response {404} { status: "error", message: "Assistant not found." }
+   * @response {500} { status: "error", message: "Failed to delete assistant.", error: any }
+   */
   async deleteAssistant(req: Request, res: Response) {
     const { id } = req.params;
     try {

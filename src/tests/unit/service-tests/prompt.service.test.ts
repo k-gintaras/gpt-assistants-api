@@ -80,14 +80,14 @@ describe('PromptService Tests', () => {
     it('should generate a chat reply with user prompt and extra instruction', async () => {
       const assistant: AssistantRow = { id: '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
       const memories: MemoryWithTags[] = [{ id: 'm1', type: 'instruction', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
-      mockMemoryService.getFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
+      mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getMessages.mockReturnValueOnce([{ role: 'system', content: 'Memory 1' }]);
       (generateChatReply as jest.Mock).mockResolvedValueOnce('Chat reply');
 
       const result = await promptService.handleChatPrompt(assistant, 'User prompt', 'Extra instruction');
 
       expect(result).toBe('Chat reply');
-      expect(mockMemoryService.getFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
+      expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
       expect(mockMemoryTransformer.getMessages).toHaveBeenCalledWith(memories);
       expect(generateChatReply).toHaveBeenCalledWith(assistant.model, [
         { role: 'system', content: 'Memory 1' },
@@ -123,7 +123,7 @@ describe('PromptService Tests', () => {
       ];
 
       // Mock responses
-      mockMemoryService.getFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
+      mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([{ role: 'assistant', content: 'Memory 1' }]);
       (queryAssistantWithMessages as jest.Mock).mockResolvedValueOnce('Thread reply');
 
@@ -134,7 +134,7 @@ describe('PromptService Tests', () => {
       expect(result).toBe('Thread reply');
 
       // Ensure `getFocusedMemoriesByAssistantId` was called with correct arguments
-      expect(mockMemoryService.getFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
+      expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
 
       // Adjusted expectation to match the received arguments (including `includeTypes`)
       expect(mockMemoryTransformer.getThreadMessages).toHaveBeenCalledWith(
@@ -152,7 +152,7 @@ describe('PromptService Tests', () => {
     it('should query assistant with user prompt and extra instruction', async () => {
       const assistant: AssistantRow = { id: '2', name: 'Thread Assistant', type: 'assistant', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
       const memories: MemoryWithTags[] = [];
-      mockMemoryService.getFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
+      mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([]);
       (queryAssistantWithMessages as jest.Mock).mockResolvedValueOnce('Thread reply with extra instruction');
 

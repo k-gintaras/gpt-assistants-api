@@ -80,24 +80,24 @@ CREATE TABLE IF NOT EXISTS relationship_graph (
 );
 
 -- tags
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
   id TEXT PRIMARY KEY,
   name TEXT UNIQUE NOT NULL
 );
 
-CREATE TABLE memory_tags (
+CREATE TABLE IF NOT EXISTS memory_tags (
   memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
   tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (memory_id, tag_id)
 );
 
-CREATE TABLE assistant_tags (
+CREATE TABLE IF NOT EXISTS assistant_tags (
   assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
   tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (assistant_id, tag_id)
 );
 
-CREATE TABLE task_tags (
+CREATE TABLE IF NOT EXISTS task_tags (
   task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (task_id, tag_id)

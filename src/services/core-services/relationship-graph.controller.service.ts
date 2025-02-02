@@ -18,11 +18,11 @@ export class RelationshipGraphControllerService implements RelationshipGraphServ
     return this.relationshipGraphService.getRelationshipsBySource(targetId);
   }
 
-  getRelationshipsBySourceAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
-    return this.relationshipGraphService.getRelationshipsBySourceAndType(targetId, type);
+  getRelationshipsByTargetAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
+    return this.relationshipGraphService.getRelationshipsByTargetAndType(targetId, type);
   }
 
-  addRelationship(relationship: RelationshipGraph): Promise<string> {
+  addRelationship(relationship: RelationshipGraph): Promise<boolean> {
     return this.relationshipGraphService.addRelationship(relationship);
   }
 

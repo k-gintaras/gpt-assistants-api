@@ -1,0 +1,3479 @@
+{
+  "/assistant/": {
+    "get": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - getAllAssistants",
+      "description": "This endpoint corresponds to the getAllAssistants method in the assistant.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Assistants fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "assistantRows": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No assistants found.'"
+        },
+        "500": {
+          "description": "'Failed to retrieve assistants.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - createAssistant",
+      "description": "This endpoint corresponds to the createAssistant method in the assistant.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "instructions": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Assistant created successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "{ id: assistantId }": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Failed to create assistant.'"
+        },
+        "500": {
+          "description": "'Failed to create assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/assistant/{id}": {
+    "get": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - getAssistantById",
+      "description": "This endpoint corresponds to the getAssistantById method in the assistant.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Assistant with ID ${id} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "assistantRow": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Assistant with ID ${id} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - updateAssistant",
+      "description": "This endpoint corresponds to the updateAssistant method in the assistant.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "instructions": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Assistant updated successfully.'"
+        },
+        "404": {
+          "description": "`Assistant with ID ${id} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - deleteAssistant",
+      "description": "This endpoint corresponds to the deleteAssistant method in the assistant.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Assistant deleted successfully.'"
+        },
+        "404": {
+          "description": "`Assistant with ID ${id} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/assistant/details/{id}": {
+    "get": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - getAssistantWithDetailsById",
+      "description": "This endpoint corresponds to the getAssistantWithDetailsById method in the assistant.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Full Assistant with ID ${id} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "assistantRow": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Full Assistant with ID ${id} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve Full assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/assistant/simple": {
+    "post": {
+      "tags": [
+        "assistant.controller"
+      ],
+      "summary": "assistant.controller - createAssistantSimple",
+      "description": "This endpoint corresponds to the createAssistantSimple method in the assistant.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Assistant created successfully.'"
+        },
+        "400": {
+          "description": "'Failed to create assistant.'"
+        },
+        "500": {
+          "description": "'Failed to create assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/feedback/{id}": {
+    "get": {
+      "tags": [
+        "feedback.controller"
+      ],
+      "summary": "feedback.controller - getFeedbackById",
+      "description": "This endpoint corresponds to the getFeedbackById method in the feedback.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Feedback with ID ${id} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "feedback": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Feedback with ID ${id} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve feedback.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "feedback.controller"
+      ],
+      "summary": "feedback.controller - updateFeedback",
+      "description": "This endpoint corresponds to the updateFeedback method in the feedback.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "rating": {
+                  "type": "number"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "targetType": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Feedback updated successfully.'"
+        },
+        "404": {
+          "description": "`Feedback with ID ${id} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update feedback.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "feedback.controller"
+      ],
+      "summary": "feedback.controller - deleteFeedback",
+      "description": "This endpoint corresponds to the deleteFeedback method in the feedback.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Feedback deleted successfully.'"
+        },
+        "404": {
+          "description": "`Feedback with ID ${id} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete feedback.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/feedback/target/{targetId}/{targetType}": {
+    "get": {
+      "tags": [
+        "feedback.controller"
+      ],
+      "summary": "feedback.controller - getFeedbackByTarget",
+      "description": "This endpoint corresponds to the getFeedbackByTarget method in the feedback.controller",
+      "parameters": [
+        {
+          "name": "targetId",
+          "in": "path",
+          "required": true,
+          "description": "The targetId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "targetType",
+          "in": "path",
+          "required": true,
+          "description": "The targetType",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Feedback for ${targetType} with ID ${targetId} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "feedback": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No feedback found for ${targetType} with ID ${targetId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve feedback.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/feedback/": {
+    "post": {
+      "tags": [
+        "feedback.controller"
+      ],
+      "summary": "feedback.controller - addFeedback",
+      "description": "This endpoint corresponds to the addFeedback method in the feedback.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "rating": {
+                  "type": "number"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "targetType": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Feedback added successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "{ id: feedbackId }": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'Failed to add feedback.'"
+        },
+        "500": {
+          "description": "'Failed to add feedback.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-extra/": {
+    "get": {
+      "tags": [
+        "memory-extra.controller"
+      ],
+      "summary": "memory-extra.controller - getMemoriesWithTags",
+      "description": "This endpoint corresponds to the getMemoriesWithTags method in the memory-extra.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Memories with tags fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memoriesWithTags": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No memories found.'"
+        },
+        "500": {
+          "description": "'Failed to retrieve memories with tags.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-extra/tags": {
+    "get": {
+      "tags": [
+        "memory-extra.controller"
+      ],
+      "summary": "memory-extra.controller - getMemoriesByTags",
+      "description": "This endpoint corresponds to the getMemoriesByTags method in the memory-extra.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Memories for the provided tags fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Tags query parameter is required and should be a string.'"
+        },
+        "404": {
+          "description": "'No memories found for the provided tags.'"
+        },
+        "500": {
+          "description": "'Failed to retrieve memories by tags.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-extra/tags/{memoryId}": {
+    "put": {
+      "tags": [
+        "memory-extra.controller"
+      ],
+      "summary": "memory-extra.controller - updateMemoryTags",
+      "description": "This endpoint corresponds to the updateMemoryTags method in the memory-extra.controller",
+      "parameters": [
+        {
+          "name": "memoryId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "newTags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Memory tags updated successfully.'"
+        },
+        "400": {
+          "description": "'New tags must be an array.'"
+        },
+        "404": {
+          "description": "`Memory with ID ${memoryId} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update memory tags.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focus-rule/": {
+    "post": {
+      "tags": [
+        "memory-focus-rule.controller"
+      ],
+      "summary": "memory-focus-rule.controller - createMemoryFocusRule",
+      "description": "This endpoint corresponds to the createMemoryFocusRule method in the memory-focus-rule.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "assistantId": {
+                  "type": "string"
+                },
+                "maxResults": {
+                  "type": "number"
+                },
+                "relationshipTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priorityTags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Memory focus rule created successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memoryFocusRule": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "'Failed to create memory focus rule.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focus-rule/{assistantId}": {
+    "get": {
+      "tags": [
+        "memory-focus-rule.controller"
+      ],
+      "summary": "memory-focus-rule.controller - getMemoryFocusRules",
+      "description": "This endpoint corresponds to the getMemoryFocusRules method in the memory-focus-rule.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memory focus rule fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memoryFocusRule": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Memory focus rule for assistant with ID ${assistantId} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve memory focus rule.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focus-rule/{id}": {
+    "put": {
+      "tags": [
+        "memory-focus-rule.controller"
+      ],
+      "summary": "memory-focus-rule.controller - updateMemoryFocusRule",
+      "description": "This endpoint corresponds to the updateMemoryFocusRule method in the memory-focus-rule.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "assistantId": {
+                  "type": "string"
+                },
+                "maxResults": {
+                  "type": "number"
+                },
+                "relationshipTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priorityTags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Memory focus rule updated successfully.'"
+        },
+        "404": {
+          "description": "`Memory focus rule with ID ${id} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update memory focus rule.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "memory-focus-rule.controller"
+      ],
+      "summary": "memory-focus-rule.controller - removeMemoryFocusRule",
+      "description": "This endpoint corresponds to the removeMemoryFocusRule method in the memory-focus-rule.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memory focus rule deleted successfully.'"
+        },
+        "404": {
+          "description": "`Memory focus rule with ID ${id} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete memory focus rule.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focused/assistant/{assistantId}": {
+    "get": {
+      "tags": [
+        "memory-focused.controller"
+      ],
+      "summary": "memory-focused.controller - getFocusedMemoriesByAssistantId",
+      "description": "This endpoint corresponds to the getFocusedMemoriesByAssistantId method in the memory-focused.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Focused memories fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No focused memories found for assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve focused memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focused/{memoryFocusId}": {
+    "get": {
+      "tags": [
+        "memory-focused.controller"
+      ],
+      "summary": "memory-focused.controller - getFocusedMemories",
+      "description": "This endpoint corresponds to the getFocusedMemories method in the memory-focused.controller",
+      "parameters": [
+        {
+          "name": "memoryFocusId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryFocusId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Focused memories fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No focused memories found for focus ID ${memoryFocusId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve focused memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "memory-focused.controller"
+      ],
+      "summary": "memory-focused.controller - updateFocusedMemories",
+      "description": "This endpoint corresponds to the updateFocusedMemories method in the memory-focused.controller",
+      "parameters": [
+        {
+          "name": "memoryFocusId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryFocusId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "memoryIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Focused memories updated successfully.'"
+        },
+        "400": {
+          "description": "`Failed to update focused memories for focus group with ID ${memoryFocusId}.`"
+        },
+        "500": {
+          "description": "'Failed to update focused memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-focused/{memoryFocusId}/{memoryId}": {
+    "post": {
+      "tags": [
+        "memory-focused.controller"
+      ],
+      "summary": "memory-focused.controller - addFocusedMemory",
+      "description": "This endpoint corresponds to the addFocusedMemory method in the memory-focused.controller",
+      "parameters": [
+        {
+          "name": "memoryFocusId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryFocusId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memoryId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "'Memory added to focus group successfully.'"
+        },
+        "400": {
+          "description": "`Failed to add memory with ID ${memoryId} to focus group with ID ${memoryFocusId}.`"
+        },
+        "500": {
+          "description": "'Failed to add memory to focus group.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "memory-focused.controller"
+      ],
+      "summary": "memory-focused.controller - removeFocusedMemory",
+      "description": "This endpoint corresponds to the removeFocusedMemory method in the memory-focused.controller",
+      "parameters": [
+        {
+          "name": "memoryFocusId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryFocusId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memoryId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memory removed from focus group successfully.'"
+        },
+        "400": {
+          "description": "`Failed to remove memory with ID ${memoryId} from focus group with ID ${memoryFocusId}.`"
+        },
+        "500": {
+          "description": "'Failed to remove memory from focus group.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-owned/assistant/{assistantId}": {
+    "get": {
+      "tags": [
+        "memory-owned.controller"
+      ],
+      "summary": "memory-owned.controller - getMemoriesByAssistantId",
+      "description": "This endpoint corresponds to the getMemoriesByAssistantId method in the memory-owned.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memories fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No memories found for assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-owned/{assistantId}": {
+    "get": {
+      "tags": [
+        "memory-owned.controller"
+      ],
+      "summary": "memory-owned.controller - getOwnedMemories",
+      "description": "This endpoint corresponds to the getOwnedMemories method in the memory-owned.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Owned memories fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No owned memories found for assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve owned memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "memory-owned.controller"
+      ],
+      "summary": "memory-owned.controller - updateOwnedMemories",
+      "description": "This endpoint corresponds to the updateOwnedMemories method in the memory-owned.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "memoryIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Owned memories updated successfully.'"
+        },
+        "400": {
+          "description": "`Failed to update owned memories for assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to update owned memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory-owned/{assistantId}/{memoryId}": {
+    "post": {
+      "tags": [
+        "memory-owned.controller"
+      ],
+      "summary": "memory-owned.controller - addOwnedMemory",
+      "description": "This endpoint corresponds to the addOwnedMemory method in the memory-owned.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memoryId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "'Memory added to assistant successfully.'"
+        },
+        "400": {
+          "description": "`Failed to add memory with ID ${memoryId} to assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to add memory to assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "memory-owned.controller"
+      ],
+      "summary": "memory-owned.controller - removeOwnedMemory",
+      "description": "This endpoint corresponds to the removeOwnedMemory method in the memory-owned.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memoryId",
+          "in": "path",
+          "required": true,
+          "description": "The memoryId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memory removed from assistant successfully.'"
+        },
+        "400": {
+          "description": "`Failed to remove memory with ID ${memoryId} from assistant with ID ${assistantId}.`"
+        },
+        "500": {
+          "description": "'Failed to remove memory from assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory/": {
+    "get": {
+      "tags": [
+        "memory.controller"
+      ],
+      "summary": "memory.controller - getMemories",
+      "description": "This endpoint corresponds to the getMemories method in the memory.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Memories fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memories": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No memories found.'"
+        },
+        "500": {
+          "description": "'Failed to retrieve memories.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "memory.controller"
+      ],
+      "summary": "memory.controller - createMemory",
+      "description": "This endpoint corresponds to the createMemory method in the memory.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Memory created successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "{ id: memoryId }": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Failed to create memory.'"
+        },
+        "500": {
+          "description": "'Failed to create memory.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/memory/{id}": {
+    "get": {
+      "tags": [
+        "memory.controller"
+      ],
+      "summary": "memory.controller - getMemory",
+      "description": "This endpoint corresponds to the getMemory method in the memory.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Memory with ID ${id} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memory": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Memory with ID ${id} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve memory.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "memory.controller"
+      ],
+      "summary": "memory.controller - updateMemory",
+      "description": "This endpoint corresponds to the updateMemory method in the memory.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Memory updated successfully.'"
+        },
+        "400": {
+          "description": "'Memory ID mismatch.'"
+        },
+        "404": {
+          "description": "`Memory with ID ${id} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update memory.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "memory.controller"
+      ],
+      "summary": "memory.controller - deleteMemory",
+      "description": "This endpoint corresponds to the deleteMemory method in the memory.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Memory deleted successfully.'"
+        },
+        "404": {
+          "description": "`Memory with ID ${id} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete memory.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/remember": {
+    "post": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - remember",
+      "description": "This endpoint corresponds to the remember method in the orchestrator.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "assistantId": {
+                  "type": "string"
+                },
+                "memory": {
+                  "$ref": "#/components/schemas/MemoryRequest"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Memory stored successfully.'"
+        },
+        "400": {
+          "description": "'Failed to store memory.'"
+        },
+        "500": {
+          "description": "'Error storing memory.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/delegate-task": {
+    "post": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - delegateTask",
+      "description": "This endpoint corresponds to the delegateTask method in the orchestrator.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "assistantId": {
+                  "type": "string"
+                },
+                "task": {
+                  "$ref": "#/components/schemas/TaskRequest"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Task delegated successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Task delegation failed.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "'Error delegating task.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/connect-assistants": {
+    "post": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - connectAssistants",
+      "description": "This endpoint corresponds to the connectAssistants method in the orchestrator.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "primaryId": {
+                  "type": "string"
+                },
+                "dependentId": {
+                  "type": "string"
+                },
+                "relation": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Assistants connected successfully.'"
+        },
+        "400": {
+          "description": "'Failed to connect assistants.'"
+        },
+        "500": {
+          "description": "'Error connecting assistants.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/connect-entities": {
+    "post": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - connectEntities",
+      "description": "This endpoint corresponds to the connectEntities method in the orchestrator.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sourceType": {
+                  "type": "string"
+                },
+                "sourceId": {
+                  "type": "string"
+                },
+                "targetType": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "relation": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Entities connected successfully.'"
+        },
+        "400": {
+          "description": "'Failed to connect entities.'"
+        },
+        "500": {
+          "description": "'Error connecting entities.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/query-knowledge": {
+    "get": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - queryKnowledge",
+      "description": "This endpoint corresponds to the queryKnowledge method in the orchestrator.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Knowledge fetched successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Query parameter is required.'"
+        },
+        "404": {
+          "description": "'No matching knowledge found.'"
+        },
+        "500": {
+          "description": "'Error querying knowledge.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/suggest-assistants": {
+    "post": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - suggestAssistants",
+      "description": "This endpoint corresponds to the suggestAssistants method in the orchestrator.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "task": {
+                  "$ref": "#/components/schemas/TaskRequest"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Assistant suggestions fetched successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "suggestions": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No assistant suggestions found.'"
+        },
+        "500": {
+          "description": "'Error fetching assistant suggestions.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/orchestrator/evaluate-performance/{assistantId}": {
+    "get": {
+      "tags": [
+        "orchestrator.controller"
+      ],
+      "summary": "orchestrator.controller - evaluatePerformance",
+      "description": "This endpoint corresponds to the evaluatePerformance method in the orchestrator.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Performance evaluated successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "evaluation": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No performance data found.'"
+        },
+        "500": {
+          "description": "'Error evaluating performance.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/prompt/": {
+    "post": {
+      "tags": [
+        "prompt.controller"
+      ],
+      "summary": "prompt.controller - prompt",
+      "description": "This endpoint corresponds to the prompt method in the prompt.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "prompt": {
+                  "type": "string"
+                },
+                "extraInstruction": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Prompt processed successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "'Prompt failed or assistant not found.'"
+        },
+        "500": {
+          "description": "'Failed to process prompt.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/relationship-graph/": {
+    "get": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - getAllRelationships",
+      "description": "This endpoint corresponds to the getAllRelationships method in the relationship-graph.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Relationships fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "relationships": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "'No relationships found.'"
+        },
+        "500": {
+          "description": "'Failed to retrieve relationships.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - addRelationship",
+      "description": "This endpoint corresponds to the addRelationship method in the relationship-graph.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sourceId": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Relationship created successfully.'"
+        },
+        "400": {
+          "description": "'Relationship was not created successfully.'"
+        },
+        "500": {
+          "description": "'Failed to create relationship.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/relationship-graph/source/{targetId}": {
+    "get": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - getRelationshipsBySource",
+      "description": "This endpoint corresponds to the getRelationshipsBySource method in the relationship-graph.controller",
+      "parameters": [
+        {
+          "name": "targetId",
+          "in": "path",
+          "required": true,
+          "description": "The targetId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Relationships for target ID ${targetId} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "relationships": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No relationships found for target ID ${targetId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve relationships.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/relationship-graph/source/{targetId}/{relationshipType}": {
+    "get": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - getRelationshipsBySourceAndType",
+      "description": "This endpoint corresponds to the getRelationshipsBySourceAndType method in the relationship-graph.controller",
+      "parameters": [
+        {
+          "name": "targetId",
+          "in": "path",
+          "required": true,
+          "description": "The targetId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "relationshipType",
+          "in": "path",
+          "required": true,
+          "description": "The relationshipType",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Relationships for target ID ${targetId} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "relationships": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No relationships found for target ID ${targetId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve relationships.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/relationship-graph/{id}": {
+    "put": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - updateRelationship",
+      "description": "This endpoint corresponds to the updateRelationship method in the relationship-graph.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sourceId": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Relationship updated successfully.'"
+        },
+        "404": {
+          "description": "`Relationship with ID ${id} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update relationship.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "relationship-graph.controller"
+      ],
+      "summary": "relationship-graph.controller - deleteRelationship",
+      "description": "This endpoint corresponds to the deleteRelationship method in the relationship-graph.controller",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Relationship deleted successfully.'"
+        },
+        "404": {
+          "description": "`Relationship with ID ${id} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete relationship.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/tag-extra/{entityType}/{entityId}": {
+    "get": {
+      "tags": [
+        "tag-extra.controller"
+      ],
+      "summary": "tag-extra.controller - getTagsByEntity",
+      "description": "This endpoint corresponds to the getTagsByEntity method in the tag-extra.controller",
+      "parameters": [
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "description": "The entityId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "description": "The entityType",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Tags fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`No tags found for entity type ${entityType} and ID ${entityId}.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve tags.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/tag-extra/{entityType}/{entityId}/{tagId}": {
+    "post": {
+      "tags": [
+        "tag-extra.controller"
+      ],
+      "summary": "tag-extra.controller - addTagToEntity",
+      "description": "This endpoint corresponds to the addTagToEntity method in the tag-extra.controller",
+      "parameters": [
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "description": "The entityId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "description": "The entityType",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "tagId",
+          "in": "path",
+          "required": true,
+          "description": "The tagId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "'Tag added successfully to entity.'"
+        },
+        "400": {
+          "description": "'Failed to add tag to entity.'"
+        },
+        "500": {
+          "description": "'Failed to add tag to entity.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "tag-extra.controller"
+      ],
+      "summary": "tag-extra.controller - removeTagFromEntity",
+      "description": "This endpoint corresponds to the removeTagFromEntity method in the tag-extra.controller",
+      "parameters": [
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "description": "The entityId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "description": "The entityType",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "tagId",
+          "in": "path",
+          "required": true,
+          "description": "The tagId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Tag removed successfully from entity.'"
+        },
+        "400": {
+          "description": "'Failed to remove tag from entity.'"
+        },
+        "500": {
+          "description": "'Failed to remove tag from entity.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/tag/": {
+    "post": {
+      "tags": [
+        "tag.controller"
+      ],
+      "summary": "tag.controller - addTag",
+      "description": "This endpoint corresponds to the addTag method in the tag.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Tag created successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "{ tagId }": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "`Tag ${name} not created.`"
+        },
+        "500": {
+          "description": "'Failed to create tag.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "get": {
+      "tags": [
+        "tag.controller"
+      ],
+      "summary": "tag.controller - getAllTags",
+      "description": "This endpoint corresponds to the getAllTags method in the tag.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Tags fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "'Failed to retrieve tags.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/tag/{tagId}": {
+    "delete": {
+      "tags": [
+        "tag.controller"
+      ],
+      "summary": "tag.controller - removeTag",
+      "description": "This endpoint corresponds to the removeTag method in the tag.controller",
+      "parameters": [
+        {
+          "name": "tagId",
+          "in": "path",
+          "required": true,
+          "description": "The tagId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Tag removed successfully.'"
+        },
+        "404": {
+          "description": "'Tag to delete not found.'"
+        },
+        "500": {
+          "description": "'Failed to remove tag.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "tag.controller"
+      ],
+      "summary": "tag.controller - updateTag",
+      "description": "This endpoint corresponds to the updateTag method in the tag.controller",
+      "parameters": [
+        {
+          "name": "tagId",
+          "in": "path",
+          "required": true,
+          "description": "The tagId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Tag updated successfully.'"
+        },
+        "404": {
+          "description": "'Tag to update not found.'"
+        },
+        "500": {
+          "description": "'Failed to update tag.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "get": {
+      "tags": [
+        "tag.controller"
+      ],
+      "summary": "tag.controller - getTagById",
+      "description": "This endpoint corresponds to the getTagById method in the tag.controller",
+      "parameters": [
+        {
+          "name": "tagId",
+          "in": "path",
+          "required": true,
+          "description": "The tagId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Tag with ID ${tagId} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tag": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Tag with ID ${tagId} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve tag.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task/{taskId}": {
+    "get": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - getTaskById",
+      "description": "This endpoint corresponds to the getTaskById method in the task.controller",
+      "parameters": [
+        {
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "The taskId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Task with ID ${taskId} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Task with ID ${taskId} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve task.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - updateTask",
+      "description": "This endpoint corresponds to the updateTask method in the task.controller",
+      "parameters": [
+        {
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "The taskId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "'Task updated successfully.'"
+        },
+        "404": {
+          "description": "`Task with ID ${taskId} not found or update failed.`"
+        },
+        "500": {
+          "description": "'Failed to update task.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - deleteTask",
+      "description": "This endpoint corresponds to the deleteTask method in the task.controller",
+      "parameters": [
+        {
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "The taskId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Task deleted successfully.'"
+        },
+        "404": {
+          "description": "`Task with ID ${taskId} not found or delete failed.`"
+        },
+        "500": {
+          "description": "'Failed to delete task.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task/": {
+    "get": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - getAllTasks",
+      "description": "This endpoint corresponds to the getAllTasks method in the task.controller",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "'Tasks fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tasks": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Tasks not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve tasks.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - addTask",
+      "description": "This endpoint corresponds to the addTask method in the task.controller",
+      "parameters": [],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "assistantId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "'Task created successfully.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "{ id: taskId }": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "`Task create failed.`"
+        },
+        "500": {
+          "description": "'Failed to create task.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task/status/{status}": {
+    "get": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - getTasksByStatus",
+      "description": "This endpoint corresponds to the getTasksByStatus method in the task.controller",
+      "parameters": [
+        {
+          "name": "status",
+          "in": "path",
+          "required": true,
+          "description": "The status",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "`Tasks with status ${status} fetched successfully`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tasks": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Tasks by status ${status} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve tasks by status.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task/assistant/{assistantId}": {
+    "get": {
+      "tags": [
+        "task.controller"
+      ],
+      "summary": "task.controller - getTasksByAssistant",
+      "description": "This endpoint corresponds to the getTasksByAssistant method in the task.controller",
+      "parameters": [
+        {
+          "name": "assistantId",
+          "in": "path",
+          "required": true,
+          "description": "The assistantId",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "'Tasks by assistant fetched successfully'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tasks": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "`Tasks by assistant id ${assistantId} not found.`"
+        },
+        "500": {
+          "description": "'Failed to retrieve tasks by assistant.'",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "null": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

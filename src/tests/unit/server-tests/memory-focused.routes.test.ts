@@ -15,9 +15,10 @@ beforeAll(() => {
   db = getDbInstance();
   testDbHelper.initializeTarget(db);
   insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertMemory(db, '3');
   insertHelpers.insertMemories(db);
+  insertHelpers.insertMemory(db, '3');
   insertHelpers.insertMemoryFocusRule(db, '1', '1');
+  insertHelpers.insertFocusedMemory(db, '1', '1'); // Insert test data for focused memory
   insertHelpers.insertFocusedMemory(db, '1', '2'); // Insert test data for focused memory
 });
 

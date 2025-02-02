@@ -14,7 +14,7 @@ export class MemoryExtraControllerService implements MemoryExtraServiceModel {
   }
 
   getMemoriesWithTags(): Promise<MemoryWithTags[]> {
-    return this.memoryExtraService.getAllMemories();
+    return this.memoryExtraService.getAllMemoriesWithTags();
   }
 
   getMemoriesByTags(tags: string[]): Promise<MemoryWithTags[]> {

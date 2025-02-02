@@ -11,6 +11,13 @@ export class FeedbackController {
     this.feedbackService = new FeedbackControllerService(db);
   }
 
+  /**
+   * Retrieve feedback by ID.
+   * @requestParams { id: string } The ID of the feedback.
+   * @response {200} { status: "success", message: "Feedback with ID {id} fetched successfully", data: Feedback }
+   * @response {404} { status: "error", message: "Feedback with ID {id} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve feedback.", error: any }
+   */
   async getFeedbackById(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -23,6 +30,14 @@ export class FeedbackController {
       return respond(res, 500, 'Failed to retrieve feedback.', null, error);
     }
   }
+
+  /**
+   * Retrieve feedback by target (e.g., assistant, memory, task).
+   * @requestParams { targetId: string, targetType: string } The ID and type of the target (assistant, memory, or task).
+   * @response {200} { status: "success", message: "Feedback for {targetType} with ID {targetId} fetched successfully", data: Feedback[] }
+   * @response {404} { status: "error", message: "No feedback found for {targetType} with ID {targetId}." }
+   * @response {500} { status: "error", message: "Failed to retrieve feedback.", error: any }
+   */
   async getFeedbackByTarget(req: Request, res: Response) {
     const { targetId, targetType } = req.params;
     try {
@@ -35,6 +50,14 @@ export class FeedbackController {
       return respond(res, 500, 'Failed to retrieve feedback.', null, error);
     }
   }
+
+  /**
+   * Add new feedback.
+   * @requestBody { message: string, rating: number, targetId: string, targetType: string } The feedback details.
+   * @response {201} { status: "success", message: "Feedback added successfully", data: { id: string } }
+   * @response {404} { status: "error", message: "Failed to add feedback." }
+   * @response {500} { status: "error", message: "Failed to add feedback.", error: any }
+   */
   async addFeedback(req: Request, res: Response) {
     const feedback: Feedback = req.body;
     try {
@@ -47,6 +70,15 @@ export class FeedbackController {
       return respond(res, 500, 'Failed to add feedback.', null, error);
     }
   }
+
+  /**
+   * Update existing feedback.
+   * @requestParams { id: string } The ID of the feedback to update.
+   * @requestBody { message?: string, rating?: number, targetId?: string, targetType?: string } The fields to update.
+   * @response {200} { status: "success", message: "Feedback updated successfully" }
+   * @response {404} { status: "error", message: "Feedback with ID {id} not found or update failed." }
+   * @response {500} { status: "error", message: "Failed to update feedback.", error: any }
+   */
   async updateFeedback(req: Request, res: Response) {
     const { id } = req.params;
     const updates: Partial<Omit<Feedback, 'id' | 'createdAt' | 'updatedAt'>> = req.body;
@@ -57,9 +89,17 @@ export class FeedbackController {
       }
       return respond(res, 200, 'Feedback updated successfully.');
     } catch (error) {
-      return respond(res, 500, 'Failed to update feedback.', null, error); // this was message
+      return respond(res, 500, 'Failed to update feedback.', null, error);
     }
   }
+
+  /**
+   * Delete feedback.
+   * @requestParams { id: string } The ID of the feedback to delete.
+   * @response {200} { status: "success", message: "Feedback deleted successfully" }
+   * @response {404} { status: "error", message: "Feedback with ID {id} not found or delete failed." }
+   * @response {500} { status: "error", message: "Failed to delete feedback.", error: any }
+   */
   async deleteFeedback(req: Request, res: Response) {
     const { id } = req.params;
     try {

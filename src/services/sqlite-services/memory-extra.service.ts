@@ -1,23 +1,61 @@
 import Database from 'better-sqlite3';
-import { MemoryRow, MemoryWithTags } from '../../models/memory.model';
+import { Memory, MemoryRow, MemoryWithTags } from '../../models/memory.model';
 import { Tag } from '../../models/tag.model';
 import { transformMemoryRow } from '../../transformers/memory.transformer';
 import { generateUniqueId } from './unique-id.service';
+import { MemoryService } from './memory.service';
 
-export class MemoryExtraService {
+export class MemoryExtraService extends MemoryService {
   db = new Database(':memory:'); // Default database instance
 
   constructor(newDb: Database.Database) {
+    super(newDb);
     this.setDb(newDb);
   }
 
   setDb(newDb: Database.Database) {
     this.db = newDb; // Allow overriding the database instance
   }
+
+  async findDirectMemory(query: string): Promise<Memory | null> {
+    try {
+      // Search by data first, then by description
+      const row = this.db
+        .prepare(
+          `SELECT * FROM memories 
+         WHERE data LIKE ? OR description LIKE ? 
+         ORDER BY createdAt DESC LIMIT 1`
+        )
+        .get(`%${query}%`, `%${query}%`) as MemoryWithTags | undefined;
+
+      return row ? row : null;
+    } catch (error) {
+      console.error('Error in findDirectMemory:', error);
+      return null;
+    }
+  }
+
+  async findMultipleMemories(query: string, limit = 3): Promise<string[]> {
+    try {
+      const rows = this.db
+        .prepare(
+          `SELECT * FROM memories 
+         WHERE data LIKE ? OR description LIKE ? 
+         ORDER BY createdAt DESC LIMIT ?`
+        )
+        .all(`%${query}%`, `%${query}%`, limit) as MemoryWithTags[];
+
+      return rows.map((mem) => mem.data || '');
+    } catch (error) {
+      console.error('Error in findMultipleMemories:', error);
+      return [];
+    }
+  }
+
   /**
    * Fetch all memories with their associated tags.
    */
-  async getAllMemories(): Promise<MemoryWithTags[]> {
+  async getAllMemoriesWithTags(): Promise<MemoryWithTags[]> {
     const rows = this.db
       .prepare(
         `

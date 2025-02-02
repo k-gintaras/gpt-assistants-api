@@ -11,11 +11,11 @@ export class FocusedMemoryControllerService implements FocusedMemoryServiceModel
   }
 
   getFocusedMemoriesByAssistantId(assistantId: string): Promise<MemoryWithTags[]> {
-    return this.focusedMemoryService.getFocusedMemoriesByAssistantId(assistantId);
+    return this.focusedMemoryService.getLimitedFocusedMemoriesByAssistantId(assistantId);
   }
 
   getFocusedMemories(memoryFocusId: string): Promise<MemoryWithTags[]> {
-    return this.focusedMemoryService.getFocusedMemories(memoryFocusId);
+    return this.focusedMemoryService.getAllFocusedMemoriesByRuleId(memoryFocusId);
   }
 
   addFocusedMemory(memoryFocusId: string, memoryId: string): Promise<boolean> {

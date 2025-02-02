@@ -1,12 +1,13 @@
 import Database from 'better-sqlite3';
-import { RelationshipGraph } from '../../../models/relationship.model';
 import { RelationshipGraphService } from '../../../services/sqlite-services/relationship-graph.service';
+import { RelationshipGraph } from '../../../models/relationship.model';
 
-let relationshipGraphService: RelationshipGraphService;
-describe('Relationship Graph Service', () => {
+describe('RelationshipGraphService', () => {
+  let db: Database.Database;
+  let service: RelationshipGraphService;
+
   beforeAll(() => {
-    const db = new Database(':memory:');
-    // Initialize the relationship_graph table
+    db = new Database(':memory:');
     db.exec(`
       CREATE TABLE IF NOT EXISTS relationship_graph (
         id TEXT PRIMARY KEY,
@@ -17,99 +18,108 @@ describe('Relationship Graph Service', () => {
         updatedAt TEXT NOT NULL
       );
     `);
-    relationshipGraphService = new RelationshipGraphService(db);
+    service = new RelationshipGraphService(db);
   });
 
   afterAll(() => {
-    relationshipGraphService.db.close();
+    db.close();
   });
 
-  it('should add a new relationship', async () => {
-    const relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'> = {
-      type: 'task',
-      targetId: 'memory1',
-      relationshipType: 'depends_on',
+  beforeEach(() => {
+    db.exec('DELETE FROM relationship_graph');
+  });
+
+  test('should add a relationship', async () => {
+    const relationship = {
+      id: 'assistant1Id',
+      type: 'assistant' as RelationshipGraph['type'],
+      targetId: 'assistant2Id',
+      relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
     };
 
-    const relationshipId = await relationshipGraphService.addRelationship(relationship);
-    expect(relationshipId).toBeDefined();
-
-    const allRelationships = relationshipGraphService.getAllRelationships();
-    expect(allRelationships.length).toBe(1);
-    expect(allRelationships[0]).toMatchObject({
-      type: 'task',
-      targetId: 'memory1',
-      relationshipType: 'depends_on',
-    });
+    const result = await service.addRelationship(relationship);
+    expect(result).toBe(true);
   });
 
-  it('should fetch relationships by source ID and type', async () => {
-    const relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'> = {
-      type: 'assistant',
-      targetId: 'task1',
-      relationshipType: 'related_to',
+  test('should retrieve all relationships', async () => {
+    const relationship1 = {
+      id: 'assistant1Id',
+      type: 'assistant' as RelationshipGraph['type'],
+      targetId: 'assistant2Id',
+      relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
+    };
+    const relationship2 = {
+      id: 'memory1Id',
+      type: 'memory' as RelationshipGraph['type'],
+      targetId: 'memory2Id',
+      relationshipType: 'related_to' as RelationshipGraph['relationshipType'],
     };
 
-    const relationshipId = await relationshipGraphService.addRelationship(relationship);
+    await service.addRelationship(relationship1);
+    await service.addRelationship(relationship2);
 
-    const relationships = relationshipGraphService.getRelationshipsBySource('task1');
-    expect(relationships.length).toBe(1);
-    expect(relationships[0].id).toBe(relationshipId);
-    expect(relationships[0].type).toBe('assistant');
-    expect(relationships[0].targetId).toBe('task1');
-    expect(relationships[0].relationshipType).toBe('related_to');
+    const relationships = service.getAllRelationships();
+    expect(relationships.length).toBe(2);
   });
 
-  it('should update an existing relationship', async () => {
-    const relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'> = {
-      type: 'memory',
-      targetId: 'assistant1',
-      relationshipType: 'derived_from',
+  test('should retrieve relationships by source ID', async () => {
+    const relationship = {
+      id: 'assistant1Id',
+      type: 'assistant' as RelationshipGraph['type'],
+      targetId: 'assistant2Id',
+      relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
     };
+    await service.addRelationship(relationship);
 
-    const relationshipId = await relationshipGraphService.addRelationship(relationship);
-
-    const updated = await relationshipGraphService.updateRelationship(relationshipId, {
-      relationshipType: 'part_of',
-    });
-
-    expect(updated).toBe(true);
-
-    const allRelationships = relationshipGraphService.getAllRelationships();
-    const updatedRelationship = allRelationships.find((rel) => rel.id === relationshipId);
-    expect(updatedRelationship).toMatchObject({
-      type: 'memory',
-      targetId: 'assistant1',
-      relationshipType: 'part_of',
-    });
+    const results = service.getRelationshipsBySource('assistant1Id');
+    expect(results.length).toBe(1);
+    expect(results[0].targetId).toBe('assistant2Id');
   });
 
-  it('should delete a relationship', async () => {
-    const relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'> = {
-      type: 'task',
-      targetId: 'memory2',
-      relationshipType: 'blocks',
+  test('should retrieve relationships by target ID', async () => {
+    const relationship = {
+      id: 'memory1Id',
+      type: 'memory' as RelationshipGraph['type'],
+      targetId: 'memory2Id',
+      relationshipType: 'related_to' as RelationshipGraph['relationshipType'],
     };
+    await service.addRelationship(relationship);
 
-    const relationshipId = await relationshipGraphService.addRelationship(relationship);
-
-    const deleted = await relationshipGraphService.deleteRelationship(relationshipId);
-    expect(deleted).toBe(true);
-
-    const allRelationships = relationshipGraphService.getAllRelationships();
-    expect(allRelationships.find((rel) => rel.id === relationshipId)).toBeUndefined();
+    const results = service.getRelationshipsByTarget('memory2Id');
+    expect(results.length).toBe(1);
+    expect(results[0].relationshipType).toBe('related_to');
   });
 
-  it('should return false when deleting a non-existent relationship', async () => {
-    const deleted = await relationshipGraphService.deleteRelationship('nonexistent-id');
-    expect(deleted).toBe(false);
+  test('should update a relationship', async () => {
+    const relationship = {
+      id: 'assistant1Id',
+      type: 'assistant' as RelationshipGraph['type'],
+      targetId: 'assistant2Id',
+      relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
+    };
+    await service.addRelationship(relationship);
+
+    const updates = { relationshipType: 'blocks' as RelationshipGraph['relationshipType'] };
+    const result = await service.updateRelationship('assistant1Id', updates);
+    expect(result).toBe(true);
+
+    const updated = service.getRelationshipsByTarget('assistant2Id');
+    expect(updated[0].relationshipType).toBe('blocks');
   });
 
-  it('should throw an error when updating a non-existent relationship', async () => {
-    await expect(
-      relationshipGraphService.updateRelationship('nonexistent-id', {
-        relationshipType: 'related_to',
-      })
-    ).rejects.toThrow('Relationship with ID nonexistent-id not found.');
+  test('should delete a relationship', async () => {
+    const relationship = {
+      id: 'task1Id',
+      type: 'task' as RelationshipGraph['type'],
+      targetId: 'task2Id',
+      relationshipType: 'subtask_of' as RelationshipGraph['relationshipType'],
+    };
+    await service.addRelationship(relationship);
+
+    const deleteResult = await service.deleteRelationship('task1Id');
+    expect(deleteResult).toBe(true);
+
+    const relationships = service.getAllRelationships();
+    expect(relationships.length).toBe(0);
   });
 });

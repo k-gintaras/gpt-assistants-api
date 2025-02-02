@@ -56,7 +56,7 @@ describe('Relationship Graph Controller Tests', () => {
 
   it('should create a new relationship', async () => {
     const newRelationship = {
-      id: '1',
+      id: '2',
       targetId: '2',
       relationshipType: 'related_to',
       type: 'assistant',

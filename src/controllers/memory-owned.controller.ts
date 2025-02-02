@@ -10,6 +10,13 @@ export class OwnedMemoryController {
     this.ownedMemoryService = new OwnedMemoryControllerService(db);
   }
 
+  /**
+   * Retrieve memories owned by an assistant.
+   * @requestParams { assistantId: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Memories fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No memories found for assistant with ID {assistantId}." }
+   * @response {500} { status: "error", message: "Failed to retrieve memories.", error: any }
+   */
   async getMemoriesByAssistantId(req: Request, res: Response) {
     const { assistantId } = req.params;
 
@@ -24,6 +31,13 @@ export class OwnedMemoryController {
     }
   }
 
+  /**
+   * Retrieve all owned memories for an assistant.
+   * @requestParams { assistantId: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Owned memories fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No owned memories found for assistant with ID {assistantId}." }
+   * @response {500} { status: "error", message: "Failed to retrieve owned memories.", error: any }
+   */
   async getOwnedMemories(req: Request, res: Response) {
     const { assistantId } = req.params;
 
@@ -38,6 +52,13 @@ export class OwnedMemoryController {
     }
   }
 
+  /**
+   * Add a memory to an assistant's collection of owned memories.
+   * @requestParams { assistantId: string, memoryId: string } The ID of the assistant and memory.
+   * @response {201} { status: "success", message: "Memory added to assistant successfully." }
+   * @response {400} { status: "error", message: "Failed to add memory with ID {memoryId} to assistant with ID {assistantId}." }
+   * @response {500} { status: "error", message: "Failed to add memory to assistant.", error: any }
+   */
   async addOwnedMemory(req: Request, res: Response) {
     const { assistantId, memoryId } = req.params;
 
@@ -52,6 +73,13 @@ export class OwnedMemoryController {
     }
   }
 
+  /**
+   * Remove a memory from an assistant's collection of owned memories.
+   * @requestParams { assistantId: string, memoryId: string } The ID of the assistant and memory.
+   * @response {200} { status: "success", message: "Memory removed from assistant successfully." }
+   * @response {400} { status: "error", message: "Failed to remove memory with ID {memoryId} from assistant with ID {assistantId}." }
+   * @response {500} { status: "error", message: "Failed to remove memory from assistant.", error: any }
+   */
   async removeOwnedMemory(req: Request, res: Response) {
     const { assistantId, memoryId } = req.params;
 
@@ -66,6 +94,14 @@ export class OwnedMemoryController {
     }
   }
 
+  /**
+   * Update the owned memories for an assistant.
+   * @requestParams { assistantId: string } The ID of the assistant.
+   * @requestBody { memoryIds: string[] } The list of memory IDs to update.
+   * @response {200} { status: "success", message: "Owned memories updated successfully." }
+   * @response {400} { status: "error", message: "Memory IDs must be an array." }
+   * @response {500} { status: "error", message: "Failed to update owned memories.", error: any }
+   */
   async updateOwnedMemories(req: Request, res: Response) {
     const { assistantId } = req.params;
     const { memoryIds } = req.body;

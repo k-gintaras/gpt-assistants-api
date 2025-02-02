@@ -11,6 +11,13 @@ export class TagController {
     this.tagControllerService = new TagControllerService(db);
   }
 
+  /**
+   * Add a new tag.
+   * @requestBody { name: string } The name of the tag.
+   * @response {201} { status: "success", message: "Tag created successfully.", data: { tagId: string } }
+   * @response {400} { status: "error", message: "Tag {name} not created." }
+   * @response {500} { status: "error", message: "Failed to create tag.", error: any }
+   */
   async addTag(req: Request, res: Response) {
     const { name } = req.body;
     try {
@@ -25,6 +32,13 @@ export class TagController {
     }
   }
 
+  /**
+   * Remove a tag by ID.
+   * @requestParams { tagId: string } The ID of the tag to remove.
+   * @response {200} { status: "success", message: "Tag removed successfully." }
+   * @response {404} { status: "error", message: "Tag to delete not found." }
+   * @response {500} { status: "error", message: "Failed to remove tag.", error: any }
+   */
   async removeTag(req: Request, res: Response) {
     const { tagId } = req.params;
     try {
@@ -38,6 +52,14 @@ export class TagController {
     }
   }
 
+  /**
+   * Update an existing tag.
+   * @requestParams { tagId: string } The ID of the tag to update.
+   * @requestBody { name?: string } The updated tag details.
+   * @response {200} { status: "success", message: "Tag updated successfully." }
+   * @response {404} { status: "error", message: "Tag to update not found." }
+   * @response {500} { status: "error", message: "Failed to update tag.", error: any }
+   */
   async updateTag(req: Request, res: Response) {
     const { tagId } = req.params;
     const updates: Partial<Omit<Tag, 'id'>> = req.body;
@@ -52,6 +74,13 @@ export class TagController {
     }
   }
 
+  /**
+   * Retrieve a tag by ID.
+   * @requestParams { tagId: string } The ID of the tag to fetch.
+   * @response {200} { status: "success", message: "Tag with ID {tagId} fetched successfully", data: Tag }
+   * @response {404} { status: "error", message: "Tag with ID {tagId} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve tag.", error: any }
+   */
   async getTagById(req: Request, res: Response) {
     const { tagId } = req.params;
     try {
@@ -66,6 +95,11 @@ export class TagController {
     }
   }
 
+  /**
+   * Retrieve all tags.
+   * @response {200} { status: "success", message: "Tags fetched successfully", data: Tag[] }
+   * @response {500} { status: "error", message: "Failed to retrieve tags.", error: any }
+   */
   async getAllTags(req: Request, res: Response) {
     try {
       const tags = await this.tagControllerService.getAllTags();

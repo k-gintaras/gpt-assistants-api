@@ -10,6 +10,12 @@ export class MemoryExtraController {
     this.memoryExtraService = new MemoryExtraControllerService(db);
   }
 
+  /**
+   * Retrieve all memories with their associated tags.
+   * @response {200} { status: "success", message: "Memories with tags fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No memories found." }
+   * @response {500} { status: "error", message: "Failed to retrieve memories with tags.", error: any }
+   */
   async getMemoriesWithTags(_req: Request, res: Response) {
     try {
       const memoriesWithTags = await this.memoryExtraService.getMemoriesWithTags();
@@ -21,6 +27,15 @@ export class MemoryExtraController {
       return respond(res, 500, 'Failed to retrieve memories with tags.', null, error);
     }
   }
+
+  /**
+   * Retrieve memories by tags.
+   * @requestQuery { tags: string } Comma-separated tags to filter memories.
+   * @response {200} { status: "success", message: "Memories for the provided tags fetched successfully", data: Memory[] }
+   * @response {400} { status: "error", message: "Tags query parameter is required and should be a string." }
+   * @response {404} { status: "error", message: "No memories found for the provided tags." }
+   * @response {500} { status: "error", message: "Failed to retrieve memories by tags.", error: any }
+   */
   async getMemoriesByTags(req: Request, res: Response) {
     const { tags } = req.query;
     if (!tags || typeof tags !== 'string') {
@@ -38,6 +53,16 @@ export class MemoryExtraController {
       return respond(res, 500, 'Failed to retrieve memories by tags.', null, error);
     }
   }
+
+  /**
+   * Update tags for a memory.
+   * @requestParams { memoryId: string } The ID of the memory to update.
+   * @requestBody { newTags: string[] } The new tags to associate with the memory.
+   * @response {200} { status: "success", message: "Memory tags updated successfully" }
+   * @response {400} { status: "error", message: "New tags must be an array." }
+   * @response {404} { status: "error", message: "Memory with ID {memoryId} not found or update failed." }
+   * @response {500} { status: "error", message: "Failed to update memory tags.", error: any }
+   */
   async updateMemoryTags(req: Request, res: Response) {
     const { memoryId } = req.params;
     const { newTags } = req.body;

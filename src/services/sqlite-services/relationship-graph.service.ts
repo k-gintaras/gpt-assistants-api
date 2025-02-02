@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import { generateUniqueId } from './unique-id.service';
 import { RelationshipGraph, RelationshipGraphRow } from '../../models/relationship.model';
 
 export class RelationshipGraphService {
@@ -20,19 +19,38 @@ export class RelationshipGraphService {
     return results.map((row) => this.transformRow(row));
   }
 
-  // Fetch relationships by source ID and type
-  getRelationshipsBySourceAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
+  // Fetch relationships where a given assistant is the "source" (initiator)
+  getRelationshipsBySource(sourceId: string): RelationshipGraph[] {
     const stmt = this.db.prepare(`
     SELECT * 
     FROM relationship_graph 
-    WHERE target_id = ? AND type = ?
+    WHERE id = ?
   `);
-    const results = stmt.all(targetId, type) as RelationshipGraphRow[];
+    const results = stmt.all(sourceId) as RelationshipGraphRow[];
     return results.map((row) => this.transformRow(row));
   }
 
-  // Fetch relationships by source ID and type
-  getRelationshipsBySource(targetId: string): RelationshipGraph[] {
+  async getRelatedTopics(sourceId: string): Promise<string[]> {
+    try {
+      const relationships = this.db
+        .prepare(
+          `
+      SELECT target_id 
+      FROM relationship_graph 
+      WHERE id = ?
+    `
+        )
+        .all(sourceId) as { target_id: string }[];
+
+      return relationships.map((rel) => rel.target_id);
+    } catch (error) {
+      console.error('Error in getRelatedTopics:', error);
+      return [];
+    }
+  }
+
+  // Fetch relationships where a given assistant is the "target" (being depended on)
+  getRelationshipsByTarget(targetId: string): RelationshipGraph[] {
     const stmt = this.db.prepare(`
     SELECT * 
     FROM relationship_graph 
@@ -42,20 +60,37 @@ export class RelationshipGraphService {
     return results.map((row) => this.transformRow(row));
   }
 
+  // Fetch relationships by target ID and type
+  getRelationshipsByTargetAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
+    const stmt = this.db.prepare(`
+    SELECT * 
+    FROM relationship_graph 
+    WHERE target_id = ? AND type = ?
+  `);
+    const results = stmt.all(targetId, type) as RelationshipGraphRow[];
+    return results.map((row) => this.transformRow(row));
+  }
+
   // Add a new relationship
-  async addRelationship(relationship: Omit<RelationshipGraph, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    const id = generateUniqueId();
+  async addRelationship(relationship: Omit<RelationshipGraph, 'createdAt' | 'updatedAt'>): Promise<boolean> {
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
     const stmt = this.db.prepare(`
-      INSERT INTO relationship_graph (id, type, target_id, relationship_type, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
+    INSERT INTO relationship_graph (id, type, target_id, relationship_type, createdAt, updatedAt)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
 
-    stmt.run(id, relationship.type, relationship.targetId, relationship.relationshipType, createdAt, updatedAt);
+    const result = stmt.run(
+      relationship.id,
+      relationship.type, // Always "assistant"
+      relationship.targetId, // The assistant it's related to
+      relationship.relationshipType, // Relationship type
+      createdAt,
+      updatedAt
+    );
 
-    return id;
+    return result.changes > 0;
   }
 
   // Update an existing relationship

@@ -10,6 +10,13 @@ export class FocusedMemoryController {
     this.focusedMemoryService = new FocusedMemoryControllerService(db);
   }
 
+  /**
+   * Retrieve focused memories by assistant ID.
+   * @requestParams { assistantId: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Focused memories fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No focused memories found for assistant with ID {assistantId}." }
+   * @response {500} { status: "error", message: "Failed to retrieve focused memories.", error: any }
+   */
   async getFocusedMemoriesByAssistantId(req: Request, res: Response) {
     const { assistantId } = req.params;
 
@@ -24,6 +31,13 @@ export class FocusedMemoryController {
     }
   }
 
+  /**
+   * Retrieve focused memories by focus ID.
+   * @requestParams { memoryFocusId: string } The ID of the memory focus.
+   * @response {200} { status: "success", message: "Focused memories fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No focused memories found for focus ID {memoryFocusId}." }
+   * @response {500} { status: "error", message: "Failed to retrieve focused memories.", error: any }
+   */
   async getFocusedMemories(req: Request, res: Response) {
     const { memoryFocusId } = req.params;
 
@@ -38,6 +52,13 @@ export class FocusedMemoryController {
     }
   }
 
+  /**
+   * Add a memory to a focus group.
+   * @requestParams { memoryFocusId: string, memoryId: string } The IDs of the memory focus group and the memory.
+   * @response {201} { status: "success", message: "Memory added to focus group successfully." }
+   * @response {400} { status: "error", message: "Failed to add memory with ID {memoryId} to focus group with ID {memoryFocusId}." }
+   * @response {500} { status: "error", message: "Failed to add memory to focus group.", error: any }
+   */
   async addFocusedMemory(req: Request, res: Response) {
     const { memoryFocusId, memoryId } = req.params;
 
@@ -52,6 +73,13 @@ export class FocusedMemoryController {
     }
   }
 
+  /**
+   * Remove a memory from a focus group.
+   * @requestParams { memoryFocusId: string, memoryId: string } The IDs of the memory focus group and the memory.
+   * @response {200} { status: "success", message: "Memory removed from focus group successfully." }
+   * @response {400} { status: "error", message: "Failed to remove memory with ID {memoryId} from focus group with ID {memoryFocusId}." }
+   * @response {500} { status: "error", message: "Failed to remove memory from focus group.", error: any }
+   */
   async removeFocusedMemory(req: Request, res: Response) {
     const { memoryFocusId, memoryId } = req.params;
 
@@ -66,6 +94,14 @@ export class FocusedMemoryController {
     }
   }
 
+  /**
+   * Update focused memories in a focus group.
+   * @requestParams { memoryFocusId: string } The ID of the memory focus group.
+   * @requestBody { memoryIds: string[] } The list of memory IDs to update.
+   * @response {200} { status: "success", message: "Focused memories updated successfully." }
+   * @response {400} { status: "error", message: "Memory IDs must be an array." }
+   * @response {500} { status: "error", message: "Failed to update focused memories.", error: any }
+   */
   async updateFocusedMemories(req: Request, res: Response) {
     const { memoryFocusId } = req.params;
     const { memoryIds } = req.body;

@@ -1,0 +1,1566 @@
+[
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "get",
+    "path": "/assistant/",
+    "controller": "assistant.controller",
+    "method": "getAllAssistants",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'No assistants found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Assistants fetched successfully'",
+        "data": "assistantRows"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve assistants.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "get",
+    "path": "/assistant/:id",
+    "controller": "assistant.controller",
+    "method": "getAssistantById",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Assistant with ID ${id} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Assistant with ID ${id} fetched successfully`",
+        "data": "assistantRow"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "get",
+    "path": "/assistant/details/:id",
+    "controller": "assistant.controller",
+    "method": "getAssistantWithDetailsById",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Full Assistant with ID ${id} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Full Assistant with ID ${id} fetched successfully`",
+        "data": "assistantRow"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve Full assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "post",
+    "path": "/assistant/simple",
+    "controller": "assistant.controller",
+    "method": "createAssistantSimple",
+    "requestParams": null,
+    "requestBody": "{ name: string, type: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Failed to create assistant.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Assistant created successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "post",
+    "path": "/assistant/",
+    "controller": "assistant.controller",
+    "method": "createAssistant",
+    "requestParams": null,
+    "requestBody": "{ name: string, type: string, model: string, instructions: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Failed to create assistant.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Assistant created successfully.'",
+        "data": "{ id: assistantId }"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "put",
+    "path": "/assistant/:id",
+    "controller": "assistant.controller",
+    "method": "updateAssistant",
+    "requestParams": "{ id: string }",
+    "requestBody": "{ name?: string, type?: string, model?: string, instructions?: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Assistant with ID ${id} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Assistant updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "assistant.routes.ts",
+    "httpMethod": "delete",
+    "path": "/assistant/:id",
+    "controller": "assistant.controller",
+    "method": "deleteAssistant",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Assistant with ID ${id} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Assistant deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "feedback.routes.ts",
+    "httpMethod": "get",
+    "path": "/feedback/:id",
+    "controller": "feedback.controller",
+    "method": "getFeedbackById",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Feedback with ID ${id} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Feedback with ID ${id} fetched successfully`",
+        "data": "feedback"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve feedback.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "feedback.routes.ts",
+    "httpMethod": "get",
+    "path": "/feedback/target/:targetId/:targetType",
+    "controller": "feedback.controller",
+    "method": "getFeedbackByTarget",
+    "requestParams": "{ targetId: string, targetType: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No feedback found for ${targetType} with ID ${targetId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Feedback for ${targetType} with ID ${targetId} fetched successfully`",
+        "data": "feedback"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve feedback.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "feedback.routes.ts",
+    "httpMethod": "post",
+    "path": "/feedback/",
+    "controller": "feedback.controller",
+    "method": "addFeedback",
+    "requestParams": null,
+    "requestBody": "{ message: string, rating: number, targetId: string, targetType: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'Failed to add feedback.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Feedback added successfully.'",
+        "data": "{ id: feedbackId }"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to add feedback.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "feedback.routes.ts",
+    "httpMethod": "put",
+    "path": "/feedback/:id",
+    "controller": "feedback.controller",
+    "method": "updateFeedback",
+    "requestParams": "{ id: string }",
+    "requestBody": "{ message?: string, rating?: number, targetId?: string, targetType?: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Feedback with ID ${id} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Feedback updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update feedback.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "feedback.routes.ts",
+    "httpMethod": "delete",
+    "path": "/feedback/:id",
+    "controller": "feedback.controller",
+    "method": "deleteFeedback",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Feedback with ID ${id} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Feedback deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete feedback.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-extra.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-extra/",
+    "controller": "memory-extra.controller",
+    "method": "getMemoriesWithTags",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'No memories found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memories with tags fetched successfully'",
+        "data": "memoriesWithTags"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memories with tags.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-extra.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-extra/tags",
+    "controller": "memory-extra.controller",
+    "method": "getMemoriesByTags",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Tags query parameter is required and should be a string.'"
+      },
+      {
+        "statusCode": "404",
+        "message": "'No memories found for the provided tags.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memories for the provided tags fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memories by tags.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-extra.routes.ts",
+    "httpMethod": "put",
+    "path": "/memory-extra/tags/:memoryId",
+    "controller": "memory-extra.controller",
+    "method": "updateMemoryTags",
+    "requestParams": "{ memoryId: string }",
+    "requestBody": "{ newTags: string[] }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'New tags must be an array.'"
+      },
+      {
+        "statusCode": "404",
+        "message": "`Memory with ID ${memoryId} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory tags updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update memory tags.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focus-rule.routes.ts",
+    "httpMethod": "post",
+    "path": "/memory-focus-rule/",
+    "controller": "memory-focus-rule.controller",
+    "method": "createMemoryFocusRule",
+    "requestParams": null,
+    "requestBody": "{ assistantId: string, maxResults: number, relationshipTypes: string[], priorityTags: string[] }",
+    "responses": [
+      {
+        "statusCode": "201",
+        "message": "'Memory focus rule created successfully'",
+        "data": "memoryFocusRule"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create memory focus rule.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focus-rule.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-focus-rule/:assistantId",
+    "controller": "memory-focus-rule.controller",
+    "method": "getMemoryFocusRules",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Memory focus rule for assistant with ID ${assistantId} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory focus rule fetched successfully'",
+        "data": "memoryFocusRule"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memory focus rule.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focus-rule.routes.ts",
+    "httpMethod": "put",
+    "path": "/memory-focus-rule/:id",
+    "controller": "memory-focus-rule.controller",
+    "method": "updateMemoryFocusRule",
+    "requestParams": "{ id: string }",
+    "requestBody": "{ assistantId: string, maxResults: number, relationshipTypes: string[], priorityTags: string[] }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Memory focus rule with ID ${id} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory focus rule updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update memory focus rule.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focus-rule.routes.ts",
+    "httpMethod": "delete",
+    "path": "/memory-focus-rule/:id",
+    "controller": "memory-focus-rule.controller",
+    "method": "removeMemoryFocusRule",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Memory focus rule with ID ${id} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory focus rule deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete memory focus rule.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focused.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-focused/assistant/:assistantId",
+    "controller": "memory-focused.controller",
+    "method": "getFocusedMemoriesByAssistantId",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No focused memories found for assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Focused memories fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve focused memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focused.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-focused/:memoryFocusId",
+    "controller": "memory-focused.controller",
+    "method": "getFocusedMemories",
+    "requestParams": "{ memoryFocusId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No focused memories found for focus ID ${memoryFocusId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Focused memories fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve focused memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focused.routes.ts",
+    "httpMethod": "post",
+    "path": "/memory-focused/:memoryFocusId/:memoryId",
+    "controller": "memory-focused.controller",
+    "method": "addFocusedMemory",
+    "requestParams": "{ memoryFocusId: string, memoryId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Failed to add memory with ID ${memoryId} to focus group with ID ${memoryFocusId}.`"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Memory added to focus group successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to add memory to focus group.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focused.routes.ts",
+    "httpMethod": "delete",
+    "path": "/memory-focused/:memoryFocusId/:memoryId",
+    "controller": "memory-focused.controller",
+    "method": "removeFocusedMemory",
+    "requestParams": "{ memoryFocusId: string, memoryId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Failed to remove memory with ID ${memoryId} from focus group with ID ${memoryFocusId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory removed from focus group successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to remove memory from focus group.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-focused.routes.ts",
+    "httpMethod": "put",
+    "path": "/memory-focused/:memoryFocusId",
+    "controller": "memory-focused.controller",
+    "method": "updateFocusedMemories",
+    "requestParams": "{ memoryFocusId: string }",
+    "requestBody": "{ memoryIds: string[] }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Memory IDs must be an array.'"
+      },
+      {
+        "statusCode": "400",
+        "message": "`Failed to update focused memories for focus group with ID ${memoryFocusId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Focused memories updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update focused memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-owned.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-owned/assistant/:assistantId",
+    "controller": "memory-owned.controller",
+    "method": "getMemoriesByAssistantId",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No memories found for assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memories fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-owned.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory-owned/:assistantId",
+    "controller": "memory-owned.controller",
+    "method": "getOwnedMemories",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No owned memories found for assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Owned memories fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve owned memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-owned.routes.ts",
+    "httpMethod": "post",
+    "path": "/memory-owned/:assistantId/:memoryId",
+    "controller": "memory-owned.controller",
+    "method": "addOwnedMemory",
+    "requestParams": "{ assistantId: string, memoryId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Failed to add memory with ID ${memoryId} to assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Memory added to assistant successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to add memory to assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-owned.routes.ts",
+    "httpMethod": "delete",
+    "path": "/memory-owned/:assistantId/:memoryId",
+    "controller": "memory-owned.controller",
+    "method": "removeOwnedMemory",
+    "requestParams": "{ assistantId: string, memoryId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Failed to remove memory with ID ${memoryId} from assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory removed from assistant successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to remove memory from assistant.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory-owned.routes.ts",
+    "httpMethod": "put",
+    "path": "/memory-owned/:assistantId",
+    "controller": "memory-owned.controller",
+    "method": "updateOwnedMemories",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": "{ memoryIds: string[] }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Memory IDs must be an array.'"
+      },
+      {
+        "statusCode": "400",
+        "message": "`Failed to update owned memories for assistant with ID ${assistantId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Owned memories updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update owned memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory/",
+    "controller": "memory.controller",
+    "method": "getMemories",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'No memories found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memories fetched successfully'",
+        "data": "memories"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memories.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory.routes.ts",
+    "httpMethod": "get",
+    "path": "/memory/:id",
+    "controller": "memory.controller",
+    "method": "getMemory",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Memory with ID ${id} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Memory with ID ${id} fetched successfully`",
+        "data": "memory"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve memory.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory.routes.ts",
+    "httpMethod": "post",
+    "path": "/memory/",
+    "controller": "memory.controller",
+    "method": "createMemory",
+    "requestParams": null,
+    "requestBody": "{ content: string, type: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Failed to create memory.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Memory created successfully.'",
+        "data": "{ id: memoryId }"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create memory.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory.routes.ts",
+    "httpMethod": "put",
+    "path": "/memory/:id",
+    "controller": "memory.controller",
+    "method": "updateMemory",
+    "requestParams": "{ id: string }",
+    "requestBody": "{ content: string, type: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Memory ID mismatch.'"
+      },
+      {
+        "statusCode": "404",
+        "message": "`Memory with ID ${id} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update memory.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "memory.routes.ts",
+    "httpMethod": "delete",
+    "path": "/memory/:id",
+    "controller": "memory.controller",
+    "method": "deleteMemory",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Memory with ID ${id} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Memory deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete memory.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "post",
+    "path": "/orchestrator/remember",
+    "controller": "orchestrator.controller",
+    "method": "remember",
+    "requestParams": null,
+    "requestBody": "{ assistantId: string, memory: MemoryRequest, tags?: string[] }",
+    "responses": [
+      {
+        "statusCode": "201",
+        "message": "'Memory stored successfully.'"
+      },
+      {
+        "statusCode": "400",
+        "message": "'Failed to store memory.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error storing memory.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "post",
+    "path": "/orchestrator/delegate-task",
+    "controller": "orchestrator.controller",
+    "method": "delegateTask",
+    "requestParams": null,
+    "requestBody": "{ assistantId: string, task: TaskRequest, tags?: string[] }",
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Task delegated successfully.'",
+        "data": "result"
+      },
+      {
+        "statusCode": "400",
+        "message": "'Task delegation failed.'",
+        "data": "result"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error delegating task.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "post",
+    "path": "/orchestrator/connect-assistants",
+    "controller": "orchestrator.controller",
+    "method": "connectAssistants",
+    "requestParams": null,
+    "requestBody": "{ primaryId: string, dependentId: string, relation: string }",
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Assistants connected successfully.'"
+      },
+      {
+        "statusCode": "400",
+        "message": "'Failed to connect assistants.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error connecting assistants.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "post",
+    "path": "/orchestrator/connect-entities",
+    "controller": "orchestrator.controller",
+    "method": "connectEntities",
+    "requestParams": null,
+    "requestBody": "{ sourceType: string, sourceId: string, targetType: string, targetId: string, relation: string }",
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Entities connected successfully.'"
+      },
+      {
+        "statusCode": "400",
+        "message": "'Failed to connect entities.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error connecting entities.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "get",
+    "path": "/orchestrator/query-knowledge",
+    "controller": "orchestrator.controller",
+    "method": "queryKnowledge",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Query parameter is required.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Knowledge fetched successfully.'",
+        "data": "result"
+      },
+      {
+        "statusCode": "404",
+        "message": "'No matching knowledge found.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error querying knowledge.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "post",
+    "path": "/orchestrator/suggest-assistants",
+    "controller": "orchestrator.controller",
+    "method": "suggestAssistants",
+    "requestParams": null,
+    "requestBody": "{ task: TaskRequest, tags?: string[] }",
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Assistant suggestions fetched successfully.'",
+        "data": "suggestions"
+      },
+      {
+        "statusCode": "404",
+        "message": "'No assistant suggestions found.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error fetching assistant suggestions.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "orchestrator.routes.ts",
+    "httpMethod": "get",
+    "path": "/orchestrator/evaluate-performance/:assistantId",
+    "controller": "orchestrator.controller",
+    "method": "evaluatePerformance",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Performance evaluated successfully.'",
+        "data": "evaluation"
+      },
+      {
+        "statusCode": "404",
+        "message": "'No performance data found.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Error evaluating performance.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "prompt.routes.ts",
+    "httpMethod": "post",
+    "path": "/prompt/",
+    "controller": "prompt.controller",
+    "method": "prompt",
+    "requestParams": null,
+    "requestBody": "{ id: string, prompt: string, extraInstruction?: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Prompt failed or assistant not found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Prompt processed successfully'",
+        "data": "result"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to process prompt.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "get",
+    "path": "/relationship-graph/",
+    "controller": "relationship-graph.controller",
+    "method": "getAllRelationships",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'No relationships found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Relationships fetched successfully'",
+        "data": "relationships"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve relationships.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "get",
+    "path": "/relationship-graph/source/:targetId",
+    "controller": "relationship-graph.controller",
+    "method": "getRelationshipsBySource",
+    "requestParams": "{ targetId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No relationships found for target ID ${targetId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Relationships for target ID ${targetId} fetched successfully`",
+        "data": "relationships"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve relationships.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "get",
+    "path": "/relationship-graph/source/:targetId/:relationshipType",
+    "controller": "relationship-graph.controller",
+    "method": "getRelationshipsBySourceAndType",
+    "requestParams": "{ targetId: string, relationshipType: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No relationships found for target ID ${targetId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Relationships for target ID ${targetId} fetched successfully`",
+        "data": "relationships"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve relationships.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "post",
+    "path": "/relationship-graph/",
+    "controller": "relationship-graph.controller",
+    "method": "addRelationship",
+    "requestParams": null,
+    "requestBody": "{ sourceId: string, targetId: string, type: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Relationship was not created successfully.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Relationship created successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create relationship.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "put",
+    "path": "/relationship-graph/:id",
+    "controller": "relationship-graph.controller",
+    "method": "updateRelationship",
+    "requestParams": "{ id: string }",
+    "requestBody": "{ sourceId: string, targetId: string, type: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Relationship with ID ${id} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Relationship updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update relationship.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "relationship-graph.routes.ts",
+    "httpMethod": "delete",
+    "path": "/relationship-graph/:id",
+    "controller": "relationship-graph.controller",
+    "method": "deleteRelationship",
+    "requestParams": "{ id: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Relationship with ID ${id} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Relationship deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete relationship.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag-extra.routes.ts",
+    "httpMethod": "get",
+    "path": "/tag-extra/:entityType/:entityId",
+    "controller": "tag-extra.controller",
+    "method": "getTagsByEntity",
+    "requestParams": "{ entityId: string, entityType: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`No tags found for entity type ${entityType} and ID ${entityId}.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tags fetched successfully'",
+        "data": "tags"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tags.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag-extra.routes.ts",
+    "httpMethod": "post",
+    "path": "/tag-extra/:entityType/:entityId/:tagId",
+    "controller": "tag-extra.controller",
+    "method": "addTagToEntity",
+    "requestParams": "{ entityId: string, entityType: string, tagId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Failed to add tag to entity.'"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Tag added successfully to entity.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to add tag to entity.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag-extra.routes.ts",
+    "httpMethod": "delete",
+    "path": "/tag-extra/:entityType/:entityId/:tagId",
+    "controller": "tag-extra.controller",
+    "method": "removeTagFromEntity",
+    "requestParams": "{ entityId: string, entityType: string, tagId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "'Failed to remove tag from entity.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tag removed successfully from entity.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to remove tag from entity.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag.routes.ts",
+    "httpMethod": "post",
+    "path": "/tag/",
+    "controller": "tag.controller",
+    "method": "addTag",
+    "requestParams": null,
+    "requestBody": "{ name: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Tag ${name} not created.`"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Tag created successfully.'",
+        "data": "{ tagId }"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create tag.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag.routes.ts",
+    "httpMethod": "delete",
+    "path": "/tag/:tagId",
+    "controller": "tag.controller",
+    "method": "removeTag",
+    "requestParams": "{ tagId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'Tag to delete not found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tag removed successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to remove tag.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag.routes.ts",
+    "httpMethod": "put",
+    "path": "/tag/:tagId",
+    "controller": "tag.controller",
+    "method": "updateTag",
+    "requestParams": "{ tagId: string }",
+    "requestBody": "{ name?: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "'Tag to update not found.'"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tag updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update tag.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag.routes.ts",
+    "httpMethod": "get",
+    "path": "/tag/:tagId",
+    "controller": "tag.controller",
+    "method": "getTagById",
+    "requestParams": "{ tagId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Tag with ID ${tagId} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Tag with ID ${tagId} fetched successfully`",
+        "data": "tag"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tag.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "tag.routes.ts",
+    "httpMethod": "get",
+    "path": "/tag/",
+    "controller": "tag.controller",
+    "method": "getAllTags",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "200",
+        "message": "'Tags fetched successfully'",
+        "data": "tags"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tags.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "get",
+    "path": "/task/:taskId",
+    "controller": "task.controller",
+    "method": "getTaskById",
+    "requestParams": "{ taskId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Task with ID ${taskId} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Task with ID ${taskId} fetched successfully`",
+        "data": "task"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve task.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "get",
+    "path": "/task/",
+    "controller": "task.controller",
+    "method": "getAllTasks",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Tasks not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tasks fetched successfully'",
+        "data": "tasks"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tasks.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "post",
+    "path": "/task/",
+    "controller": "task.controller",
+    "method": "addTask",
+    "requestParams": null,
+    "requestBody": "{ title: string, description: string, status: string, assistantId: string }",
+    "responses": [
+      {
+        "statusCode": "400",
+        "message": "`Task create failed.`"
+      },
+      {
+        "statusCode": "201",
+        "message": "'Task created successfully.'",
+        "data": "{ id: taskId }"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to create task.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "put",
+    "path": "/task/:taskId",
+    "controller": "task.controller",
+    "method": "updateTask",
+    "requestParams": "{ taskId: string }",
+    "requestBody": "{ title?: string, description?: string, status?: string }",
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Task with ID ${taskId} not found or update failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Task updated successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to update task.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "delete",
+    "path": "/task/:taskId",
+    "controller": "task.controller",
+    "method": "deleteTask",
+    "requestParams": "{ taskId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Task with ID ${taskId} not found or delete failed.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Task deleted successfully.'"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to delete task.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "get",
+    "path": "/task/status/:status",
+    "controller": "task.controller",
+    "method": "getTasksByStatus",
+    "requestParams": "{ status: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Tasks by status ${status} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "`Tasks with status ${status} fetched successfully`",
+        "data": "tasks"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tasks by status.'",
+        "data": "null"
+      }
+    ]
+  },
+  {
+    "file": "task.routes.ts",
+    "httpMethod": "get",
+    "path": "/task/assistant/:assistantId",
+    "controller": "task.controller",
+    "method": "getTasksByAssistant",
+    "requestParams": "{ assistantId: string }",
+    "requestBody": null,
+    "responses": [
+      {
+        "statusCode": "404",
+        "message": "`Tasks by assistant id ${assistantId} not found.`"
+      },
+      {
+        "statusCode": "200",
+        "message": "'Tasks by assistant fetched successfully'",
+        "data": "tasks"
+      },
+      {
+        "statusCode": "500",
+        "message": "'Failed to retrieve tasks by assistant.'",
+        "data": "null"
+      }
+    ]
+  }
+]

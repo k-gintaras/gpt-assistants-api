@@ -54,8 +54,6 @@ export class UpdateAssistantService {
         console.error(`Failed to update assistant in the database with ID ${id}.`);
         return false;
       }
-
-      console.log(`Assistant with ID ${id} successfully updated.`);
       return true;
     } catch (error) {
       console.error(`Error updating assistant with ID ${id}:`, error);

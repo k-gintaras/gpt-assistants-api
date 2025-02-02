@@ -11,6 +11,13 @@ export class TaskController {
     this.taskControllerService = new TaskControllerService(db);
   }
 
+  /**
+   * Retrieve a task by ID.
+   * @requestParams { taskId: string } The ID of the task.
+   * @response {200} { status: "success", message: "Task with ID {taskId} fetched successfully", data: Task }
+   * @response {404} { status: "error", message: "Task with ID {taskId} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve task.", error: any }
+   */
   async getTaskById(req: Request, res: Response) {
     const { taskId } = req.params;
     try {
@@ -24,6 +31,12 @@ export class TaskController {
     }
   }
 
+  /**
+   * Retrieve all tasks.
+   * @response {200} { status: "success", message: "Tasks fetched successfully", data: Task[] }
+   * @response {404} { status: "error", message: "Tasks not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve tasks.", error: any }
+   */
   async getAllTasks(req: Request, res: Response) {
     try {
       const tasks = await this.taskControllerService.getAllTasks();
@@ -36,6 +49,13 @@ export class TaskController {
     }
   }
 
+  /**
+   * Add a new task.
+   * @requestBody { title: string, description: string, status: string, assistantId: string } The task details.
+   * @response {201} { status: "success", message: "Task created successfully.", data: { id: string } }
+   * @response {400} { status: "error", message: "Task create failed." }
+   * @response {500} { status: "error", message: "Failed to create task.", error: any }
+   */
   async addTask(req: Request, res: Response) {
     const task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = req.body;
     try {
@@ -49,6 +69,14 @@ export class TaskController {
     }
   }
 
+  /**
+   * Update an existing task.
+   * @requestParams { taskId: string } The ID of the task to update.
+   * @requestBody { title?: string, description?: string, status?: string } The updated task details.
+   * @response {200} { status: "success", message: "Task updated successfully." }
+   * @response {404} { status: "error", message: "Task with ID {taskId} not found or update failed." }
+   * @response {500} { status: "error", message: "Failed to update task.", error: any }
+   */
   async updateTask(req: Request, res: Response) {
     const { taskId } = req.params;
     const updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>> = req.body;
@@ -63,6 +91,13 @@ export class TaskController {
     }
   }
 
+  /**
+   * Delete a task by ID.
+   * @requestParams { taskId: string } The ID of the task to delete.
+   * @response {200} { status: "success", message: "Task deleted successfully." }
+   * @response {404} { status: "error", message: "Task with ID {taskId} not found or delete failed." }
+   * @response {500} { status: "error", message: "Failed to delete task.", error: any }
+   */
   async deleteTask(req: Request, res: Response) {
     const { taskId } = req.params;
     try {
@@ -76,6 +111,13 @@ export class TaskController {
     }
   }
 
+  /**
+   * Retrieve tasks by status.
+   * @requestParams { status: string } The status of the tasks (e.g., "in-progress", "completed").
+   * @response {200} { status: "success", message: "Tasks with status {status} fetched successfully", data: Task[] }
+   * @response {404} { status: "error", message: "Tasks by status {status} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve tasks by status.", error: any }
+   */
   async getTasksByStatus(req: Request, res: Response) {
     const { status } = req.params;
     try {
@@ -89,6 +131,13 @@ export class TaskController {
     }
   }
 
+  /**
+   * Retrieve tasks assigned to a specific assistant.
+   * @requestParams { assistantId: string } The ID of the assistant.
+   * @response {200} { status: "success", message: "Tasks by assistant fetched successfully", data: Task[] }
+   * @response {404} { status: "error", message: "Tasks by assistant id {assistantId} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve tasks by assistant.", error: any }
+   */
   async getTasksByAssistant(req: Request, res: Response) {
     const { assistantId } = req.params;
     try {

@@ -145,12 +145,25 @@ export const insertHelpers = {
     ).run(new Date().toISOString(), new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
   },
 
+  insertMemoriesX3(db: Database.Database) {
+    const now = new Date().toISOString();
+    const past = new Date(Date.now() - 10000).toISOString(); // 10 seconds earlier
+
+    db.prepare(
+      `
+    INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)
+    VALUES ('1', 'knowledge', 'Memory Description', ?, ?),
+           ('2', 'knowledge', 'Another Memory Description', ?, ?),
+           ('3', 'knowledge', 'Memory Description 3', ?, ?)
+    `
+    ).run(past, past, now, now, new Date().toISOString(), new Date().toISOString());
+  },
   insertMemory(db: Database.Database, id: string) {
     // Insert a single memory
     db.prepare(
       `
     INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)
-    VALUES (?, 'knowledge', 'Memory Description', ?, ?)
+    VALUES (?, 'knowledge', 'Memory Description ${id}', ?, ?)
   `
     ).run(id, new Date().toISOString(), new Date().toISOString());
   },

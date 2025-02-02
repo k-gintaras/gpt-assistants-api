@@ -67,7 +67,7 @@ export class PromptService {
 
   async handleChatPrompt(assistant: Assistant, prompt: string, extraInstruction?: string): Promise<string | null> {
     const model = assistant.model;
-    const memories: Memory[] = await this.memoryService.getFocusedMemoriesByAssistantId(assistant.id);
+    const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantId(assistant.id);
     const messages: GptMessageArray = this.memoryTransformerService.getMessages(memories); // we pass all memories to chat
 
     // Add the user's prompt
@@ -91,7 +91,7 @@ export class PromptService {
   }
 
   async handleAssistantPrompt(assistant: Assistant, prompt: string, extraInstruction?: string): Promise<string | null> {
-    const memories: Memory[] = await this.memoryService.getFocusedMemoriesByAssistantId(assistant.id);
+    const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantId(assistant.id);
 
     // instructions separate
     const messages: GptThreadMessageArray = this.memoryTransformerService.getThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });

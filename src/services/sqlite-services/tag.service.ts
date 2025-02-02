@@ -30,6 +30,36 @@ export class TagService {
   }
 
   /**
+   * Ensure a tag exists by name. If it exists, return its ID. Otherwise, create and return the new ID.
+   */
+  async ensureTagExists(tagName: string): Promise<string> {
+    // Check if the tag already exists
+    const existingTag = this.db
+      .prepare(
+        `
+      SELECT id FROM tags WHERE name = ?
+    `
+      )
+      .get(tagName) as { id: string } | undefined;
+
+    if (existingTag) {
+      return existingTag.id; // Return existing tag ID
+    }
+
+    // Otherwise, create a new tag
+    const newTagId = generateUniqueId();
+    this.db
+      .prepare(
+        `
+      INSERT INTO tags (id, name) VALUES (?, ?)
+    `
+      )
+      .run(newTagId, tagName);
+
+    return newTagId;
+  }
+
+  /**
    * Remove a tag by ID.
    */
   async removeTag(tagId: string): Promise<boolean> {

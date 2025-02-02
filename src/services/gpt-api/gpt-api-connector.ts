@@ -21,7 +21,7 @@ export function initOpenAI(apiKey: string, project: string): void {
     apiKey,
     project,
   });
-  console.log('OpenAI client initialized with project:', project);
+  // console.log('OpenAI client initialized with project:', project);
 }
 
 /**

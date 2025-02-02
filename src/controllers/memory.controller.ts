@@ -11,6 +11,12 @@ export class MemoryController {
     this.memoryService = new MemoryControllerService(db);
   }
 
+  /**
+   * Retrieve all memories.
+   * @response {200} { status: "success", message: "Memories fetched successfully", data: Memory[] }
+   * @response {404} { status: "error", message: "No memories found." }
+   * @response {500} { status: "error", message: "Failed to retrieve memories.", error: any }
+   */
   async getMemories(_req: Request, res: Response) {
     try {
       const memories = this.memoryService.getMemories();
@@ -23,6 +29,13 @@ export class MemoryController {
     }
   }
 
+  /**
+   * Retrieve a memory by ID.
+   * @requestParams { id: string } The ID of the memory.
+   * @response {200} { status: "success", message: "Memory with ID {id} fetched successfully", data: Memory }
+   * @response {404} { status: "error", message: "Memory with ID {id} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve memory.", error: any }
+   */
   async getMemory(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -36,6 +49,13 @@ export class MemoryController {
     }
   }
 
+  /**
+   * Create a new memory.
+   * @requestBody { content: string, type: string } The details of the memory.
+   * @response {201} { status: "success", message: "Memory created successfully.", data: { id: string } }
+   * @response {400} { status: "error", message: "Failed to create memory." }
+   * @response {500} { status: "error", message: "Failed to create memory.", error: any }
+   */
   async createMemory(req: Request, res: Response) {
     const memory: Memory = req.body;
     try {
@@ -49,6 +69,15 @@ export class MemoryController {
     }
   }
 
+  /**
+   * Update an existing memory.
+   * @requestParams { id: string } The ID of the memory to update.
+   * @requestBody { content: string, type: string } The updated details of the memory.
+   * @response {200} { status: "success", message: "Memory updated successfully" }
+   * @response {400} { status: "error", message: "Memory ID mismatch." }
+   * @response {404} { status: "error", message: "Memory with ID {id} not found or update failed." }
+   * @response {500} { status: "error", message: "Failed to update memory.", error: any }
+   */
   async updateMemory(req: Request, res: Response) {
     const { id } = req.params;
     const memory: Memory = req.body;
@@ -66,6 +95,13 @@ export class MemoryController {
     }
   }
 
+  /**
+   * Delete a memory by ID.
+   * @requestParams { id: string } The ID of the memory to delete.
+   * @response {200} { status: "success", message: "Memory deleted successfully" }
+   * @response {404} { status: "error", message: "Memory with ID {id} not found or delete failed." }
+   * @response {500} { status: "error", message: "Failed to delete memory.", error: any }
+   */
   async deleteMemory(req: Request, res: Response) {
     const { id } = req.params;
     try {

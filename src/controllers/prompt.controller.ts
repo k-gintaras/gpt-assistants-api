@@ -10,6 +10,13 @@ export class PromptController {
     this.promptControllerService = new PromptControllerService(db);
   }
 
+  /**
+   * Process a prompt for a specific assistant.
+   * @requestBody { id: string, prompt: string, extraInstruction?: string } The ID of the assistant, the prompt, and optional extra instructions.
+   * @response {200} { status: "success", message: "Prompt processed successfully", data: any }
+   * @response {400} { status: "error", message: "Prompt failed or assistant not found." }
+   * @response {500} { status: "error", message: "Failed to process prompt.", error: any }
+   */
   async prompt(req: Request, res: Response) {
     const { id, prompt, extraInstruction } = req.body;
 
