@@ -1,34 +1,43 @@
 import express from 'express';
 import request from 'supertest';
 import ownedMemoryRoutes from '../../../routes/memory-owned.routes';
+import { Pool } from 'pg'; // Use pg for PostgreSQL
+import { getDb } from '../../../database/database';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/owned-memories', ownedMemoryRoutes); // Register owned-memory routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertMemories(db);
-  insertHelpers.insertMemory(db, '3');
-  insertHelpers.insertMemoryFocusRule(db, '1');
-  insertHelpers.insertOwnedMemory(db, '1', '1'); // Insert test data for owned memory
-  insertHelpers.insertOwnedMemory(db, '1', '2'); // Insert test data for owned memory
+const uniqueIdPrefix = 'ownedMemoryRouteTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
+  // Insert test data using unique IDs
 });
 
-afterAll(() => {
-  testDbHelper.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('OwnedMemory Controller Tests', () => {
   it('should fetch memories by assistantId', async () => {
-    const response = await request(app).get('/owned-memories/assistant/1');
+    const assistantId = uniqueIdPrefix + 'assistant8';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '8', 'm1'); // Unique memory ID
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + '8');
+
+    const response = await request(app).get(`/owned-memories/assistant/${assistantId}`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
@@ -40,7 +49,12 @@ describe('OwnedMemory Controller Tests', () => {
   });
 
   it('should fetch owned memories by assistantId', async () => {
-    const response = await request(app).get('/owned-memories/1');
+    const assistantId = uniqueIdPrefix + 'assistant2';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '3', 'm1'); // Unique memory ID
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + '3');
+
+    const response = await request(app).get(`/owned-memories/${assistantId}`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
@@ -52,7 +66,14 @@ describe('OwnedMemory Controller Tests', () => {
   });
 
   it('should add owned memory', async () => {
-    const response = await request(app).post('/owned-memories/1/3').send();
+    const assistantId = uniqueIdPrefix + 'assistant3';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '4', 'm1'); // Unique memory ID
+    // insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + '3');
+
+    const response = await request(app)
+      .post(`/owned-memories/${assistantId}/${uniqueIdPrefix + '4'}`)
+      .send();
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Memory added to assistant successfully.');
   });
@@ -64,7 +85,12 @@ describe('OwnedMemory Controller Tests', () => {
   });
 
   it('should remove owned memory', async () => {
-    const response = await request(app).delete('/owned-memories/1/2');
+    const assistantId = uniqueIdPrefix + 'assistant5';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '5', 'm1'); // Unique memory ID
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + '5');
+
+    const response = await request(app).delete(`/owned-memories/${assistantId}/${uniqueIdPrefix + '5'}`);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Memory removed from assistant successfully.');
   });
@@ -76,9 +102,15 @@ describe('OwnedMemory Controller Tests', () => {
   });
 
   it('should update owned memories', async () => {
+    const assistantId = uniqueIdPrefix + 'assistant6';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '6', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '7', 'm2'); // Unique memory ID
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + '6');
+
     const response = await request(app)
-      .put('/owned-memories/1')
-      .send({ memoryIds: ['1', '2'] });
+      .put(`/owned-memories/${assistantId}`)
+      .send({ memoryIds: [uniqueIdPrefix + '6', uniqueIdPrefix + '7'] });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Owned memories updated successfully.');
   });

@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { OwnedMemoryControllerService } from '../services/core-services/memory-owned.controller.service';
 import { respond } from './controller.helper';
@@ -6,7 +6,7 @@ import { respond } from './controller.helper';
 export class OwnedMemoryController {
   private readonly ownedMemoryService: OwnedMemoryControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.ownedMemoryService = new OwnedMemoryControllerService(db);
   }
 

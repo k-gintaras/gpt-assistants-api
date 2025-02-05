@@ -1,22 +1,6 @@
-# Logs
+node_modules
 npm-debug.log
-yarn-error.log
-node_modules/
-dist/
-
-# Environment variables
+Dockerfile
+docker-compose.yml
+dist
 .env
-.env.local
-
-# Build outputs
-dist/
-coverage/
-
-# IDE-specific files
-.DS_Store
-.vscode/
-.idea/
-
-# Git
-.git/
-.gitignore

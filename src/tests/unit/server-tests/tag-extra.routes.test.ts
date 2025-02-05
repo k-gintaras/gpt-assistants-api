@@ -1,33 +1,43 @@
-import { getDbInstance } from '../../../database/database';
 import request from 'supertest';
 import express from 'express';
-import { insertHelpers } from '../test-db-insert.helper'; // Assuming helper is implemented
-import { testDbHelper } from '../test-db.helper';
 import tagExtraRoutes from '../../../routes/tag-extra.routes';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
+import { getDb } from '../../../database/database';
+import { insertHelpers } from '../test-db-insert.helper';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/tag-extra', tagExtraRoutes); // Register the tag-extra routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db); // Initialize the test DB
-  insertHelpers.insertAssistant(db, '1'); // Insert test data for assistant
-  insertHelpers.insertMemories(db); // Insert test data for memories
-  insertHelpers.insertTags(db); // Insert some test data for tags and relationships
-  insertHelpers.insertRelationship(db, '1', '1'); // Insert test relationship
+const uniqueIdPrefix = 'tagExtraRoutesTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  db.close(); // Close the database connection after tests
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('TagExtraController Tests', () => {
   it('should fetch tags by entity', async () => {
-    const entityId = '1'; // Replace with valid entity ID
-    const entityType = 'assistant'; // Replace with valid entity type (memory, assistant, task)
+    const entityId = uniqueIdPrefix + 'm1'; // Valid entity ID
+    const tagId = uniqueIdPrefix + 't1'; // Valid entity ID
+    const entityType = 'memory'; // Valid entity type (memory, assistant, task)
+
+    await insertHelpers.insertMemory(db, entityId, 'm1');
+    await insertHelpers.insertTag(db, tagId, 'qq');
+    await insertHelpers.insertTagMemory(db, entityId, tagId);
 
     const response = await request(app).get(`/tag-extra/${entityType}/${entityId}`);
     expect(response.status).toBe(200);
@@ -36,9 +46,12 @@ describe('TagExtraController Tests', () => {
   });
 
   it('should add a tag to an entity', async () => {
-    const entityId = '1'; // Replace with valid entity ID
-    const tagId = '1'; // Replace with valid tag ID
-    const entityType = 'memory'; // Replace with valid entity type
+    const entityId = uniqueIdPrefix + '2'; // Valid entity ID
+    const tagId = uniqueIdPrefix + '2'; // Valid tag ID
+    const entityType = 'memory'; // Valid entity type
+
+    await insertHelpers.insertMemory(db, entityId, 'm1');
+    await insertHelpers.insertTag(db, tagId, 'qq');
 
     const response = await request(app).post(`/tag-extra/${entityType}/${entityId}/${tagId}`);
     expect(response.status).toBe(201);
@@ -46,7 +59,7 @@ describe('TagExtraController Tests', () => {
   });
 
   it('should return 400 when adding a non-existing tag to an entity', async () => {
-    const entityId = '1'; // Valid entity ID
+    const entityId = uniqueIdPrefix + '1'; // Valid entity ID
     const tagId = '999'; // Non-existing tag ID
     const entityType = 'memory'; // Entity type
 
@@ -56,9 +69,13 @@ describe('TagExtraController Tests', () => {
   });
 
   it('should remove a tag from an entity', async () => {
-    const entityId = '1'; // Valid entity ID
-    const tagId = '1'; // Valid tag ID
+    const entityId = uniqueIdPrefix + '3'; // Valid entity ID
+    const tagId = uniqueIdPrefix + '3'; // Valid tag ID
     const entityType = 'memory'; // Entity type
+
+    await insertHelpers.insertMemory(db, entityId, 'm1');
+    await insertHelpers.insertTag(db, tagId, 'qq');
+    await insertHelpers.insertTagMemory(db, entityId, tagId);
 
     const response = await request(app).delete(`/tag-extra/${entityType}/${entityId}/${tagId}`);
     expect(response.status).toBe(200);
@@ -66,7 +83,7 @@ describe('TagExtraController Tests', () => {
   });
 
   it('should return 400 when trying to remove a non-existent tag from an entity', async () => {
-    const entityId = '1'; // Valid entity ID
+    const entityId = uniqueIdPrefix + '1'; // Valid entity ID
     const tagId = '999'; // Non-existent tag ID
     const entityType = 'memory'; // Entity type
 

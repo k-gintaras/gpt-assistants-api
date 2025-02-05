@@ -1,127 +1,118 @@
-import Database from 'better-sqlite3';
-import { testDbHelper } from '../test-db.helper';
+import { Pool } from 'pg';
+import { getDb } from '../test-db.helper';
 import { insertHelpers } from '../test-db-insert.helper';
 import { FocusedMemoryService } from '../../../services/sqlite-services/focused-memory.service';
 
-let db: Database.Database;
+let db: Pool;
 let focusedMemoryService: FocusedMemoryService;
 
-beforeEach(() => {
-  db = testDbHelper.initialize();
+beforeAll(async () => {
+  jest.setTimeout(10000); // Increase timeout for tests to 10 seconds
+  await getDb.initialize(); // Initialize DB only once
+  db = getDb.getInstance();
   focusedMemoryService = new FocusedMemoryService(db);
-
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertMemoriesX3(db); // Inserts memories with IDs 1,2
-  insertHelpers.insertMemoryFocusRule(db, '1', '1'); // Insert focus rule
 });
 
-afterEach(() => {
-  testDbHelper.reset();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Start a new transaction for each test
+  await insertHelpers.insertFocusedMemoryTestData(db); // Insert test data for focused memories
 });
 
-afterAll(() => {
-  testDbHelper.close();
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback transaction to avoid polluting DB state
+});
+
+afterAll(async () => {
+  await getDb.close(); // Close the DB connection after all tests
 });
 
 describe('Focused Memory Service Tests', () => {
   test('Should fetch limited focused memories by assistant ID', async () => {
-    await focusedMemoryService.addFocusedMemory('1', '1');
-
-    const focusedMemories = await focusedMemoryService.getLimitedFocusedMemoriesByAssistantId('1');
-    expect(focusedMemories).toBeDefined();
-    expect(focusedMemories).toHaveLength(1);
-    expect(focusedMemories[0].description).toBe('Memory Description');
+    // Insert unique memories with expected descriptions
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1'); // Memory Description 1
+    const memories = await focusedMemoryService.getLimitedFocusedMemoriesByAssistantId('focusedMemoryId' + '1');
+    expect(memories).toHaveLength(1);
+    expect(memories[0].description).toBe('Memory Description 1'); // Match the description you inserted
   });
 
   test('Should fetch all focused memories by focus rule ID', async () => {
-    await focusedMemoryService.addFocusedMemory('1', '1');
-
-    const focusedMemories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('1');
-    expect(focusedMemories).toBeDefined();
-    expect(focusedMemories).toHaveLength(1);
-    expect(focusedMemories[0].description).toBe('Memory Description');
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1'); // Memory Description 1
+    const memories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('focusedMemoryId' + '1');
+    expect(memories).toHaveLength(1);
+    expect(memories[0].description).toBe('Memory Description 1'); // Match the description you inserted
   });
 
   test('Should enforce maxResults when fetching focused memories by assistant ID', async () => {
-    // Add all three memories to the focus group
-    await focusedMemoryService.addFocusedMemory('1', '1');
-    await focusedMemoryService.addFocusedMemory('1', '2');
-    await focusedMemoryService.addFocusedMemory('1', '3');
+    // Insert unique memories with distinct descriptions for testing
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1'); // Memory 1
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '2'); // Memory 2
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '3'); // Memory 3
 
-    // Set maxResults to 2 in the focus rule
-    db.prepare(`UPDATE memory_focus_rules SET maxResults = ? WHERE id = ?`).run(2, '1');
+    // Update max_results for the focus rule to limit results to 2
+    await db.query(`UPDATE memory_focus_rules SET max_results = $1 WHERE id = $2`, [2, 'focusedMemoryId' + '1']);
 
-    const focusedMemories = await focusedMemoryService.getLimitedFocusedMemoriesByAssistantId('1');
-    // Verify only 2 most recent memories are returned
-    expect(focusedMemories).toHaveLength(2);
-    expect(focusedMemories.map((mem) => mem.description)).toEqual(expect.arrayContaining(['Memory Description 3', 'Another Memory Description']));
+    // Fetch the memories and ensure we get the most recent ones based on max_results
+    const memories = await focusedMemoryService.getLimitedFocusedMemoriesByAssistantId('focusedMemoryId' + '1');
+
+    // Assert that we get 2 memories (max_results)
+    expect(memories).toHaveLength(2);
+
+    // Assert that the descriptions are correct (most recent first)
+    expect(memories.map((m) => m.description)).toEqual(
+      expect.arrayContaining([
+        'Memory Description 3', // Latest memory
+        'Memory Description 2', // Second latest memory
+      ])
+    );
   });
 
   test('Should fetch all focused memories by rule ID without limit', async () => {
-    // Add all three memories
-    await focusedMemoryService.addFocusedMemory('1', '1');
-    await focusedMemoryService.addFocusedMemory('1', '2');
-    await focusedMemoryService.addFocusedMemory('1', '3');
-
-    // Set maxResults to 2 but fetch by rule ID (which ignores maxResults)
-    db.prepare(`UPDATE memory_focus_rules SET maxResults = ? WHERE id = ?`).run(2, '1');
-
-    const focusedMemories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('1');
-    expect(focusedMemories).toHaveLength(3); // Should return all, ignoring limits
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1');
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '2');
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '3');
+    await db.query(`UPDATE memory_focus_rules SET max_results = $1 WHERE id = $2`, [2, 'focusedMemoryId' + '1']);
+    const memories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('focusedMemoryId' + '1');
+    expect(memories).toHaveLength(3);
   });
 
   test('Should add a focused memory', async () => {
-    const validAdd = await focusedMemoryService.addFocusedMemory('1', '1');
-    expect(validAdd).toBe(true);
-
-    // Attempt duplicate addition
-    const duplicateAdd = await focusedMemoryService.addFocusedMemory('1', '1');
-    expect(duplicateAdd).toBe(false);
-
-    // Attempt invalid memory focus ID
-    const invalidFocusAdd = await focusedMemoryService.addFocusedMemory('invalid-focus', '1');
-    expect(invalidFocusAdd).toBe(false);
-
-    // Attempt invalid memory ID
-    const invalidMemoryAdd = await focusedMemoryService.addFocusedMemory('1', 'invalid-memory');
-    expect(invalidMemoryAdd).toBe(false);
+    const valid = await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '2', 'focusedMemoryId' + '1');
+    expect(valid).toBe(true);
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1');
+    const duplicate = await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1');
+    expect(duplicate).toBe(false);
+    const invalidFocus = await focusedMemoryService.addFocusedMemory('invalid-focus', 'focusedMemoryId' + '1');
+    expect(invalidFocus).toBe(false);
+    const invalidMemory = await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'invalid-memory');
+    expect(invalidMemory).toBe(false);
   });
 
   test('Should remove a focused memory', async () => {
-    insertHelpers.insertMemory(db, '1-memory');
-    await focusedMemoryService.addFocusedMemory('1', '1-memory');
-
-    const preRemoveRows = db.prepare('SELECT * FROM focused_memories WHERE memory_focus_id = ? AND memory_id = ?').all('1', '1-memory');
-    expect(preRemoveRows).toHaveLength(1);
-
-    const removed = await focusedMemoryService.removeFocusedMemory('1', '1-memory');
+    await insertHelpers.insertMemory(db, 'focusedMemoryId' + '1-memory', 'focusedMemoryId' + '1-memory');
+    await focusedMemoryService.addFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1-memory');
+    const pre = await db.query('SELECT * FROM focused_memories WHERE memory_focus_id = $1 AND memory_id = $2', ['focusedMemoryId' + '1', 'focusedMemoryId' + '1-memory']);
+    expect(pre.rowCount).toBe(1);
+    const removed = await focusedMemoryService.removeFocusedMemory('focusedMemoryId' + '1', 'focusedMemoryId' + '1-memory');
     expect(removed).toBe(true);
-
-    const postRemoveRows = db.prepare('SELECT * FROM focused_memories WHERE memory_focus_id = ? AND memory_id = ?').all('1', '1-memory');
-    expect(postRemoveRows).toHaveLength(0);
+    const post = await db.query('SELECT * FROM focused_memories WHERE memory_focus_id = $1 AND memory_id = $2', ['focusedMemoryId' + '1', 'focusedMemoryId' + '1-memory']);
+    expect(post.rowCount).toBe(0);
   });
 
   test('Should update focused memories and enforce new list', async () => {
-    const newMemoryIds = ['4', '5'];
-
-    // Insert new memories
-    db.prepare(
-      `
-      INSERT INTO memories (id, type, description, createdAt, updatedAt)
-      VALUES ('4', 'knowledge', 'Second Memory', '${new Date().toISOString()}', '${new Date().toISOString()}'),
-             ('5', 'knowledge', 'Third Memory', '${new Date().toISOString()}', '${new Date().toISOString()}')
-      `
-    ).run();
-
-    await focusedMemoryService.updateFocusedMemories('1', newMemoryIds);
-
-    const focusedMemories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('1');
-    expect(focusedMemories).toHaveLength(2);
-    expect(focusedMemories.map((mem) => mem.description)).toEqual(expect.arrayContaining(['Second Memory', 'Third Memory']));
+    const newMemoryIds = ['focusedMemoryId' + '4', 'focusedMemoryId' + '5'];
+    await db.query(
+      `INSERT INTO memories (id, type, description, created_at, updated_at)
+       VALUES ($1, 'knowledge', $2, $3, $3), ($4, 'knowledge', $5, $6, $6)`,
+      ['focusedMemoryId' + '4', 'Second Memory', new Date().toISOString(), 'focusedMemoryId' + '5', 'Third Memory', new Date().toISOString()]
+    );
+    await focusedMemoryService.updateFocusedMemories('focusedMemoryId' + '1', newMemoryIds);
+    const memories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('focusedMemoryId' + '1');
+    expect(memories).toHaveLength(2);
+    expect(memories.map((m) => m.description)).toEqual(expect.arrayContaining(['Second Memory', 'Third Memory']));
   });
 
   test('Should handle no focused memories gracefully', async () => {
-    const focusedMemories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('nonexistent-focus-rule');
-    expect(focusedMemories).toEqual([]);
+    const memories = await focusedMemoryService.getAllFocusedMemoriesByRuleId('nonexistent-focus-rule');
+    expect(memories).toEqual([]);
   });
 });

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { respond } from './controller.helper';
 import { OrchestratorService } from '../services/orchestrator-services/orchestrator.service';
 
 export class OrchestratorController {
   private orchestratorService: OrchestratorService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.orchestratorService = new OrchestratorService(db);
   }
 

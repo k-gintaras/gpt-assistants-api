@@ -1,14 +1,14 @@
-import { testDbHelper } from '../test-db.helper';
-import Database from 'better-sqlite3';
-import { PromptService } from '../../../services/orchestrator-services/prompt.service';
-import { AssistantService } from '../../../services/sqlite-services/assistant.service';
-import { FocusedMemoryService } from '../../../services/sqlite-services/focused-memory.service';
+import { getDb } from '../test-db.helper';
 import { MemoryTransformerService } from '../../../services/memory-transformer.service';
 import { generateChatReply } from '../../../services/gpt-api/gpt-api-chat-completion';
 import { queryAssistantWithMessages } from '../../../services/gpt-api/gpt-api-thread';
 import { AssistantRow } from '../../../models/assistant.model';
 import { MemoryWithTags } from '../../../models/memory.model';
 import { insertHelpers } from '../test-db-insert.helper';
+import { Pool } from 'pg';
+import { PromptService } from '../../../services/orchestrator-services/prompt.service';
+import { AssistantService } from '../../../services/sqlite-services/assistant.service';
+import { FocusedMemoryService } from '../../../services/sqlite-services/focused-memory.service';
 
 jest.mock('../../../services/sqlite-services/assistant.service');
 jest.mock('../../../services/sqlite-services/focused-memory.service');
@@ -16,36 +16,42 @@ jest.mock('../../../services/memory-transformer.service');
 jest.mock('../../../services/gpt-api/gpt-api-chat-completion');
 jest.mock('../../../services/gpt-api/gpt-api-thread');
 
-let db: Database.Database;
+let db: Pool;
 let promptService: PromptService;
 let mockAssistantService: jest.Mocked<AssistantService>;
 let mockMemoryService: jest.Mocked<FocusedMemoryService>;
 let mockMemoryTransformer: jest.Mocked<MemoryTransformerService>;
-
-beforeEach(() => {
-  db = testDbHelper.initialize();
+const pId = 'promptId';
+beforeAll(async () => {
+  await getDb.initialize(); // Initialize the database only once before tests
+  db = getDb.getInstance();
   promptService = new PromptService(db);
 
   mockAssistantService = promptService.assistantService as jest.Mocked<AssistantService>;
   mockMemoryService = promptService.memoryService as jest.Mocked<FocusedMemoryService>;
   mockMemoryTransformer = promptService.memoryTransformerService as jest.Mocked<MemoryTransformerService>;
+});
+beforeEach(async () => {
+  // Insert required data
+  await insertHelpers.insertAssistant(db, pId + '1', true);
+  await insertHelpers.insertAssistant(db, pId + '2', true); // Adjusted: ensure this is inserted within the same setup
 
-  insertHelpers.insertAssistant(db, '1', true);
-  jest.clearAllMocks();
+  // Start transaction for each test
+  await db.query('BEGIN');
 });
 
-afterEach(() => {
-  testDbHelper.reset();
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test to ensure isolation
 });
 
-afterAll(() => {
-  testDbHelper.close();
+afterAll(async () => {
+  await getDb.close(); // Close the DB pool after all tests
 });
 
 describe('PromptService Tests', () => {
   describe('prompt', () => {
     it('should return null if the assistant does not exist', async () => {
-      mockAssistantService.getAssistantById.mockReturnValueOnce(null);
+      mockAssistantService.getAssistantById.mockResolvedValueOnce(null);
 
       const result = await promptService.prompt('invalid-id', 'Test prompt');
 
@@ -54,32 +60,32 @@ describe('PromptService Tests', () => {
     });
 
     it('should handle chat prompt for chat-type assistant', async () => {
-      const assistant: AssistantRow = { id: '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
-      mockAssistantService.getAssistantById.mockReturnValueOnce(assistant);
+      const assistant: AssistantRow = { id: pId + '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', created_at: '', updated_at: '' };
+      mockAssistantService.getAssistantById.mockResolvedValueOnce(assistant);
       jest.spyOn(promptService, 'handleChatPrompt').mockResolvedValueOnce('Chat response');
 
-      const result = await promptService.prompt('1', 'Test prompt');
+      const result = await promptService.prompt(pId + '1', 'Test prompt');
 
       expect(result).toBe('Chat response');
       expect(promptService.handleChatPrompt).toHaveBeenCalledWith(assistant, 'Test prompt', undefined);
     });
 
     it('should handle thread-based prompt for assistant-type assistant', async () => {
-      const assistant: AssistantRow = { id: '2', name: 'Thread Assistant', type: 'assistant', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
-      mockAssistantService.getAssistantById.mockReturnValueOnce(assistant);
-      jest.spyOn(promptService, 'prompt').mockResolvedValueOnce('Thread response');
+      const assistant: AssistantRow = { id: pId + '2', name: 'Chat Assistant', type: 'assistant', model: 'gpt-4o', description: '', created_at: '', updated_at: '' };
+      mockAssistantService.getAssistantById.mockResolvedValueOnce(assistant);
+      jest.spyOn(promptService, 'handleAssistantPrompt').mockResolvedValueOnce('Chat response');
 
-      const result = await promptService.prompt('2', 'Test prompt');
+      const result = await promptService.prompt(pId + '2', 'Test prompt');
 
-      expect(result).toBe('Thread response');
-      expect(promptService.prompt).toHaveBeenCalledWith(assistant.id, 'Test prompt');
+      expect(result).toBe('Chat response');
+      expect(promptService.handleAssistantPrompt).toHaveBeenCalledWith(assistant, 'Test prompt', undefined);
     });
   });
 
   describe('handleChatPrompt', () => {
     it('should generate a chat reply with user prompt and extra instruction', async () => {
-      const assistant: AssistantRow = { id: '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
-      const memories: MemoryWithTags[] = [{ id: 'm1', type: 'instruction', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
+      const assistant: AssistantRow = { id: pId + '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', created_at: '', updated_at: '' };
+      const memories: MemoryWithTags[] = [{ id: pId + 'm1', type: 'instruction', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
       mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getMessages.mockReturnValueOnce([{ role: 'system', content: 'Memory 1' }]);
       (generateChatReply as jest.Mock).mockResolvedValueOnce('Chat reply');
@@ -105,44 +111,21 @@ describe('PromptService Tests', () => {
         type: 'assistant',
         model: 'gpt-4o',
         description: '',
-        createdAt: '',
-        updatedAt: '',
+        created_at: '',
+        updated_at: '',
       };
 
-      // Expected memories returned by mockMemoryService
-      const memories: MemoryWithTags[] = [
-        {
-          id: 'm1',
-          type: 'knowledge',
-          tags: [],
-          description: 'Memory 1',
-          data: null,
-          createdAt: null,
-          updatedAt: null,
-        },
-      ];
+      const memories: MemoryWithTags[] = [{ id: 'm1', type: 'knowledge', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
 
-      // Mock responses
       mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([{ role: 'assistant', content: 'Memory 1' }]);
       (queryAssistantWithMessages as jest.Mock).mockResolvedValueOnce('Thread reply');
 
-      // Call the method under test
       const result = await promptService.handleAssistantPrompt(assistant, 'User prompt');
 
-      // Assertions
       expect(result).toBe('Thread reply');
-
-      // Ensure `getFocusedMemoriesByAssistantId` was called with correct arguments
       expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
-
-      // Adjusted expectation to match the received arguments (including `includeTypes`)
-      expect(mockMemoryTransformer.getThreadMessages).toHaveBeenCalledWith(
-        expect.arrayContaining(memories), // Ensures memories are included
-        { includeTypes: ['knowledge', 'prompt', 'meta', 'session'] } // Ensure includeTypes is passed as well
-      );
-
-      // Ensure `queryAssistantWithMessages` was called with the correct messages
+      expect(mockMemoryTransformer.getThreadMessages).toHaveBeenCalledWith(expect.arrayContaining(memories), { includeTypes: ['knowledge', 'prompt', 'meta', 'session'] });
       expect(queryAssistantWithMessages).toHaveBeenCalledWith(assistant.id, [
         { role: 'assistant', content: 'Memory 1' },
         { role: 'user', content: 'User prompt' },
@@ -150,7 +133,7 @@ describe('PromptService Tests', () => {
     });
 
     it('should query assistant with user prompt and extra instruction', async () => {
-      const assistant: AssistantRow = { id: '2', name: 'Thread Assistant', type: 'assistant', model: 'gpt-4o', description: '', createdAt: '', updatedAt: '' };
+      const assistant: AssistantRow = { id: '2', name: 'Thread Assistant', type: 'assistant', model: 'gpt-4o', description: '', created_at: '', updated_at: '' };
       const memories: MemoryWithTags[] = [];
       mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([]);

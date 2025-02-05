@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { getDbInstance } from '../database/database';
 import { OwnedMemoryController } from '../controllers/memory-owned.controller';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new OwnedMemoryController(db);
 
 router.get('/assistant/:assistantId', async (req, res, next) => {

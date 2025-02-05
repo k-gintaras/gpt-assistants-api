@@ -1,60 +1,54 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Tag } from '../../models/tag.model';
 
 export class TagExtraService {
-  db = new Database(':memory:'); // Default database instance
+  constructor(private pool: Pool) {}
 
-  constructor(newDb: Database.Database) {
-    this.setDb(newDb);
-  }
-
-  setDb(newDb: Database.Database) {
-    this.db = newDb; // Override the database instance
-  }
-
-  // Fetch tags associated with an entity
-  getTagsByEntity(entityId: string, entityType: 'memory' | 'assistant' | 'task'): Tag[] {
+  async getTagsByEntity(entityId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<Tag[]> {
     const tableName = this.getTableNameForEntity(entityType);
-    const stmt = this.db.prepare(`
+    const result = await this.pool.query<Tag>(
+      `
       SELECT t.* 
       FROM ${tableName} et
       JOIN tags t ON et.tag_id = t.id
-      WHERE et.${entityType}_id = ?
-    `);
-    return stmt.all(entityId) as Tag[];
+      WHERE et.${entityType}_id = $1
+    `,
+      [entityId]
+    );
+
+    return result.rows;
   }
 
-  // Associate a tag with an entity
   async addTagToEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
     const tableName = this.getTableNameForEntity(entityType);
-
-    const stmt = this.db.prepare(`
-      INSERT INTO ${tableName} (${entityType}_id, tag_id)
-      VALUES (?, ?)
-    `);
+    const stmt = `
+    INSERT INTO ${tableName} (${entityType}_id, tag_id)
+    VALUES ($1, $2)
+  `;
 
     try {
-      stmt.run(entityId, tagId);
+      await this.pool.query(stmt, [entityId, tagId]);
       return true;
     } catch {
       return false;
     }
   }
 
-  // Remove a tag from an entity
   async removeTagFromEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
     const tableName = this.getTableNameForEntity(entityType);
 
-    const stmt = this.db.prepare(`
+    const result = await this.pool.query(
+      `
       DELETE FROM ${tableName}
-      WHERE ${entityType}_id = ? AND tag_id = ?
-    `);
+      WHERE ${entityType}_id = $1 AND tag_id = $2
+    `,
+      [entityId, tagId]
+    );
+    if (!result?.rowCount) return false;
 
-    const result = stmt.run(entityId, tagId);
-    return result.changes > 0;
+    return result.rowCount > 0; // Simplified return
   }
 
-  // Utility: Map entity type to table name
   getTableNameForEntity(entityType: 'memory' | 'assistant' | 'task'): string {
     const tableMap = {
       memory: 'memory_tags',

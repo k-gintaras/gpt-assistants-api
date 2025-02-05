@@ -1,26 +1,26 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Assistant } from '../../models/assistant.model';
 import { Assistant as GptAssistant } from 'openai/resources/beta/assistants';
-
-import { AssistantService } from '../sqlite-services/assistant.service';
 import { createAssistant as createGptAssistant } from '../gpt-api/gpt-api-assistant';
 import { GptAssistantCreateRequest } from '../gpt-api/gpt-api-models.model';
-import { MemoryService } from '../sqlite-services/memory.service';
-import { FocusedMemoryService } from '../sqlite-services/focused-memory.service';
-import { MemoryFocusRuleService } from '../sqlite-services/memory-focus-rule.service';
 import { Memory } from '../../models/memory.model';
 import { DEFAULT_MODEL, DEFAULT_INSTRUCTIONS, DEFAULT_MAX_ASSISTANT_MEMORIES } from '../config.service';
+import { AssistantService } from '../sqlite-services/assistant.service';
+import { MemoryFocusRuleService } from '../sqlite-services/memory-focus-rule.service';
+import { MemoryService } from '../sqlite-services/memory.service';
+import { FocusedMemoryService } from '../sqlite-services/focused-memory.service';
 
 export class CreateAssistantService {
   assistantService: AssistantService;
   memoryService: MemoryService;
   focusMemoryService: FocusedMemoryService;
   memoryRulesService: MemoryFocusRuleService;
-  constructor(db: Database.Database) {
-    this.assistantService = new AssistantService(db);
-    this.memoryService = new MemoryService(db);
-    this.focusMemoryService = new FocusedMemoryService(db);
-    this.memoryRulesService = new MemoryFocusRuleService(db);
+
+  constructor(pool: Pool) {
+    this.assistantService = new AssistantService(pool);
+    this.memoryService = new MemoryService(pool);
+    this.focusMemoryService = new FocusedMemoryService(pool);
+    this.memoryRulesService = new MemoryFocusRuleService(pool);
   }
 
   async createSimpleAssistant(name: string, instructions: string) {
@@ -28,14 +28,12 @@ export class CreateAssistantService {
   }
 
   async createAssistant(name: string, type: Assistant['type'], model: string = DEFAULT_MODEL, instructions: string = DEFAULT_INSTRUCTIONS): Promise<string | null> {
-    // Step 1: Check if the assistant already exists
-    const existingAssistant = this.assistantService.getAssistantByName(name);
+    const existingAssistant = await this.assistantService.getAssistantByName(name);
     if (existingAssistant) {
       console.log(`Assistant "${name}" already exists.`);
       return existingAssistant.id;
     }
 
-    // Step 2: Create GPT Assistant if type is 'assistant'
     let gptAssistantId: string | null = null;
     if (type === 'assistant') {
       const gptPayload: GptAssistantCreateRequest = { model, name, instructions };
@@ -49,31 +47,27 @@ export class CreateAssistantService {
       gptAssistantId = gptAssistant.id;
     }
 
-    // Step 3: Create the assistant in the database
-    // if no id, means we creating "chat" which has no id of gpt assistant need
     const assistantId = gptAssistantId || null;
     const assistant: Assistant = {
       name,
-      description: '', // don't care now
+      description: '',
       type,
       model,
-      id: '', // ignored
-      createdAt: '', // ignored
-      updatedAt: '', // ignored
+      id: '',
+      createdAt: '',
+      updatedAt: '',
     };
     const id = await this.assistantService.addAssistant(assistant, assistantId);
     if (!id) return null;
 
-    // Step 4: Register instructions as a memory
     if (instructions) {
-      await this.registerInstructionMemory(id, instructions, DEFAULT_MAX_ASSISTANT_MEMORIES); // Default max memories
+      await this.registerInstructionMemory(id, instructions, DEFAULT_MAX_ASSISTANT_MEMORIES);
     }
 
     return id;
   }
 
   async registerInstructionMemory(assistantId: string, instructions: string, maxMemories: number): Promise<void> {
-    // Step 1: Create a memory for instructions
     const memory: Memory = {
       id: '',
       type: 'instruction',
@@ -84,10 +78,8 @@ export class CreateAssistantService {
     };
     const memoryId = await this.memoryService.addMemory(memory);
 
-    // Step 2: Create a focus rule
     const rule = await this.memoryRulesService.createMemoryFocusRule(assistantId, maxMemories);
 
-    // Step 3: Link memory to the focus rule
-    this.focusMemoryService.addFocusedMemory(rule.id, memoryId);
+    await this.focusMemoryService.addFocusedMemory(rule.id, memoryId);
   }
 }

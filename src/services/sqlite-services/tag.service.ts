@@ -1,109 +1,69 @@
 import { generateUniqueId } from './unique-id.service';
 import { Tag } from '../../models/tag.model';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 
 export class TagService {
-  db = new Database(':memory:'); // Default database instance
+  constructor(private pool: Pool) {}
 
-  constructor(newDb: Database.Database) {
-    this.setDb(newDb);
-  }
-
-  setDb(newDb: Database.Database) {
-    this.db = newDb; // Allow overriding the database instance
-  }
-
-  /**
-   * Add a new tag.
-   */
   async addTag(tag: Omit<Tag, 'id'>): Promise<string> {
     const id = generateUniqueId();
 
-    const stmt = this.db.prepare(`
+    const stmt = `
       INSERT INTO tags (id, name)
-      VALUES (?, ?)
-    `);
+      VALUES ($1, $2)
+    `;
 
-    stmt.run(id, tag.name);
+    await this.pool.query(stmt, [id, tag.name]);
 
     return id;
   }
 
-  /**
-   * Ensure a tag exists by name. If it exists, return its ID. Otherwise, create and return the new ID.
-   */
   async ensureTagExists(tagName: string): Promise<string> {
-    // Check if the tag already exists
-    const existingTag = this.db
-      .prepare(
-        `
-      SELECT id FROM tags WHERE name = ?
-    `
-      )
-      .get(tagName) as { id: string } | undefined;
+    const existingTagResult = await this.pool.query<{ id: string }>(`SELECT id FROM tags WHERE name = $1`, [tagName]);
 
-    if (existingTag) {
-      return existingTag.id; // Return existing tag ID
+    if (existingTagResult.rowCount && existingTagResult.rowCount > 0) {
+      return existingTagResult.rows[0].id;
     }
 
-    // Otherwise, create a new tag
     const newTagId = generateUniqueId();
-    this.db
-      .prepare(
-        `
-      INSERT INTO tags (id, name) VALUES (?, ?)
-    `
-      )
-      .run(newTagId, tagName);
+    await this.pool.query(
+      `
+      INSERT INTO tags (id, name) VALUES ($1, $2)
+    `,
+      [newTagId, tagName]
+    );
 
     return newTagId;
   }
 
-  /**
-   * Remove a tag by ID.
-   */
   async removeTag(tagId: string): Promise<boolean> {
-    const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?');
-    const result = stmt.run(tagId);
-    return result.changes > 0;
+    const result = await this.pool.query('DELETE FROM tags WHERE id = $1', [tagId]);
+    if (!result?.rowCount) return false;
+
+    return result.rowCount > 0; // Simplified return
   }
-  /**
-   * Update an existing tag.
-   */
+
   async updateTag(id: string, updates: Partial<Omit<Tag, 'id'>>): Promise<boolean> {
-    const stmt = this.db.prepare(`
+    const stmt = `
       UPDATE tags
-      SET name = COALESCE(?, name)
-      WHERE id = ?
-    `);
+      SET name = COALESCE($1, name)
+      WHERE id = $2
+    `;
 
-    const result = stmt.run(updates.name || null, id);
-    if (result.changes === 0) {
-      return false;
-    }
-    return true;
+    const result = await this.pool.query(stmt, [updates.name || null, id]);
+    if (!result?.rowCount) return false;
+
+    return result.rowCount > 0; // Simplified return
   }
 
-  /**
-   * Fetch a tag by ID.
-   */
   async getTagById(tagId: string): Promise<Tag | null> {
-    const stmt = this.db.prepare(`
-      SELECT * FROM tags WHERE id = ?
-    `);
-
-    const result = stmt.get(tagId);
-    return result ? (result as Tag) : null;
+    const result = await this.pool.query<Tag>('SELECT * FROM tags WHERE id = $1', [tagId]);
+    if (result.rowCount === 0) return null; // Simplified condition
+    return result.rows[0]; // Return the first row directly
   }
 
-  /**
-   * Fetch all tags.
-   */
   async getAllTags(): Promise<Tag[]> {
-    const stmt = this.db.prepare(`
-      SELECT * FROM tags
-    `);
-
-    return stmt.all() as Tag[];
+    const result = await this.pool.query<Tag>('SELECT * FROM tags');
+    return result.rows;
   }
 }

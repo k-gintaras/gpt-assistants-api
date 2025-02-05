@@ -2,30 +2,38 @@ import express from 'express';
 import request from 'supertest';
 import assistantRoutes from '../../../routes/assistant.routes';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import Database from 'better-sqlite3';
-import { getDbInstance } from '../../../database/database';
+import { Pool } from 'pg';
+import { getDb } from '../../../database/database';
 
+const aId = 'assistantRoutesId';
 // ### important helpers >>>
-let db: Database.Database;
 const app = express();
 app.use(express.json());
 app.use('/assistants', assistantRoutes); // Register the assistant routes
+let db: Pool;
 
 // ### pre setup the database >>>
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1');
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
+  await insertHelpers.insertAssistant(db, aId + '1'); // Adjusted for PostgreSQL
 });
 
-afterAll(() => {
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK');
+});
+
+afterAll(async () => {
   // Clean up and close the database after tests
-  testDbHelper.close();
+  await getDb().close(); // Adjusted for PostgreSQL
 });
 
 describe('Assistant Controller Tests', () => {
-  // Test GET /assistants (fetch all assistants)
+  // // Test GET /assistants (fetch all assistants)
   it('should fetch all assistants', async () => {
     const response = await request(app).get('/assistants');
     expect(response.status).toBe(200);
@@ -33,14 +41,14 @@ describe('Assistant Controller Tests', () => {
     expect(response.body.data.length).toBeGreaterThan(0); // Expect at least one assistant
   });
 
-  // Test GET /assistants/:id (fetch a specific assistant by ID)
+  // // Test GET /assistants/:id (fetch a specific assistant by ID)
   it('should fetch assistant by ID', async () => {
-    const response = await request(app).get('/assistants/1'); // Fetch the assistant with ID '1'
+    const response = await request(app).get(`/assistants/${aId}1`); // Fetch the assistant with ID '1'
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('id', '1'); // Ensure ID matches
+    expect(response.body.data).toHaveProperty('id', aId + '1'); // Ensure ID matches
   });
 
-  // Test POST /assistants (create a new assistant with type="chat")
+  // // Test POST /assistants (create a new assistant with type="chat")
   it('should create a new assistant with type="chat"', async () => {
     const newAssistant = {
       name: 'New Chat Assistant',
@@ -58,6 +66,11 @@ describe('Assistant Controller Tests', () => {
 
   // Test PUT /assistants/:id (update an assistant)
   it('should update assistant details', async () => {
+    const assistantId = aId + '1';
+    const ruleId = aId + 'rule 1';
+    const m1 = aId + 'm1';
+    const m2 = aId + 'm2';
+    const m3 = aId + 'm3';
     const updatedAssistant = {
       name: 'Updated Chat Assistant',
       type: 'chat',
@@ -65,16 +78,35 @@ describe('Assistant Controller Tests', () => {
       instructions: 'Updated instructions for chat assistant',
     };
 
-    const response = await request(app).put('/assistants/1').send(updatedAssistant);
+    await insertHelpers.insertAssistant(db, assistantId);
+
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId);
+    await insertHelpers.insertMemory(db, m1, 'M' + 1);
+    await insertHelpers.insertMemory(db, m2, 'M' + 2);
+    await insertHelpers.insertMemory(db, m3, 'M' + 3);
+
+    await insertHelpers.insertTags(db);
+    await db.query(`
+          INSERT INTO assistant_tags (assistant_id, tag_id) 
+          VALUES ('${assistantId}', '1'), ('${assistantId}', '2')
+        `); // Link assistant with tags explicitly
+
+    await insertHelpers.insertFocusedMemory(db, ruleId, m1);
+    await insertHelpers.insertFocusedMemory(db, ruleId, m2);
+    await insertHelpers.insertFocusedMemory(db, ruleId, m3);
+
+    const response = await request(app).put(`/assistants/${assistantId}`).send(updatedAssistant);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Assistant updated successfully.');
   });
 
-  // Test DELETE /assistants/:id (delete an assistant)
-  // ! we don't delete at the moment, just "inactive_" deactivate... for later improvement
-  //   it('should delete an assistant', async () => {
-  //     const response = await request(app).delete('/assistants/1');
-  //     expect(response.status).toBe(200);
-  //     expect(response.body.message).toBe('Assistant deleted successfully.');
-  //   });
+  it('should delete an assistant', async () => {
+    const assistantId = aId + '2';
+
+    await insertHelpers.insertAssistant(db, assistantId);
+
+    const response = await request(app).delete('/assistants/${assistantId}');
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe(`Assistant deleted successfully.`);
+  });
 });

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { RelationshipGraphController } from '../controllers/relationship-graph.controller';
-import { getDbInstance } from '../database/database';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new RelationshipGraphController(db);
 
 router.get('/', async (req, res, next) => {

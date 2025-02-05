@@ -1,104 +1,70 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Assistant, AssistantRow } from '../../models/assistant.model';
 import { generateUniqueId } from './unique-id.service';
 
 export class AssistantService {
-  db = new Database(':memory:'); // Default database instance
+  constructor(private pool: Pool) {}
 
-  constructor(newDb: Database.Database) {
-    this.setDb(newDb);
+  getAllAssistants(): Promise<AssistantRow[]> {
+    return this.pool.query<AssistantRow>('SELECT * FROM assistants').then((res) => res.rows);
   }
 
-  setDb(newDb: Database.Database) {
-    this.db = newDb; // Allow overriding the database instance
+  getAssistantById(id: string): Promise<AssistantRow | null> {
+    return this.pool.query<AssistantRow>('SELECT * FROM assistants WHERE id = $1', [id]).then((res) => res.rows[0] || null);
   }
 
-  // Fetch all assistants
-  getAllAssistants(): AssistantRow[] | null {
-    const stmt = this.db.prepare('SELECT * FROM assistants');
-    const result = stmt.all();
-
-    return result ? (result as AssistantRow[]) : null;
+  getAssistantByName(name: string): Promise<AssistantRow | null> {
+    return this.pool.query<AssistantRow>('SELECT * FROM assistants WHERE name = $1', [name]).then((res) => res.rows[0] || null);
   }
 
-  // Fetch a single assistant by ID
-  getAssistantById(id: string): AssistantRow | null {
-    const stmt = this.db.prepare('SELECT * FROM assistants WHERE id = ?');
-    const result = stmt.get(id);
-    return result ? (result as AssistantRow) : null;
-  }
-
-  // Fetch a single assistant by ID
-  getAssistantByName(name: string): AssistantRow | null {
-    const stmt = this.db.prepare('SELECT * FROM assistants WHERE name = ?');
-    const result = stmt.get(name);
-    return result ? (result as AssistantRow) : null;
-  }
-
-  // Add a new assistant
-  addAssistant(
-    assistant: Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>,
-    id: string | null = null // Accepts GPT Assistant ID or generates one
-  ): string | null {
-    const assistantId = id || generateUniqueId(); // Use provided ID or generate a new one
+  async addAssistant(assistant: Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>, id: string | null = null): Promise<string | null> {
+    const assistantId = id || generateUniqueId();
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
     try {
-      const stmt = this.db.prepare(`
-      INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-
-      // Execute the prepared statement
-      stmt.run(assistantId, assistant.name, assistant.description || '', assistant.type, assistant.model, createdAt, updatedAt);
-
-      return assistantId; // Return the generated ID or the provided one
+      const stmt = `
+      INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `;
+      await this.pool.query(stmt, [assistantId, assistant.name, assistant.description || '', assistant.type, assistant.model, createdAt, updatedAt]);
+      return assistantId;
     } catch {
       return null;
     }
   }
 
-  // Update an existing assistant
   async updateAssistant(id: string, updates: Partial<Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
-    const existingAssistant = this.db.prepare('SELECT * FROM assistants WHERE id = ?').get(id) as AssistantRow | undefined;
-
+    const existingAssistant = await this.getAssistantById(id);
     if (!existingAssistant) {
       throw new Error(`Assistant with ID ${id} not found.`);
     }
 
-    const stmt = this.db.prepare(`
+    const stmt = `
       UPDATE assistants
       SET
-        name = COALESCE(?, name),
-        description = COALESCE(?, description),
-        type = COALESCE(?, type),
-        model = COALESCE(?, model),
-        updatedAt = ?
-      WHERE id = ?
-    `);
+        name = COALESCE($1, name),
+        description = COALESCE($2, description),
+        type = COALESCE($3, type),
+        model = COALESCE($4, model),
+        updated_at = $5
+      WHERE id = $6
+    `;
 
-    stmt.run(
-      updates.name || null,
-      updates.description || null,
-      updates.type || null,
-      updates.model || null,
-      new Date().toISOString(), // updatedAt
-      id
-    );
+    await this.pool.query(stmt, [updates.name || null, updates.description || null, updates.type || null, updates.model || null, new Date().toISOString(), id]);
 
     return true;
   }
 
-  // Delete an assistant by ID
   async deleteAssistant(id: string): Promise<boolean> {
-    const stmt = this.db.prepare(`
+    const result = await this.pool.query(
+      `
       DELETE FROM assistants
-      WHERE id = ?
-    `);
-
-    const result = stmt.run(id);
-
-    return result.changes > 0; // Returns true if the assistant was deleted
+      WHERE id = $1
+    `,
+      [id]
+    );
+    if (!result.rowCount) return false;
+    return result.rowCount > 0;
   }
 }

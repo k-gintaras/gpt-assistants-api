@@ -14,6 +14,6 @@ export interface FeedbackRow {
   // resolved: boolean; TODO: implement it to allow if this was resolved...
   rating: number; // Feedback rating (e.g., 1-5 stars)
   comments?: string; // Additional feedback comments (optional)
-  createdAt: Date; // Timestamp of feedback creation
-  updatedAt: Date; // Timestamp of feedback update
+  created_at: Date; // Timestamp of feedback creation
+  updated_at: Date; // Timestamp of feedback update
 }

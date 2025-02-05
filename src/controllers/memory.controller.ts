@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { MemoryControllerService } from '../services/core-services/memory.controller.service';
 import { Memory } from '../models/memory.model';
@@ -7,7 +7,7 @@ import { respond } from './controller.helper';
 export class MemoryController {
   private readonly memoryService: MemoryControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.memoryService = new MemoryControllerService(db);
   }
 
@@ -19,7 +19,7 @@ export class MemoryController {
    */
   async getMemories(_req: Request, res: Response) {
     try {
-      const memories = this.memoryService.getMemories();
+      const memories = await this.memoryService.getMemories();
       if (!memories || memories.length === 0) {
         return respond(res, 404, 'No memories found.');
       }
@@ -39,7 +39,7 @@ export class MemoryController {
   async getMemory(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const memory = this.memoryService.getMemory(id);
+      const memory = await this.memoryService.getMemory(id);
       if (!memory) {
         return respond(res, 404, `Memory with ID ${id} not found.`);
       }
@@ -59,7 +59,7 @@ export class MemoryController {
   async createMemory(req: Request, res: Response) {
     const memory: Memory = req.body;
     try {
-      const memoryId = this.memoryService.createMemory(memory);
+      const memoryId = await this.memoryService.createMemory(memory);
       if (!memoryId) {
         return respond(res, 400, 'Failed to create memory.');
       }
@@ -85,7 +85,7 @@ export class MemoryController {
       return respond(res, 400, 'Memory ID mismatch.');
     }
     try {
-      const isUpdated = this.memoryService.updateMemory(memory);
+      const isUpdated = await this.memoryService.updateMemory(memory);
       if (!isUpdated) {
         return respond(res, 404, `Memory with ID ${id} not found or update failed.`);
       }
@@ -105,7 +105,7 @@ export class MemoryController {
   async deleteMemory(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const isDeleted = this.memoryService.deleteMemory(id);
+      const isDeleted = await this.memoryService.deleteMemory(id);
       if (!isDeleted) {
         return respond(res, 404, `Memory with ID ${id} not found or delete failed.`);
       }

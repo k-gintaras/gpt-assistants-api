@@ -1,64 +1,49 @@
-import Database from 'better-sqlite3';
 import { TagExtraService } from '../../../services/sqlite-services/tag-extra.service';
-let tagExtraService: TagExtraService;
+import { insertHelpers } from '../test-db-insert.helper';
+import { getDb } from '../test-db.helper';
+import { Pool } from 'pg';
+const tId = 'tagServiceId';
 describe('Tag Extra Service', () => {
-  beforeAll(() => {
-    const db = new Database(':memory:');
-    // Initialize tables
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS tags (
-        id TEXT PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL
-      );
+  let tagExtraService: TagExtraService;
+  let db: Pool;
 
-      CREATE TABLE IF NOT EXISTS memory_tags (
-        memory_id TEXT NOT NULL,
-        tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-        PRIMARY KEY (memory_id, tag_id)
-      );
-
-      CREATE TABLE IF NOT EXISTS assistant_tags (
-        assistant_id TEXT NOT NULL,
-        tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-        PRIMARY KEY (assistant_id, tag_id)
-      );
-
-      CREATE TABLE IF NOT EXISTS task_tags (
-        task_id TEXT NOT NULL,
-        tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-        PRIMARY KEY (task_id, tag_id)
-      );
-    `);
+  beforeAll(async () => {
+    await getDb.initialize();
+    db = getDb.getInstance();
     tagExtraService = new TagExtraService(db);
   });
 
-  afterAll(() => {
-    tagExtraService.db.close();
+  afterAll(async () => {
+    await getDb.close();
+  });
+
+  afterEach(async () => {
+    await db.query('ROLLBACK'); // Rollback changes after each test
+  });
+  beforeEach(async () => {
+    await db.query('BEGIN'); // Start transaction for each test
   });
 
   it('should add a tag to an entity', async () => {
-    // Add a tag to the tags table
-    const db = tagExtraService.db;
-    db.prepare('INSERT INTO tags (id, name) VALUES (?, ?)').run('tag1', 'responsive');
-
-    // Associate the tag with a memory
-    const added = await tagExtraService.addTagToEntity('memory1', 'tag1', 'memory');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', 'responsive']);
+    await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
+    const added = await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag1', 'memory');
     expect(added).toBe(true);
 
-    // Verify the association
-    const tags = tagExtraService.getTagsByEntity('memory1', 'memory');
+    const tags = await tagExtraService.getTagsByEntity(tId + 'memory1', 'memory');
     expect(tags.length).toBe(1);
-    expect(tags[0]).toMatchObject({ id: 'tag1', name: 'responsive' });
+    expect(tags[0]).toMatchObject({ id: tId + 'tag1', name: 'responsive' });
   });
 
   it('should fetch tags associated with an entity', async () => {
-    // Add another tag
-    const db = tagExtraService.db;
-    db.prepare('INSERT INTO tags (id, name) VALUES (?, ?)').run('tag2', 'scalable');
-    await tagExtraService.addTagToEntity('memory1', 'tag2', 'memory');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag2', 'scalable']);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag3', 'responsive']);
+    await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
 
-    // Fetch all tags for the memory
-    const tags = tagExtraService.getTagsByEntity('memory1', 'memory');
+    await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag2', 'memory');
+    await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag3', 'memory');
+
+    const tags = await tagExtraService.getTagsByEntity(tId + 'memory1', 'memory');
     expect(tags.length).toBe(2);
     const tagNames = tags.map((tag) => tag.name);
     expect(tagNames).toContain('responsive');
@@ -66,33 +51,39 @@ describe('Tag Extra Service', () => {
   });
 
   it('should remove a tag from an entity', async () => {
-    // Remove the 'responsive' tag from the memory
-    const removed = await tagExtraService.removeTagFromEntity('memory1', 'tag1', 'memory');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', 'responsive']);
+    await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
+
+    await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag1', 'memory');
+
+    const removed = await tagExtraService.removeTagFromEntity(tId + 'memory1', tId + 'tag1', 'memory');
     expect(removed).toBe(true);
 
-    // Verify the tag is removed
-    const tags = tagExtraService.getTagsByEntity('memory1', 'memory');
-    expect(tags.length).toBe(1);
-    expect(tags[0]).toMatchObject({ id: 'tag2', name: 'scalable' });
+    const tags = await tagExtraService.getTagsByEntity(tId + 'memory1', 'memory');
+    expect(tags.length).toBe(0);
   });
 
   it('should return false when trying to remove a non-existent tag', async () => {
-    const removed = await tagExtraService.removeTagFromEntity('memory1', 'nonexistent-tag', 'memory');
+    const removed = await tagExtraService.removeTagFromEntity(tId + 'memory1', 'nonexistent-tag', 'memory');
     expect(removed).toBe(false);
   });
 
   it('should handle associations for different entity types', async () => {
-    // Add tags to an assistant and a task
-    await tagExtraService.addTagToEntity('assistant1', 'tag2', 'assistant');
-    await tagExtraService.addTagToEntity('task1', 'tag2', 'task');
+    await insertHelpers.insertAssistant(db, tId + 'assistant1');
+    await insertHelpers.insertTask(db, tId + 'task1');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', 'scalable1']);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag2', 'scalable2']); // Change to 'scalable'
 
-    // Verify the tags for each entity type
-    const assistantTags = tagExtraService.getTagsByEntity('assistant1', 'assistant');
+    await tagExtraService.addTagToEntity(tId + 'assistant1', tId + 'tag1', 'assistant');
+    await tagExtraService.addTagToEntity(tId + 'task1', tId + 'tag2', 'task');
+
+    const assistantTags = await tagExtraService.getTagsByEntity(tId + 'assistant1', 'assistant');
+
     expect(assistantTags.length).toBe(1);
-    expect(assistantTags[0]).toMatchObject({ id: 'tag2', name: 'scalable' });
+    expect(assistantTags[0]).toMatchObject({ id: tId + 'tag1', name: 'scalable1' }); // Now expects 'scalable'
 
-    const taskTags = tagExtraService.getTagsByEntity('task1', 'task');
+    const taskTags = await tagExtraService.getTagsByEntity(tId + 'task1', 'task');
     expect(taskTags.length).toBe(1);
-    expect(taskTags[0]).toMatchObject({ id: 'tag2', name: 'scalable' });
+    expect(taskTags[0]).toMatchObject({ id: tId + 'tag2', name: 'scalable2' }); // Same here
   });
 });

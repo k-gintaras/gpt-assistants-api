@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { MemoryFocusRuleController } from '../controllers/memory-focus-rule.controller';
-import { getDbInstance } from '../database/database';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new MemoryFocusRuleController(db);
 
 router.post('/', async (req, res, next) => {

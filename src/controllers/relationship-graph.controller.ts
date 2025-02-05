@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { RelationshipGraphControllerService } from '../services/core-services/relationship-graph.controller.service';
 import { RelationshipGraph } from '../models/relationship.model';
@@ -7,7 +7,7 @@ import { respond } from './controller.helper';
 export class RelationshipGraphController {
   private readonly relationshipGraphService: RelationshipGraphControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.relationshipGraphService = new RelationshipGraphControllerService(db);
   }
 

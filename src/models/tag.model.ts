@@ -1,8 +1,9 @@
-export interface TagRow {
+export interface Tag {
   id: string; // Unique tag ID
   name: string; // Tag name
 }
-export interface Tag {
+
+export interface TagRow {
   id: string; // Unique tag ID
   name: string; // Tag name
 }

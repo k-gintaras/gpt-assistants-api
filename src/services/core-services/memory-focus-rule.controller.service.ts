@@ -1,28 +1,28 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { MemoryFocusRule } from '../../models/focused-memory.model';
-import { MemoryFocusRuleService } from '../sqlite-services/memory-focus-rule.service';
 import { MemoryFocusRuleServiceModel } from '../../models/service-models/memory-focus-rule.service.model';
+import { MemoryFocusRuleService } from '../sqlite-services/memory-focus-rule.service';
 
 export class MemoryFocusRuleControllerService implements MemoryFocusRuleServiceModel {
   memoryFocusRuleService: MemoryFocusRuleService;
 
-  constructor(db: Database.Database) {
-    this.memoryFocusRuleService = new MemoryFocusRuleService(db);
+  constructor(pool: Pool) {
+    this.memoryFocusRuleService = new MemoryFocusRuleService(pool);
   }
 
-  createMemoryFocusRule(assistantId: string, maxResults: number, relationshipTypes: string[], priorityTags: string[]): Promise<MemoryFocusRule> {
-    return this.memoryFocusRuleService.createMemoryFocusRule(assistantId, maxResults, relationshipTypes, priorityTags);
+  async createMemoryFocusRule(assistantId: string, maxResults: number, relationshipTypes: string[], priorityTags: string[]): Promise<MemoryFocusRule> {
+    return await this.memoryFocusRuleService.createMemoryFocusRule(assistantId, maxResults, relationshipTypes, priorityTags);
   }
 
-  getMemoryFocusRules(assistantId: string): Promise<MemoryFocusRule | null> {
-    return this.memoryFocusRuleService.getMemoryFocusRules(assistantId);
+  async getMemoryFocusRules(assistantId: string): Promise<MemoryFocusRule | null> {
+    return await this.memoryFocusRuleService.getMemoryFocusRules(assistantId);
   }
 
-  updateMemoryFocusRule(id: string, updates: MemoryFocusRule): Promise<boolean> {
-    return this.memoryFocusRuleService.updateMemoryFocusRule(id, updates);
+  async updateMemoryFocusRule(id: string, updates: MemoryFocusRule): Promise<boolean> {
+    return await this.memoryFocusRuleService.updateMemoryFocusRule(id, updates);
   }
 
-  removeMemoryFocusRule(id: string): Promise<boolean> {
-    return this.memoryFocusRuleService.removeMemoryFocusRule(id);
+  async removeMemoryFocusRule(id: string): Promise<boolean> {
+    return await this.memoryFocusRuleService.removeMemoryFocusRule(id);
   }
 }

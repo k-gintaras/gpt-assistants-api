@@ -13,10 +13,6 @@ export interface FeedbackSummary {
   avgRating: number; // Average feedback rating (1-5)
   totalFeedback: number; // Total number of feedback entries
 }
-export interface FeedbackSummaryRow {
-  avg_rating: number; // Average feedback rating (1-5)
-  total_feedback: number; // Total number of feedback entries
-}
 
 export interface Assistant {
   id: string;
@@ -34,6 +30,11 @@ export interface AssistantRow {
   description: string;
   type: 'chat' | 'assistant';
   model: string; // Added model field
-  createdAt: string; // ISO 8601
-  updatedAt: string; // ISO 8601
+  created_at: string; // ISO 8601
+  updated_at: string; // ISO 8601
+}
+
+export interface FeedbackSummaryRow {
+  avg_rating: number; // Average feedback rating (1-5)
+  total_feedback: number; // Total number of feedback entries
 }

@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { getDbInstance } from '../database/database';
 import { AssistantController } from '../controllers/assistant.controller';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new AssistantController(db);
 
 router.get('/', async (req, res, next) => {

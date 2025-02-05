@@ -6,11 +6,11 @@ describe('transformMemoryFocusRuleRow', () => {
     const row: MemoryFocusRuleRow = {
       id: 'rule-1',
       assistant_id: 'assistant-1',
-      maxResults: 5,
-      relationshipTypes: JSON.stringify(['related_to', 'example_of']),
-      priorityTags: JSON.stringify(['tag1', 'tag2']),
-      createdAt: new Date('2025-01-01T12:00:00Z').toISOString(),
-      updatedAt: new Date('2025-01-02T12:00:00Z').toISOString(),
+      max_results: 5,
+      relationship_types: ['related_to', 'example_of'],
+      priority_tags: ['tag1', 'tag2'],
+      created_at: new Date('2025-01-01T12:00:00Z').toISOString(),
+      updated_at: new Date('2025-01-02T12:00:00Z').toISOString(),
     };
 
     const result = transformMemoryFocusRuleRow(row);
@@ -32,11 +32,11 @@ describe('transformMemoryFocusRuleRow', () => {
     const row: MemoryFocusRuleRow = {
       id: 'rule-2',
       assistant_id: 'assistant-2',
-      maxResults: 10,
-      relationshipTypes: null,
-      priorityTags: null,
-      createdAt: new Date('2025-01-03T12:00:00Z').toISOString(),
-      updatedAt: new Date('2025-01-04T12:00:00Z').toISOString(),
+      max_results: 10,
+      relationship_types: null,
+      priority_tags: null,
+      created_at: new Date('2025-01-03T12:00:00Z').toISOString(),
+      updated_at: new Date('2025-01-04T12:00:00Z').toISOString(),
     };
 
     const result = transformMemoryFocusRuleRow(row);

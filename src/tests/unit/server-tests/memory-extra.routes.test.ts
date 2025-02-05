@@ -2,28 +2,44 @@ import express from 'express';
 import request from 'supertest';
 import memoryExtraRoutes from '../../../routes/memory-extra.routes';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
+import { getDb } from '../../../database/database';
 
-let db: Database.Database;
+const mId = 'memoryExtraRouteTestId'; // Unique identifier prefix for the test
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/memory-extra', memoryExtraRoutes); // Register memory-extra routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db); // Initialize the test database
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertMemories(db); // Insert sample memories for testing
-  insertHelpers.insertMemoryFocusRule(db, '1', '1'); // Insert necessary data
-  insertHelpers.insertTags(db); // Insert tags and other required data
-  insertHelpers.insertTagMemory(db, '1', '1');
-  insertHelpers.insertTagMemory(db, '1', '2');
+// ### pre setup the database >>>
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
+  await insertHelpers.insertAssistant(db, id('assistant')); // Ensure assistant exists
+  await insertHelpers.insertMemory(db, id('m1'), id('m1')); // Insert sample memories for testing
+  await insertHelpers.insertMemory(db, id('m2'), id('m2')); // Insert sample memories for testing
+  await insertHelpers.insertMemory(db, id('m3'), id('m3')); // Insert sample memories for testing
+  await insertHelpers.insertMemoryFocusRule(db, id('rule'), id('assistant')); // Insert necessary data
+  await insertHelpers.insertTag(db, id('t1'), id('t1')); // Insert tags and other required data
+  await insertHelpers.insertTag(db, id('t2'), id('t2')); // Insert tags and other required data
+  await insertHelpers.insertTagMemory(db, id('m1'), id('t1'));
+  await insertHelpers.insertTagMemory(db, id('m1'), id('t2'));
 });
 
-afterAll(() => {
-  testDbHelper.close(); // Close the test database
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+function id(s: string) {
+  return mId + s;
+}
+
+afterAll(async () => {
+  await getDb().close(); // Close the test database
 });
 
 describe('MemoryExtra Controller Tests', () => {
@@ -35,7 +51,7 @@ describe('MemoryExtra Controller Tests', () => {
   });
 
   it('should fetch memories by tags', async () => {
-    const response = await request(app).get('/memory-extra/tags?tags=Tag1,Tag2');
+    const response = await request(app).get(`/memory-extra/tags?tags=${mId}t1,${mId}t2`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
     expect(response.body.data.length).toBeGreaterThan(0);
@@ -48,18 +64,18 @@ describe('MemoryExtra Controller Tests', () => {
   });
 
   it('should update memory tags successfully', async () => {
-    const updatedTags = ['Tag1', 'Tag2', 'Tag3'];
-    const response = await request(app).put('/memory-extra/tags/1').send({ newTags: updatedTags });
+    const updatedTags = [`${mId}t1`, `${mId}t2`, `${mId}t3`];
+    const response = await request(app).put(`/memory-extra/tags/${mId}m1`).send({ newTags: updatedTags });
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Memory tags updated successfully.');
   });
 
-  it('should return 500 for non-existent memory when updating tags', async () => {
-    const updatedTags = ['Tag1', 'Tag2'];
-    const response = await request(app).put('/memory-extra/tags/999').send({ newTags: updatedTags });
+  it('should return 404 for non-existent memory when updating tags', async () => {
+    const updatedTags = [`${mId}tag1`, `${mId}tag2`];
+    const response = await request(app).put(`/memory-extra/tags/${mId}999`).send({ newTags: updatedTags });
 
     expect(response.status).toBe(404); // memory not found
-    expect(response.body.message).toBe('Memory with ID 999 not found or update failed.');
+    expect(response.body.message).toBe(`Memory with ID ${mId}999 not found or update failed.`);
   });
 });

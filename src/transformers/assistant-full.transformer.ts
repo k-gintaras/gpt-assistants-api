@@ -5,38 +5,30 @@ import { Tag } from '../models/tag.model';
 import { transformMemoryRow } from './memory.transformer';
 
 export interface FullAssistantRows {
-  // Assistant fields
   assistant_id: string;
   assistant_name: string;
   assistant_description: string;
-  assistant_type: 'chat' | 'assistant'; // Removed 'completion'
-  assistant_model: string; // New field for model
-  avg_rating: number;
-  total_feedback: number;
-  assistant_createdAt: string; // ISO 8601 date
-  assistant_updatedAt: string; // ISO 8601 date
-
-  // Assistant tag fields (relational tags)
+  assistant_type: 'chat' | 'assistant';
+  assistant_model: string;
+  avg_rating: string;
+  total_feedback: string;
+  assistant_created_at: string;
+  assistant_updated_at: string;
   assistant_tag_id: string | null;
   assistant_tag_name: string | null;
-
-  // Focus rule fields
   focus_rule_id: string | null;
-  focus_rule_maxResults: number | null;
-  focus_rule_relationshipTypes: string | null; // Serialized JSON
-  focus_rule_priorityTags: string | null; // Serialized JSON
-  focus_rule_createdAt: string | null; // ISO 8601 date
-  focus_rule_updatedAt: string | null; // ISO 8601 date
-
-  // Memory fields
+  focus_rule_max_results: string | null;
+  focus_rule_relationship_types: string[] | null;
+  focus_rule_priority_tags: string[] | null;
+  focus_rule_created_at: string | null;
+  focus_rule_updated_at: string | null;
   memory_id: string | null;
   memory_type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta' | null;
   memory_description: string | null;
-  memory_data: string | null; // Serialized JSON
-  memory_createdAt: string | null; // ISO 8601 date
-  memory_updatedAt: string | null; // ISO 8601 date
-
-  // Memory tag fields (relational tags)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  memory_data: any | null; // some kind of json to be returned from database
+  memory_created_at: string | null;
+  memory_updated_at: string | null;
   memory_tag_id: string | null;
   memory_tag_name: string | null;
 }
@@ -47,9 +39,14 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
   }
 
   const firstRow = rows[0];
+
+  // Ensure avg_rating and total_feedback are numbers (default to 0 if missing)
+  const avgRating = firstRow.avg_rating !== null && firstRow.avg_rating !== undefined ? Number(firstRow.avg_rating) : 0;
+  const totalFeedback = firstRow.total_feedback !== null && firstRow.total_feedback !== undefined ? Number(firstRow.total_feedback) : 0;
+
   const feedbackSummary: FeedbackSummary = {
-    avgRating: firstRow.avg_rating || 0,
-    totalFeedback: firstRow.total_feedback || 0,
+    avgRating,
+    totalFeedback,
   };
 
   const assistant: AssistantWithDetails = {
@@ -58,19 +55,20 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
     description: firstRow.assistant_description,
     type: firstRow.assistant_type,
     model: firstRow.assistant_model,
-    assistantTags: [], // Populated below
-    createdAt: firstRow.assistant_createdAt,
-    updatedAt: firstRow.assistant_updatedAt,
+    assistantTags: [], // Will be populated later
+    createdAt: firstRow.assistant_created_at,
+    updatedAt: firstRow.assistant_updated_at,
     focusedMemories: transformMemoriesWithTags(rows),
     memoryFocusRule: transformMemoryFocusRule(firstRow),
     feedbackSummary,
   };
 
+  // Safely handle assistant tags (filter out null or undefined values)
   const tags: Tag[] = rows
-    .filter((row: FullAssistantRows) => row.assistant_tag_id && row.assistant_tag_name) // Filter out invalid rows
-    .map((row: FullAssistantRows) => ({ id: row.assistant_tag_id!, name: row.assistant_tag_name! })); // Map to Tag objects
+    .flat()
+    .filter((row) => row.assistant_tag_id && row.assistant_tag_name) // Ensure both tag_id and tag_name exist
+    .map((row) => ({ id: row.assistant_tag_id!, name: row.assistant_tag_name! }));
 
-  // Remove duplicates by using a Map
   assistant.assistantTags = Array.from(new Map(tags.map((tag) => [tag.id, tag])).values());
 
   return assistant;
@@ -79,7 +77,7 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
 function transformMemoriesWithTags(rows: FullAssistantRows[]): MemoryWithTags[] {
   const memoriesMap = new Map<string, { memory: MemoryRow; tags: Tag[] }>();
 
-  rows.forEach((row) => {
+  rows.flat().forEach((row) => {
     if (row.memory_id) {
       const memoryId = row.memory_id;
       if (!memoriesMap.has(memoryId)) {
@@ -89,8 +87,8 @@ function transformMemoriesWithTags(rows: FullAssistantRows[]): MemoryWithTags[] 
             type: row.memory_type as Memory['type'],
             description: row.memory_description,
             data: row.memory_data,
-            createdAt: row.memory_createdAt!,
-            updatedAt: row.memory_updatedAt!,
+            created_at: row.memory_created_at!,
+            updated_at: row.memory_updated_at!,
           },
           tags: [],
         });
@@ -108,17 +106,16 @@ function transformMemoriesWithTags(rows: FullAssistantRows[]): MemoryWithTags[] 
   return Array.from(memoriesMap.values()).map(({ memory, tags }) => transformMemoryRow(memory, tags));
 }
 
-// Helper to transform focus rules
 function transformMemoryFocusRule(row: FullAssistantRows): MemoryFocusRule | undefined {
   if (!row.focus_rule_id) return undefined;
 
   return {
     id: row.focus_rule_id,
     assistantId: row.assistant_id,
-    maxResults: row.focus_rule_maxResults || 0,
-    relationshipTypes: JSON.parse(row.focus_rule_relationshipTypes || '[]'),
-    priorityTags: JSON.parse(row.focus_rule_priorityTags || '[]'),
-    createdAt: row.focus_rule_createdAt ? new Date(row.focus_rule_createdAt) : new Date(),
-    updatedAt: row.focus_rule_updatedAt ? new Date(row.focus_rule_updatedAt) : new Date(),
+    maxResults: Number(row.focus_rule_max_results) || 0,
+    relationshipTypes: row.focus_rule_relationship_types || [],
+    priorityTags: row.focus_rule_priority_tags || [],
+    createdAt: row.focus_rule_created_at ? new Date(row.focus_rule_created_at) : new Date(),
+    updatedAt: row.focus_rule_updated_at ? new Date(row.focus_rule_updated_at) : new Date(),
   };
 }

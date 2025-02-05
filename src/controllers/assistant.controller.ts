@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { AssistantControllerService } from '../services/core-services/assistant.controller.service';
 import { respond } from './controller.helper';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 
 export class AssistantController {
   private readonly assistantService: AssistantControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.assistantService = new AssistantControllerService(db);
   }
 
@@ -119,6 +119,7 @@ export class AssistantController {
   async updateAssistant(req: Request, res: Response) {
     const { id } = req.params;
     const assistant = req.body;
+
     try {
       const isUpdated = await this.assistantService.updateAssistant(id, assistant);
       if (!isUpdated) {

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { PromptControllerService } from '../services/core-services/prompt.controller.service';
 import { respond } from './controller.helper';
 
 export class PromptController {
   private readonly promptControllerService: PromptControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.promptControllerService = new PromptControllerService(db);
   }
 

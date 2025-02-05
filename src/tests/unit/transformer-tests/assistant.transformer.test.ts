@@ -11,8 +11,8 @@ const mockAssistantRow: AssistantRow = {
   description: 'A description for the assistant',
   type: 'chat', // Changed to 'chat' to reflect valid types
   model: 'gpt-3.5-turbo', // New model field
-  createdAt: '2023-01-01T00:00:00.000Z',
-  updatedAt: '2023-01-02T00:00:00.000Z',
+  created_at: '2023-01-01T00:00:00.000Z',
+  updated_at: '2023-01-02T00:00:00.000Z',
 };
 
 const mockMemoryRows: MemoryRow[] = [
@@ -21,8 +21,8 @@ const mockMemoryRows: MemoryRow[] = [
     type: 'knowledge',
     description: 'Memory description',
     data: JSON.stringify({ key: 'value' }),
-    createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-02T00:00:00.000Z',
+    created_at: '2023-01-01T00:00:00.000Z',
+    updated_at: '2023-01-02T00:00:00.000Z',
   },
 ];
 
@@ -41,11 +41,11 @@ const mockAssistantTags: TagRow[] = [
 const mockMemoryFocusRuleRow: MemoryFocusRuleRow = {
   id: 'focus-rule-1',
   assistant_id: 'assistant-1',
-  maxResults: 5,
-  relationshipTypes: JSON.stringify(['related_to']),
-  priorityTags: JSON.stringify(['important']),
-  createdAt: '2023-01-01T00:00:00.000Z',
-  updatedAt: '2023-01-02T00:00:00.000Z',
+  max_results: 5,
+  relationship_types: ['related_to'],
+  priority_tags: ['important'],
+  created_at: '2023-01-01T00:00:00.000Z',
+  updated_at: '2023-01-02T00:00:00.000Z',
 };
 
 // Tests

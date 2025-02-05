@@ -1,30 +1,40 @@
 import express from 'express';
 import request from 'supertest';
 import promptRoutes from '../../../routes/prompt.routes';
+import { Pool } from 'pg'; // Use Pool for PostgreSQL
+import { getDb } from '../../../database/database';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/prompt', promptRoutes); // Register prompt routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1'); // Insert test data for assistant
+const uniqueIdPrefix = 'promptRoutesTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  testDbHelper.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('Prompt Controller Tests', () => {
   it('should respond to a valid prompt request', async () => {
+    const id = uniqueIdPrefix + 'assistant' + 1;
+    await insertHelpers.insertAssistant(db, id);
     const newPrompt = {
-      id: '1',
+      id: id,
       prompt: 'What is the capital of France?',
       extraInstruction: 'Provide a detailed answer.',
     };
@@ -43,9 +53,9 @@ describe('Prompt Controller Tests', () => {
     expect(response.body.message).toBe('Prompt failed or assistant not found.');
   });
 
-  it('should return 404 if assistant is not found for the prompt', async () => {
+  it('should return 400 if assistant is not found for the prompt', async () => {
     const newPrompt = {
-      id: '999', // Non-existent assistant
+      id: uniqueIdPrefix + '999', // Non-existent assistant
       prompt: 'What is the capital of France?',
       extraInstruction: 'Provide a detailed answer.',
     };

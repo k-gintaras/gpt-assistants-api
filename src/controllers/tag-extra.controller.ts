@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { TagExtraControllerService } from '../services/core-services/tag-extra.controller.service';
 import { respond } from './controller.helper';
@@ -6,7 +6,7 @@ import { respond } from './controller.helper';
 export class TagExtraController {
   private readonly tagExtraService: TagExtraControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.tagExtraService = new TagExtraControllerService(db);
   }
 

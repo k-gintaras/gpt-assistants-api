@@ -1,32 +1,32 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { MemoryWithTags } from '../../models/memory.model';
-import { OwnedMemoryService } from '../sqlite-services/owned-memory.service';
 import { OwnedMemoryServiceModel } from '../../models/service-models/memory-owned.service.model';
+import { OwnedMemoryService } from '../sqlite-services/owned-memory.service';
 
 export class OwnedMemoryControllerService implements OwnedMemoryServiceModel {
   ownedMemoryService: OwnedMemoryService;
 
-  constructor(db: Database.Database) {
-    this.ownedMemoryService = new OwnedMemoryService(db);
+  constructor(pool: Pool) {
+    this.ownedMemoryService = new OwnedMemoryService(pool);
   }
 
-  getMemoriesByAssistantId(assistantId: string): Promise<MemoryWithTags[]> {
-    return this.ownedMemoryService.getMemoriesByAssistantId(assistantId);
+  async getMemoriesByAssistantId(assistantId: string): Promise<MemoryWithTags[]> {
+    return await this.ownedMemoryService.getMemoriesByAssistantId(assistantId);
   }
 
-  getOwnedMemories(assistantId: string): Promise<MemoryWithTags[]> {
-    return this.ownedMemoryService.getOwnedMemories(assistantId);
+  async getOwnedMemories(assistantId: string): Promise<MemoryWithTags[]> {
+    return await this.ownedMemoryService.getOwnedMemories(assistantId);
   }
 
-  addOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
-    return this.ownedMemoryService.addOwnedMemory(assistantId, memoryId);
+  async addOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
+    return await this.ownedMemoryService.addOwnedMemory(assistantId, memoryId);
   }
 
-  removeOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
-    return this.ownedMemoryService.removeOwnedMemory(assistantId, memoryId);
+  async removeOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
+    return await this.ownedMemoryService.removeOwnedMemory(assistantId, memoryId);
   }
 
-  updateOwnedMemories(assistantId: string, memoryIds: string[]): Promise<boolean> {
-    return this.ownedMemoryService.updateOwnedMemories(assistantId, memoryIds);
+  async updateOwnedMemories(assistantId: string, memoryIds: string[]): Promise<boolean> {
+    return await this.ownedMemoryService.updateOwnedMemories(assistantId, memoryIds);
   }
 }

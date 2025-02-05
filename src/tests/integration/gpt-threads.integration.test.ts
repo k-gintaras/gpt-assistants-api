@@ -1,7 +1,7 @@
 import { addThreadMessage, createNewThread, extractAssistantReply, fetchThreadMessages, queryAssistant, waitForRunCompletion } from '../../services/gpt-api/gpt-api-thread';
 
 describe('Integration Test for GPT Assistant API', () => {
-  const assistantId = 'asst_7ISKYusMXvzmPq9IDqQVxqFW'; // Replace with your assistant ID
+  const assistantId = 'asst_OLOnDgu5fqoufVx8V76UD1in'; // Replace with your assistant ID
   const testPrompt = 'Hello, what can you do?';
   let threadId: string | null = null;
 

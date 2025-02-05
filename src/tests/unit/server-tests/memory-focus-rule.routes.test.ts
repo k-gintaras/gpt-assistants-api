@@ -2,30 +2,39 @@ import express from 'express';
 import request from 'supertest';
 import memoryFocusRuleRoutes from '../../../routes/memory-focus-rule.routes';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
+import { getDb } from '../../../database/database';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/memory-focus-rules', memoryFocusRuleRoutes); // Register memory-focus-rule routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db); // Initialize the test database
-  insertHelpers.insertAssistant(db, '1'); // Insert necessary test data
-  insertHelpers.insertMemoryFocusRules(db); // Insert memory focus rules for testing
+// ### pre setup the database >>>
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  testDbHelper.close(); // Clean up the test database after tests
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('MemoryFocusRule Controller Tests', () => {
   it('should create a new memory focus rule', async () => {
+    const assistantId = 'assistant' + Math.floor(Math.random() * 1000); // Generate a unique assistant ID
+    await insertHelpers.insertAssistant(db, assistantId); // Ensure assistant exists
+
     const newMemoryFocusRule = {
-      assistantId: '1',
+      assistantId: assistantId, // Use unique assistant ID
       maxResults: 5,
       relationshipTypes: ['type1', 'type2'],
       priorityTags: ['tag1', 'tag2'],
@@ -38,7 +47,11 @@ describe('MemoryFocusRule Controller Tests', () => {
   });
 
   it('should fetch memory focus rules by assistantId', async () => {
-    const response = await request(app).get('/memory-focus-rules/1'); // Assuming assistant ID '1' exists
+    const assistantId = 'assistant' + Math.floor(Math.random() * 1000); // Generate a unique assistant ID
+    await insertHelpers.insertAssistant(db, assistantId); // Ensure assistant exists
+    await insertHelpers.insertMemoryFocusRule(db, 'mfr' + Math.floor(Math.random() * 1000), assistantId); // Insert memory focus rules for testing
+
+    const response = await request(app).get(`/memory-focus-rules/${assistantId}`); // Use unique assistant ID
     expect(response.status).toBe(200);
     expect(response.body.data !== null).toBe(true);
   });
@@ -50,13 +63,19 @@ describe('MemoryFocusRule Controller Tests', () => {
   });
 
   it('should update a memory focus rule', async () => {
+    const memoryFocusRuleId = 'mfr' + Math.floor(Math.random() * 1000); // Unique rule ID
+    const assistantId = 'assistant' + Math.floor(Math.random() * 1000); // Unique assistant ID
+
+    await insertHelpers.insertAssistant(db, assistantId); // Ensure assistant exists
+    await insertHelpers.insertMemoryFocusRule(db, memoryFocusRuleId, assistantId); // Insert memory focus rule for testing
+
     const updatedMemoryFocusRule = {
       maxResults: 10,
       relationshipTypes: ['newType1', 'newType2'],
       priorityTags: ['newTag1', 'newTag2'],
     };
     const response = await request(app)
-      .put('/memory-focus-rules/1') // Assuming memory focus rule with ID '1' exists
+      .put(`/memory-focus-rules/${memoryFocusRuleId}`) // Use unique ID for memory focus rule
       .send(updatedMemoryFocusRule);
 
     expect(response.status).toBe(200);
@@ -78,7 +97,13 @@ describe('MemoryFocusRule Controller Tests', () => {
   });
 
   it('should delete a memory focus rule', async () => {
-    const response = await request(app).delete('/memory-focus-rules/1'); // Assuming memory focus rule with ID '1'
+    const memoryFocusRuleId = 'mfr' + Math.floor(Math.random() * 1000); // Unique rule ID
+    const assistantId = 'assistant' + Math.floor(Math.random() * 1000); // Unique assistant ID
+
+    await insertHelpers.insertAssistant(db, assistantId); // Ensure assistant exists
+    await insertHelpers.insertMemoryFocusRule(db, memoryFocusRuleId, assistantId); // Insert memory focus rule for testing
+
+    const response = await request(app).delete(`/memory-focus-rules/${memoryFocusRuleId}`); // Use unique ID for memory focus rule
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Memory focus rule deleted successfully.');
   });

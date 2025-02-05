@@ -1,111 +1,93 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { MemoryRow, MemoryWithTags } from '../../models/memory.model';
 import { Tag } from '../../models/tag.model';
 
 export class OwnedMemoryService {
-  db = new Database(':memory:'); // Default database instance
+  constructor(private pool: Pool) {}
 
-  constructor(newDb: Database.Database) {
-    this.setDb(newDb);
-  }
-
-  setDb(newDb: Database.Database) {
-    this.db = newDb; // Allow overriding the database instance
-  }
-
-  /**
-   * Fetch memories owned by a specific assistant, including associated tags.
-   */
   async getMemoriesByAssistantId(assistantId: string): Promise<MemoryWithTags[]> {
-    const rows = this.db
-      .prepare(
-        `
-        SELECT m.*, t.id AS tag_id, t.name AS tag_name
-        FROM owned_memories om
-        JOIN memories m ON om.memory_id = m.id
-        LEFT JOIN memory_tags mt ON m.id = mt.memory_id
-        LEFT JOIN tags t ON mt.tag_id = t.id
-        WHERE om.assistant_id = ?
+    const rows = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      )
-      .all(assistantId) as (MemoryRow & { tag_id: string | null; tag_name: string | null })[];
+      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      FROM owned_memories om
+      JOIN memories m ON om.memory_id = m.id
+      LEFT JOIN memory_tags mt ON m.id = mt.memory_id
+      LEFT JOIN tags t ON mt.tag_id = t.id
+      WHERE om.assistant_id = $1
+      `,
+      [assistantId]
+    );
 
-    return this.aggregateMemoriesWithTags(rows);
+    return this.aggregateMemoriesWithTags(rows.rows);
   }
 
-  /**
-   * Fetch all owned memories for a specific assistant.
-   */
   async getOwnedMemories(assistantId: string): Promise<MemoryWithTags[]> {
-    const rows = this.db
-      .prepare(
-        `
-        SELECT m.*, t.id AS tag_id, t.name AS tag_name
-        FROM owned_memories om
-        JOIN memories m ON om.memory_id = m.id
-        LEFT JOIN memory_tags mt ON m.id = mt.memory_id
-        LEFT JOIN tags t ON mt.tag_id = t.id
-        WHERE om.assistant_id = ?
+    const rows = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      )
-      .all(assistantId) as (MemoryRow & { tag_id: string | null; tag_name: string | null })[];
+      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      FROM owned_memories om
+      JOIN memories m ON om.memory_id = m.id
+      LEFT JOIN memory_tags mt ON m.id = mt.memory_id
+      LEFT JOIN tags t ON mt.tag_id = t.id
+      WHERE om.assistant_id = $1
+      `,
+      [assistantId]
+    );
 
-    return this.aggregateMemoriesWithTags(rows);
+    return this.aggregateMemoriesWithTags(rows.rows);
   }
 
-  /**
-   * Add a memory to an assistant's owned memories.
-   */
   async addOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
     try {
-      const stmt = this.db.prepare(`
-        INSERT INTO owned_memories (assistant_id, memory_id)
-        VALUES (?, ?)
-      `);
-      const result = stmt.run(assistantId, memoryId);
-      return result.changes > 0;
-    } catch {
-      return false; // Handle duplicates or constraint violations gracefully
-    }
-  }
-
-  /**
-   * Remove a memory from an assistant's owned memories.
-   */
-  async removeOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
-    try {
-      const stmt = this.db.prepare(`
-        DELETE FROM owned_memories
-        WHERE assistant_id = ? AND memory_id = ?
-      `);
-      const result = stmt.run(assistantId, memoryId);
-      return result.changes > 0;
+      const result = await this.pool.query(
+        `
+      INSERT INTO owned_memories (assistant_id, memory_id)
+      VALUES ($1, $2)
+      ON CONFLICT (assistant_id, memory_id) DO NOTHING
+      `,
+        [assistantId, memoryId]
+      );
+      if (!result.rowCount) return false;
+      return result.rowCount > 0;
     } catch {
       return false;
     }
   }
 
-  /**
-   * Update the owned memories for a specific assistant.
-   */
+  async removeOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
+    try {
+      const result = await this.pool.query(
+        `
+        DELETE FROM owned_memories
+        WHERE assistant_id = $1 AND memory_id = $2
+      `,
+        [assistantId, memoryId]
+      );
+      if (!result?.rowCount) return false;
+
+      return result.rowCount > 0; // Simplified return
+    } catch {
+      return false;
+    }
+  }
+
   async updateOwnedMemories(assistantId: string, memoryIds: string[]): Promise<boolean> {
     try {
-      const deleteStmt = this.db.prepare(`
+      await this.pool.query(
+        `
         DELETE FROM owned_memories
-        WHERE assistant_id = ?
-      `);
+        WHERE assistant_id = $1
+      `,
+        [assistantId]
+      );
 
-      const insertStmt = this.db.prepare(`
+      const insertStmt = `
         INSERT INTO owned_memories (assistant_id, memory_id)
-        VALUES (?, ?)
-      `);
+        VALUES ($1, $2)
+      `;
 
-      // Remove all existing associations
-      deleteStmt.run(assistantId);
-
-      // Add the new set of memories
       for (const memoryId of memoryIds) {
-        insertStmt.run(assistantId, memoryId);
+        await this.pool.query(insertStmt, [assistantId, memoryId]);
       }
       return true;
     } catch {
@@ -113,9 +95,6 @@ export class OwnedMemoryService {
     }
   }
 
-  /**
-   * Helper to aggregate memory rows and associated tags.
-   */
   private aggregateMemoriesWithTags(rows: (MemoryRow & { tag_id: string | null; tag_name: string | null })[]): MemoryWithTags[] {
     const memoryMap = new Map<string, { row: MemoryRow; tags: Tag[] }>();
 
@@ -130,8 +109,8 @@ export class OwnedMemoryService {
 
     return Array.from(memoryMap.values()).map(({ row, tags }) => ({
       ...row,
-      createdAt: new Date(row.createdAt),
-      updatedAt: new Date(row.updatedAt),
+      createdAt: new Date(row.created_at), // Updated to snake_case
+      updatedAt: new Date(row.updated_at), // Updated to snake_case
       tags: tags.length > 0 ? tags : null,
     }));
   }

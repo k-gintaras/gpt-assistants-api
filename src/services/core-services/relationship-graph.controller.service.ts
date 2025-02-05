@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { RelationshipGraph } from '../../models/relationship.model';
 import { RelationshipGraphServiceModel } from '../../models/service-models/relationship-graph.service.model';
 import { RelationshipGraphService } from '../sqlite-services/relationship-graph.service';
@@ -6,31 +6,31 @@ import { RelationshipGraphService } from '../sqlite-services/relationship-graph.
 export class RelationshipGraphControllerService implements RelationshipGraphServiceModel {
   relationshipGraphService: RelationshipGraphService;
 
-  constructor(db: Database.Database) {
-    this.relationshipGraphService = new RelationshipGraphService(db);
+  constructor(pool: Pool) {
+    this.relationshipGraphService = new RelationshipGraphService(pool);
   }
 
-  getAllRelationships(): RelationshipGraph[] {
-    return this.relationshipGraphService.getAllRelationships();
+  async getAllRelationships(): Promise<RelationshipGraph[]> {
+    return await this.relationshipGraphService.getAllRelationships();
   }
 
-  getRelationshipsBySource(targetId: string): RelationshipGraph[] {
-    return this.relationshipGraphService.getRelationshipsBySource(targetId);
+  async getRelationshipsBySource(sourceId: string): Promise<RelationshipGraph[]> {
+    return await this.relationshipGraphService.getRelationshipsBySource(sourceId);
   }
 
-  getRelationshipsByTargetAndType(targetId: string, type: RelationshipGraph['type']): RelationshipGraph[] {
-    return this.relationshipGraphService.getRelationshipsByTargetAndType(targetId, type);
+  async getRelationshipsByTargetAndType(targetId: string, type: RelationshipGraph['type']): Promise<RelationshipGraph[]> {
+    return await this.relationshipGraphService.getRelationshipsByTargetAndType(targetId, type);
   }
 
-  addRelationship(relationship: RelationshipGraph): Promise<boolean> {
-    return this.relationshipGraphService.addRelationship(relationship);
+  async addRelationship(relationship: RelationshipGraph): Promise<boolean> {
+    return await this.relationshipGraphService.addRelationship(relationship);
   }
 
-  updateRelationship(id: string, updates: RelationshipGraph): Promise<boolean> {
-    return this.relationshipGraphService.updateRelationship(id, updates);
+  async updateRelationship(id: string, updates: RelationshipGraph): Promise<boolean> {
+    return await this.relationshipGraphService.updateRelationship(id, updates);
   }
 
-  deleteRelationship(id: string): Promise<boolean> {
-    return this.relationshipGraphService.deleteRelationship(id);
+  async deleteRelationship(id: string): Promise<boolean> {
+    return await this.relationshipGraphService.deleteRelationship(id);
   }
 }

@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { FocusedMemoryControllerService } from '../services/core-services/memory-focused.controller.service';
 import { respond } from './controller.helper';
@@ -6,7 +6,7 @@ import { respond } from './controller.helper';
 export class FocusedMemoryController {
   private readonly focusedMemoryService: FocusedMemoryControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.focusedMemoryService = new FocusedMemoryControllerService(db);
   }
 

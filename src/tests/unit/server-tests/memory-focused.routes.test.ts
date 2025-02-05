@@ -1,34 +1,47 @@
 import express from 'express';
 import request from 'supertest';
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import focusedMemoryRoutes from '../../../routes/memory-focused.routes';
+import { getDb } from '../../../database/database';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
 app.use('/focused-memories', focusedMemoryRoutes); // Register focused-memory routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertMemories(db);
-  insertHelpers.insertMemory(db, '3');
-  insertHelpers.insertMemoryFocusRule(db, '1', '1');
-  insertHelpers.insertFocusedMemory(db, '1', '1'); // Insert test data for focused memory
-  insertHelpers.insertFocusedMemory(db, '1', '2'); // Insert test data for focused memory
+const uniqueIdPrefix = 'focusedMemoryRouteTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
+  // Insert test data using unique IDs
 });
 
-afterAll(() => {
-  testDbHelper.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('FocusedMemory Controller Tests', () => {
   it('should fetch focused memories by assistantId', async () => {
-    const response = await request(app).get('/focused-memories/assistant/1');
+    const assistantId = uniqueIdPrefix + 'assistant2';
+    const ruleId = uniqueIdPrefix + '2';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '1', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '2', 'm2'); // Unique memory ID
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId); // Unique memory focus rule
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '1'); // Test focused memory
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '2'); // Test focused memory
+
+    const response = await request(app).get(`/focused-memories/assistant/${assistantId}`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
@@ -40,19 +53,30 @@ describe('FocusedMemory Controller Tests', () => {
   });
 
   it('should fetch focused memories by memoryFocusId', async () => {
-    const response = await request(app).get('/focused-memories/1');
+    const assistantId = uniqueIdPrefix + 'assistant2';
+    const ruleId = uniqueIdPrefix + '2';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '1', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '2', 'm2'); // Unique memory ID
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId); // Unique memory focus rule
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '1'); // Test focused memory
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '2'); // Test focused memory
+
+    const response = await request(app).get(`/focused-memories/${uniqueIdPrefix + '2'}`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 
-  it('should return 400 for non-existent memoryFocusId', async () => {
+  it('should return 404 for non-existent memoryFocusId', async () => {
     const response = await request(app).get('/focused-memories/999');
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('No focused memories found for focus ID 999.');
   });
 
   it('should add focused memory', async () => {
-    const response = await request(app).post('/focused-memories/1/3').send();
+    const response = await request(app)
+      .post(`/focused-memories/${uniqueIdPrefix + '1'}/${uniqueIdPrefix + '3'}`)
+      .send();
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Memory added to focus group successfully.');
   });
@@ -64,7 +88,16 @@ describe('FocusedMemory Controller Tests', () => {
   });
 
   it('should remove focused memory', async () => {
-    const response = await request(app).delete('/focused-memories/1/2');
+    const assistantId = uniqueIdPrefix + 'assistant7';
+    const ruleId = uniqueIdPrefix + '7';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '5', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '6', 'm2'); // Unique memory ID
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId); // Unique memory focus rule
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '5'); // Test focused memory
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '6'); // Test focused memory
+
+    const response = await request(app).delete(`/focused-memories/${uniqueIdPrefix + '7'}/${uniqueIdPrefix + '5'}`);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Memory removed from focus group successfully.');
   });
@@ -76,9 +109,18 @@ describe('FocusedMemory Controller Tests', () => {
   });
 
   it('should update focused memories', async () => {
+    const assistantId = uniqueIdPrefix + 'assistant3';
+    const ruleId = uniqueIdPrefix + '3';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '3', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '4', 'm2'); // Unique memory ID
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId); // Unique memory focus rule
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '3'); // Test focused memory
+    await insertHelpers.insertFocusedMemory(db, ruleId, uniqueIdPrefix + '4'); // Test focused memory
+
     const response = await request(app)
-      .put('/focused-memories/1')
-      .send({ memoryIds: ['1', '2'] });
+      .put(`/focused-memories/${uniqueIdPrefix + '3'}`)
+      .send({ memoryIds: [uniqueIdPrefix + '3', uniqueIdPrefix + '4'] });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Focused memories updated successfully.');
   });

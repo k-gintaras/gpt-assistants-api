@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { MemoryExtraControllerService } from '../services/core-services/memory-extra.controller.service';
 import { respond } from './controller.helper';
@@ -6,7 +6,7 @@ import { respond } from './controller.helper';
 export class MemoryExtraController {
   private readonly memoryExtraService: MemoryExtraControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.memoryExtraService = new MemoryExtraControllerService(db);
   }
 

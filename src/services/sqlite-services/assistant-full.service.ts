@@ -1,82 +1,42 @@
+import { Pool } from 'pg';
 import { AssistantWithDetails, AssistantRow, FeedbackSummaryRow } from '../../models/assistant.model';
-import { MemoryRow } from '../../models/memory.model';
 import { MemoryFocusRuleRow } from '../../models/focused-memory.model';
+import { MemoryRow } from '../../models/memory.model';
+import { Tag, TagRow } from '../../models/tag.model';
 import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../../queries/assistant.queries';
 import { FullAssistantRows, transformFullAssistantResult } from '../../transformers/assistant-full.transformer';
 import { transformAssistantWithDetails } from '../../transformers/assistant.transformer';
-import { TagRow, Tag } from '../../models/tag.model';
-import Database from 'better-sqlite3';
 
 export class FullAssistantService {
-  db = new Database(':memory:'); // Default database instance
+  constructor(private pool: Pool) {}
 
-  constructor(newDb: Database.Database) {
-    this.setDb(newDb);
-  }
-
-  setDb(newDb: Database.Database) {
-    this.db = newDb; // Allow overriding the database instance
-  }
-
-  /**
-   * Fetch full assistant details using individual queries.
-   */
   async getFullAssistantWithDetails(id: string): Promise<AssistantWithDetails | null> {
+    const client = await this.pool.connect();
     try {
-      // Fetch assistant details
-      const assistantRow = this.db
-        .prepare(
-          `
-      SELECT * 
-      FROM assistants 
-      WHERE id = ?
-    `
-        )
-        .get(id) as AssistantRow | undefined;
+      // Fetching assistant details
+      const assistantRow = await client.query<AssistantRow>(`SELECT * FROM assistants WHERE id = $1`, [id]).then((res) => res.rows[0]);
 
-      if (!assistantRow) return null;
+      if (!assistantRow) {
+        return null;
+      }
 
-      // Fetch assistant tags
-      const assistantTagRows = this.db
-        .prepare(
-          `
-      SELECT t.* 
-      FROM assistant_tags at
-      JOIN tags t ON at.tag_id = t.id
-      WHERE at.assistant_id = ?
-    `
-        )
-        .all(id) as TagRow[];
+      // Fetching assistant tags
+      const assistantTagRows = await client.query<TagRow>(`SELECT t.* FROM assistant_tags at JOIN tags t ON at.tag_id = t.id WHERE at.assistant_id = $1`, [id]).then((res) => res.rows);
 
-      // Fetch memory focus rule
-      const memoryFocusRuleRow = this.db
-        .prepare(
-          `
-      SELECT * 
-      FROM memory_focus_rules 
-      WHERE assistant_id = ?
-    `
-        )
-        .get(id) as MemoryFocusRuleRow | undefined;
+      // Fetching memory focus rule
+      const memoryFocusRuleRow = await client.query<MemoryFocusRuleRow>(`SELECT * FROM memory_focus_rules WHERE assistant_id = $1`, [id]).then((res) => res.rows[0]);
 
-      // Fetch related focused memories if a focus rule exists
+      // Fetching memories if focus rule exists
       const memoryRows = memoryFocusRuleRow
-        ? (this.db
-            .prepare(
-              `
-          SELECT m.*, t.id AS tag_id, t.name AS tag_name
-          FROM focused_memories fm
-          JOIN memories m ON fm.memory_id = m.id
-          LEFT JOIN memory_tags mt ON m.id = mt.memory_id
-          LEFT JOIN tags t ON mt.tag_id = t.id
-          WHERE fm.memory_focus_id = ?
-        `
+        ? await client
+            .query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
+              `SELECT m.*, t.id AS tag_id, t.name AS tag_name FROM focused_memories fm JOIN memories m ON fm.memory_id = m.id LEFT JOIN memory_tags mt ON m.id = mt.memory_id LEFT JOIN tags t ON mt.tag_id = t.id WHERE fm.memory_focus_id = $1`,
+              [memoryFocusRuleRow.id]
             )
-            .all(memoryFocusRuleRow.id) as (MemoryRow & { tag_id: string | null; tag_name: string | null })[])
+            .then((res) => res.rows)
         : [];
 
-      // Group tags by memory ID
-      const memoryTags: Record<string, Tag[]> = {};
+      const memoryTags: Record<string, Tag[]> = {}; // Ensure this is the correct Tag type
       memoryRows.forEach((row) => {
         if (!memoryTags[row.id]) {
           memoryTags[row.id] = [];
@@ -86,38 +46,38 @@ export class FullAssistantService {
         }
       });
 
-      // Fetch feedback summary for the assistant
-      const feedbackSummaryRow = this.db
-        .prepare(
-          `
-      SELECT 
-        COALESCE(AVG(f.rating), 0) AS avgRating, 
-        COALESCE(COUNT(f.id), 0) AS totalFeedback
-      FROM feedback f
-      JOIN tasks t ON f.target_id = t.id AND f.target_type = 'task'
-      WHERE t.assignedAssistant = ?
-    `
+      // Fetching feedback summary for both tasks and direct assistant feedback
+      const feedbackSummaryRow = await client
+        .query<FeedbackSummaryRow>(
+          `SELECT 
+      COALESCE(AVG(f.rating), 0) AS avg_rating, 
+      COALESCE(COUNT(f.id), 0) AS total_feedback 
+     FROM feedback f
+     LEFT JOIN tasks t ON f.target_id = t.id AND f.target_type = 'task'
+     WHERE (t.assigned_assistant = $1 OR f.target_type = 'assistant' AND f.target_id = $1)`,
+          [id]
         )
-        .get(id) as FeedbackSummaryRow;
+        .then((res) => res.rows[0]);
 
-      // Transform and return the AssistantWithDetails object
+      // Transform and return result
       return transformAssistantWithDetails(assistantRow, memoryRows, memoryTags, assistantTagRows, memoryFocusRuleRow, feedbackSummaryRow);
     } catch {
       throw new Error('Failed to fetch assistant details.');
+    } finally {
+      client.release();
     }
   }
 
-  /**
-   * Fetch full assistant details using an efficient single query.
-   */
   async getFullAssistantWithDetailsEfficient(id: string): Promise<AssistantWithDetails | null> {
+    const client = await this.pool.connect();
     try {
-      const rows = this.db.prepare(GET_FULL_ASSISTANT_WITH_DETAILS).all(id) as FullAssistantRows[];
+      const rows: FullAssistantRows[] = await client.query(GET_FULL_ASSISTANT_WITH_DETAILS, [id]).then((res) => res.rows);
       if (rows.length === 0) return null;
-
       return transformFullAssistantResult(rows);
     } catch {
       throw new Error('Failed to fetch assistant details efficiently.');
+    } finally {
+      client.release();
     }
   }
 }

@@ -2,8 +2,8 @@ import { GptAssistantCreateRequest } from '../../services/gpt-api/gpt-api-models
 import { Assistant, AssistantWithDetails } from '../assistant.model';
 
 export interface AssistantServiceModel {
-  getAllAssistants(): Assistant[] | null;
-  getAssistantById(id: string): Assistant | null;
+  getAllAssistants(): Promise<Assistant[] | null>;
+  getAssistantById(id: string): Promise<Assistant | null>;
   getAssistantWithDetailsById(id: string): Promise<AssistantWithDetails | null>;
   createAssistantSimple(name: string, type: string): Promise<string | null>;
   createAssistant(name: string, type: string, model: string, instructions: string): Promise<string | null>;

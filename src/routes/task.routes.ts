@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { TaskController } from '../controllers/task.controller';
-import { getDbInstance } from '../database/database';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new TaskController(db);
 
 router.get('/:taskId', async (req, res, next) => {

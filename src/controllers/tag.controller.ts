@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { TagControllerService } from '../services/core-services/tag.controller.service';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Tag } from '../models/tag.model';
 import { respond } from './controller.helper';
 
 export class TagController {
   private readonly tagControllerService: TagControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.tagControllerService = new TagControllerService(db);
   }
 

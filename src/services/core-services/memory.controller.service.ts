@@ -1,32 +1,32 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { MemoryServiceModel } from '../../models/service-models/memory.service.model';
-import { MemoryService } from '../sqlite-services/memory.service';
 import { Memory } from '../../models/memory.model';
+import { MemoryService } from '../sqlite-services/memory.service';
 
 export class MemoryControllerService implements MemoryServiceModel {
   memoryService: MemoryService;
 
-  constructor(db: Database.Database) {
-    this.memoryService = new MemoryService(db);
+  constructor(pool: Pool) {
+    this.memoryService = new MemoryService(pool);
   }
 
-  getMemories(): Memory[] | null {
-    return this.memoryService.getAllMemories();
+  async getMemories(): Promise<Memory[] | null> {
+    return await this.memoryService.getAllMemories();
   }
 
-  getMemory(id: string): Memory | null {
-    return this.memoryService.getMemoryById(id);
+  async getMemory(id: string): Promise<Memory | null> {
+    return await this.memoryService.getMemoryById(id);
   }
 
-  createMemory(memory: Memory): string | null {
-    return this.memoryService.addMemory(memory);
+  async createMemory(memory: Omit<Memory, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
+    return await this.memoryService.addMemory(memory);
   }
 
-  updateMemory(memory: Memory): boolean {
-    return this.memoryService.updateMemory(memory.id, memory);
+  async updateMemory(memory: Memory): Promise<boolean> {
+    return await this.memoryService.updateMemory(memory.id, memory);
   }
 
-  deleteMemory(id: string): boolean {
-    return this.memoryService.removeMemory(id);
+  async deleteMemory(id: string): Promise<boolean> {
+    return await this.memoryService.removeMemory(id);
   }
 }

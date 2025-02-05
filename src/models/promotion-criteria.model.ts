@@ -1,3 +1,6 @@
+/**
+ * @deprecated maybe future use maybe not
+ * */
 export interface PromotionCriteria {
   assistantId: string; // ID of the assistant
   criteria: {

@@ -1,32 +1,28 @@
-import Database from 'better-sqlite3';
-import { RelationshipGraphService } from '../../../services/sqlite-services/relationship-graph.service';
+import { getDb } from '../test-db.helper';
 import { RelationshipGraph } from '../../../models/relationship.model';
+import { Pool } from 'pg';
+import { RelationshipGraphService } from '../../../services/sqlite-services/relationship-graph.service';
 
 describe('RelationshipGraphService', () => {
-  let db: Database.Database;
+  let db: Pool;
   let service: RelationshipGraphService;
 
-  beforeAll(() => {
-    db = new Database(':memory:');
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS relationship_graph (
-        id TEXT PRIMARY KEY,
-        type TEXT CHECK(type IN ('assistant', 'memory', 'task')) NOT NULL,
-        target_id TEXT NOT NULL,
-        relationship_type TEXT CHECK(relationship_type IN ('related_to', 'part_of', 'example_of', 'derived_from', 'depends_on', 'blocks', 'subtask_of')) NOT NULL,
-        createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL
-      );
-    `);
+  beforeAll(async () => {
+    await getDb.initialize();
+    db = getDb.getInstance();
     service = new RelationshipGraphService(db);
   });
 
-  afterAll(() => {
-    db.close();
+  afterAll(async () => {
+    await getDb.close();
   });
 
-  beforeEach(() => {
-    db.exec('DELETE FROM relationship_graph');
+  beforeEach(async () => {
+    await db.query('BEGIN'); // Start transaction for each test
+  });
+
+  afterEach(async () => {
+    await db.query('ROLLBACK'); // Rollback changes after each test
   });
 
   test('should add a relationship', async () => {
@@ -58,7 +54,7 @@ describe('RelationshipGraphService', () => {
     await service.addRelationship(relationship1);
     await service.addRelationship(relationship2);
 
-    const relationships = service.getAllRelationships();
+    const relationships = await service.getAllRelationships();
     expect(relationships.length).toBe(2);
   });
 
@@ -71,7 +67,7 @@ describe('RelationshipGraphService', () => {
     };
     await service.addRelationship(relationship);
 
-    const results = service.getRelationshipsBySource('assistant1Id');
+    const results = await service.getRelationshipsBySource('assistant1Id');
     expect(results.length).toBe(1);
     expect(results[0].targetId).toBe('assistant2Id');
   });
@@ -85,7 +81,7 @@ describe('RelationshipGraphService', () => {
     };
     await service.addRelationship(relationship);
 
-    const results = service.getRelationshipsByTarget('memory2Id');
+    const results = await service.getRelationshipsByTarget('memory2Id');
     expect(results.length).toBe(1);
     expect(results[0].relationshipType).toBe('related_to');
   });
@@ -103,7 +99,7 @@ describe('RelationshipGraphService', () => {
     const result = await service.updateRelationship('assistant1Id', updates);
     expect(result).toBe(true);
 
-    const updated = service.getRelationshipsByTarget('assistant2Id');
+    const updated = await service.getRelationshipsByTarget('assistant2Id');
     expect(updated[0].relationshipType).toBe('blocks');
   });
 
@@ -119,7 +115,7 @@ describe('RelationshipGraphService', () => {
     const deleteResult = await service.deleteRelationship('task1Id');
     expect(deleteResult).toBe(true);
 
-    const relationships = service.getAllRelationships();
+    const relationships = await service.getAllRelationships();
     expect(relationships.length).toBe(0);
   });
 });

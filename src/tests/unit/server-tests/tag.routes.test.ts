@@ -1,25 +1,32 @@
-import { getDbInstance } from '../../../database/database';
 import request from 'supertest';
 import express from 'express';
-import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
 import tagRoutes from '../../../routes/tag.routes';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
+import { getDb } from '../../../database/database';
+import { insertHelpers } from '../test-db-insert.helper';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
-app.use('/tags', tagRoutes);
+app.use('/tags', tagRoutes); // Register tag routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertTags(db); // Insert some test data for tags
+const uniqueIdPrefix = 'tagTestRoutes_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  db.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('TagController Tests', () => {
@@ -29,7 +36,7 @@ describe('TagController Tests', () => {
     const response = await request(app).post('/tags').send(tagData);
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Tag created successfully.');
-    expect(response.body.data).toHaveProperty('tagId');
+    expect(response.body.data).toHaveProperty('tagId'); // Expect the response to have a tagId property
   });
 
   it('should return 500 when trying to create a tag without a name', async () => {
@@ -41,7 +48,8 @@ describe('TagController Tests', () => {
   });
 
   it('should remove a tag', async () => {
-    const tagId = '2'; // Valid tag ID
+    const tagId = uniqueIdPrefix + '2'; // Valid tag ID
+    await insertHelpers.insertTag(db, tagId, tagId);
 
     const response = await request(app).delete(`/tags/${tagId}`);
     expect(response.status).toBe(200);
@@ -49,7 +57,7 @@ describe('TagController Tests', () => {
   });
 
   it('should return 404 when trying to remove a non-existent tag', async () => {
-    const tagId = '999'; // Non-existent tag ID
+    const tagId = uniqueIdPrefix + '999'; // Non-existent tag ID
 
     const response = await request(app).delete(`/tags/${tagId}`);
     expect(response.status).toBe(404);
@@ -57,8 +65,10 @@ describe('TagController Tests', () => {
   });
 
   it('should update a tag', async () => {
-    const tagId = '1'; // Valid tag ID
     const updatedTag = { name: 'Updated Tag' };
+
+    const tagId = uniqueIdPrefix + '3'; // Valid tag ID
+    await insertHelpers.insertTag(db, tagId, tagId);
 
     const response = await request(app).put(`/tags/${tagId}`).send(updatedTag);
     expect(response.status).toBe(200);
@@ -66,7 +76,7 @@ describe('TagController Tests', () => {
   });
 
   it('should return 404 when trying to update a non-existent tag', async () => {
-    const tagId = '999'; // Non-existent tag ID
+    const tagId = uniqueIdPrefix + '999'; // Non-existent tag ID
     const updatedTag = { name: 'Updated Tag' };
 
     const response = await request(app).put(`/tags/${tagId}`).send(updatedTag);
@@ -75,7 +85,8 @@ describe('TagController Tests', () => {
   });
 
   it('should fetch a tag by ID', async () => {
-    const tagId = '1'; // Valid tag ID
+    const tagId = uniqueIdPrefix + '3'; // Valid tag ID
+    await insertHelpers.insertTag(db, tagId, tagId);
 
     const response = await request(app).get(`/tags/${tagId}`);
     expect(response.status).toBe(200);
@@ -84,16 +95,18 @@ describe('TagController Tests', () => {
   });
 
   it('should return 404 when trying to fetch a non-existent tag', async () => {
-    const tagId = '999'; // Non-existent tag ID
+    const tagId = uniqueIdPrefix + '999'; // Non-existent tag ID
     const response = await request(app).get(`/tags/${tagId}`);
     expect(response.status).toBe(404);
-    expect(response.body.message).toBe('Tag with ID 999 not found.');
+    expect(response.body.message).toBe(`Tag with ID ${uniqueIdPrefix}999 not found.`);
   });
 
   it('should fetch all tags', async () => {
+    const tagId = uniqueIdPrefix + '4'; // Valid tag ID
+    await insertHelpers.insertTag(db, tagId, tagId);
     const response = await request(app).get('/tags');
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
-    expect(response.body.data.length).toBeGreaterThan(0);
+    expect(response.body.data.length).toBeGreaterThan(0); // Ensure we have at least one tag
   });
 });

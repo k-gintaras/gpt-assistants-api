@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { TaskControllerService } from '../services/core-services/task.controller.service';
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Task } from '../models/task.model';
 import { respond } from './controller.helper';
 
 export class TaskController {
   private readonly taskControllerService: TaskControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.taskControllerService = new TaskControllerService(db);
   }
 

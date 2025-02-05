@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { KnowledgeService } from '../../../services/orchestrator-services/knowledge.service';
+import { getDb } from '../test-db.helper';
 
 describe('KnowledgeService', () => {
   let memoryExtraService: any;
   let relationshipGraphService: any;
   let knowledgeService: KnowledgeService;
+
+  beforeAll(async () => {
+    await getDb.initialize();
+  });
+
+  afterAll(async () => {
+    await getDb.close();
+  });
 
   beforeEach(() => {
     memoryExtraService = {
@@ -31,9 +40,7 @@ describe('KnowledgeService', () => {
   });
 
   test('queryKnowledge returns memory by tags if direct memory not found', async () => {
-    // Simulate no direct memory found.
     memoryExtraService.findDirectMemory.mockResolvedValue(null);
-    // Return an array with one memory having data.
     memoryExtraService.getMemoriesByTags.mockResolvedValue([{ data: 'Tagged data' }]);
 
     const result = await knowledgeService.queryKnowledge('query', 'assistant1', ['tag1']);
@@ -42,13 +49,9 @@ describe('KnowledgeService', () => {
   });
 
   test('queryKnowledge returns memory by relationships if direct and tag search fail', async () => {
-    // No direct memory.
     memoryExtraService.findDirectMemory.mockResolvedValue(null);
-    // Tag search yields empty.
     memoryExtraService.getMemoriesByTags.mockResolvedValue([]);
-    // Relationship graph returns a related memory ID.
     relationshipGraphService.getRelatedTopics.mockResolvedValue(['memory123']);
-    // Fetching the related memory returns one with a description.
     memoryExtraService.getMemoryById.mockResolvedValue({ description: 'Related memory', data: 'Related data' });
 
     const result = await knowledgeService.queryKnowledge('query', 'assistant1', ['tag1']);

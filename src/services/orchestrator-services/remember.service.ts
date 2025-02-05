@@ -1,6 +1,9 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
+import { MemoryFocusRule } from '../../models/focused-memory.model';
+import { Memory } from '../../models/memory.model';
 import { MemoryRequest } from '../../models/service-models/orchestrator.service.model';
 import { FocusedMemoryService } from '../sqlite-services/focused-memory.service';
+import { MemoryFocusRuleService } from '../sqlite-services/memory-focus-rule.service';
 import { MemoryService } from '../sqlite-services/memory.service';
 import { OwnedMemoryService } from '../sqlite-services/owned-memory.service';
 import { TagExtraService } from '../sqlite-services/tag-extra.service';
@@ -10,74 +13,76 @@ export class RememberService {
   memoryService: MemoryService;
   ownedMemoryService: OwnedMemoryService;
   tagExtraService: TagExtraService;
-  focusedMemoryService: FocusedMemoryService; // Manages assistant's "focused" memories, which are actively used.
+  focusedMemoryService: FocusedMemoryService;
   tagService: TagService;
+  memoryFocusRuleService: MemoryFocusRuleService;
 
-  constructor(db: Database.Database) {
-    this.memoryService = new MemoryService(db); // Handles general memory storage
-    this.ownedMemoryService = new OwnedMemoryService(db); // Links memories to assistants
-    this.tagExtraService = new TagExtraService(db); // Manages memory tagging for categorization
-    this.focusedMemoryService = new FocusedMemoryService(db); // Manages focused memories that assistants actively use
-    this.tagService = new TagService(db); // Initialize tag service
+  constructor(pool: Pool) {
+    this.memoryService = new MemoryService(pool);
+    this.ownedMemoryService = new OwnedMemoryService(pool);
+    this.tagExtraService = new TagExtraService(pool);
+    this.focusedMemoryService = new FocusedMemoryService(pool);
+    this.tagService = new TagService(pool);
+    this.memoryFocusRuleService = new MemoryFocusRuleService(pool);
   }
 
-  /**
-   * Stores a memory for an assistant and optionally marks it as a focused memory.
-   *
-   * @param assistantId - The ID of the assistant storing the memory.
-   * @param memory - The memory object containing type and data.
-   * @param tags - Optional tags to categorize the memory for better retrieval.
-   * @param isFocused - Whether this memory should be a "focused memory" (actively used).
-   *
-   * @returns {Promise<boolean>} - Returns true if the memory was successfully stored and linked.
-   */
-  async remember(
-    assistantId: string,
-    memory: MemoryRequest,
-    tags?: string[],
-    isFocused: boolean = false // Controls whether the memory is actively used by the assistant.
-  ): Promise<boolean> {
-    try {
-      // Step 1: Add memory to the `memories` table
-      const memoryId = await this.memoryService.addMemory({
-        type: memory.type,
-        description: memory.data.substring(0, 50), // Truncate description for brevity
-        data: memory.data,
-      });
+  async remember(assistantId: string, memory: MemoryRequest, tags?: string[], isFocused: boolean = false): Promise<boolean> {
+    const memoryData: Memory = {
+      id: '',
+      type: memory.type,
+      description: memory.text,
+      data: null,
+      createdAt: null,
+      updatedAt: null,
+    };
 
+    let memoryId;
+    try {
+      // Step 1: Add the memory
+      memoryId = await this.memoryService.addMemory(memoryData);
       if (!memoryId) {
-        throw new Error('Failed to create memory.');
+        console.error('Failed to create memory.');
+        return false;
       }
 
-      // Step 2: Link memory to the assistant in the `owned_memories` table (assistant "owns" this memory)
+      // Step 2: Link memory to assistant
       const linkedMemory = await this.ownedMemoryService.addOwnedMemory(assistantId, memoryId);
       if (!linkedMemory) {
-        throw new Error('Failed to link memory to assistant.');
+        console.error('Failed to link memory to assistant.');
       }
 
-      // Step 3: If memory is marked as "focused," add it to `focused_memories` so it's actively used.
+      // Step 3: Optionally add memory to focused memories
       if (isFocused) {
-        const focusedMemoryAdded = await this.focusedMemoryService.addFocusedMemory(assistantId, memoryId);
-        if (!focusedMemoryAdded) {
-          throw new Error('Failed to add memory to focused memories.');
+        const focusRule: MemoryFocusRule | null = await this.memoryFocusRuleService.getMemoryFocusRules(assistantId);
+        if (focusRule) {
+          const focusedMemoryAdded = await this.focusedMemoryService.addFocusedMemory(focusRule.id, memoryId);
+          if (!focusedMemoryAdded) {
+            console.error('Failed to add focused memory.');
+          }
+        } else {
+          console.error('No focus rule found for assistant.');
         }
       }
 
-      // Step 4: Add tags to the `memory_tags` table (for easy retrieval based on category)
+      // Step 4: Add tags if provided
       if (tags && tags.length > 0) {
         for (const tagName of tags) {
-          const tagId = await this.tagService.ensureTagExists(tagName); // Fetch or create tag ID
-          const tagAdded = await this.tagExtraService.addTagToEntity(memoryId, tagId, 'memory');
-          if (!tagAdded) {
-            throw new Error(`Failed to add tag '${tagName}' to memory.`);
+          try {
+            const tagId = await this.tagService.ensureTagExists(tagName);
+            const tagAdded = await this.tagExtraService.addTagToEntity(memoryId, tagId, 'memory');
+            if (!tagAdded) {
+              console.error(`Failed to add tag '${tagName}' to memory.`);
+            }
+          } catch (error) {
+            console.error(`Error adding tag '${tagName}':`, error);
           }
         }
       }
 
-      return true; // Successfully stored, linked, and optionally focused the memory.
+      return true; // Return true if memory is successfully created, even if some operations failed
     } catch (error) {
       console.error('Error in remember:', error);
-      throw error;
+      return false; // Return false if memory creation failed
     }
   }
 }

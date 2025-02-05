@@ -1,13 +1,14 @@
-import { MemoryFocusRule, MemoryFocusRuleRow } from '../models/focused-memory.model';
+import { MemoryFocusRuleRow, MemoryFocusRule } from '../models/focused-memory.model';
 
 export function transformMemoryFocusRuleRow(row: MemoryFocusRuleRow): MemoryFocusRule {
+  const defaultReturn: string[] = [];
   return {
     id: row.id,
     assistantId: row.assistant_id,
-    maxResults: row.maxResults,
-    relationshipTypes: row.relationshipTypes ? JSON.parse(row.relationshipTypes) : [], // Default to an empty array
-    priorityTags: row.priorityTags ? JSON.parse(row.priorityTags) : [], // Default to an empty array
-    createdAt: new Date(row.createdAt), // Ensure a valid Date is created
-    updatedAt: new Date(row.updatedAt), // Ensure a valid Date is created
+    maxResults: row.max_results ? Number(row.max_results) : row.max_results,
+    relationshipTypes: row.relationship_types || defaultReturn,
+    priorityTags: row.priority_tags || defaultReturn,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
   };
 }

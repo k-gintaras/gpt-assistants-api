@@ -7,7 +7,7 @@ import { RelationshipGraph } from '../relationship.model';
  */
 export type MemoryRequest = {
   type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';
-  data: string; // Content being stored
+  text: string; // Content being stored
 };
 
 export interface TaskRequest {

@@ -14,8 +14,8 @@ describe('transformMemoryRow', () => {
       type: 'instruction',
       description: 'Test description',
       data: '{"key":"value"}',
-      createdAt: '2025-01-01T00:00:00Z',
-      updatedAt: '2025-01-02T00:00:00Z',
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-02T00:00:00Z',
     };
 
     const result = transformMemoryRow(row, tags);
@@ -37,8 +37,8 @@ describe('transformMemoryRow', () => {
       type: 'session',
       description: null,
       data: null,
-      createdAt: '2025-01-03T00:00:00Z',
-      updatedAt: '2025-01-04T00:00:00Z',
+      created_at: '2025-01-03T00:00:00Z',
+      updated_at: '2025-01-04T00:00:00Z',
     };
 
     const result = transformMemoryRow(row, tags);

@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { MemoryFocusRuleControllerService } from '../services/core-services/memory-focus-rule.controller.service';
 import { MemoryFocusRule } from '../models/focused-memory.model';
@@ -7,7 +7,7 @@ import { respond } from './controller.helper';
 export class MemoryFocusRuleController {
   private readonly memoryFocusRuleService: MemoryFocusRuleControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.memoryFocusRuleService = new MemoryFocusRuleControllerService(db);
   }
 
@@ -19,7 +19,6 @@ export class MemoryFocusRuleController {
    */
   async createMemoryFocusRule(req: Request, res: Response) {
     const { assistantId, maxResults, relationshipTypes, priorityTags } = req.body;
-
     try {
       const memoryFocusRule = await this.memoryFocusRuleService.createMemoryFocusRule(assistantId, maxResults, relationshipTypes, priorityTags);
       return respond(res, 201, 'Memory focus rule created successfully', memoryFocusRule);

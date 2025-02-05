@@ -1,28 +1,28 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Feedback } from '../../../models/feedback.model';
 import { FeedbackService } from '../../../services/sqlite-services/feedback.service';
+import { getDb } from '../test-db.helper';
 
 let feedbackService: FeedbackService;
+let db: Pool;
+
 describe('Feedback Service', () => {
-  beforeAll(() => {
-    const db = new Database(':memory:');
+  beforeAll(async () => {
+    await getDb.initialize();
+    db = getDb.getInstance();
     feedbackService = new FeedbackService(db);
-    // Initialize tables
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS feedback (
-        id TEXT PRIMARY KEY,
-        target_id TEXT NOT NULL,
-        target_type TEXT CHECK(target_type IN ('assistant', 'memory', 'task')) NOT NULL,
-        rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
-        comments TEXT,
-        createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL
-      );
-    `);
   });
 
-  afterAll(() => {
-    feedbackService.db.close();
+  afterAll(async () => {
+    await getDb.close();
+  });
+
+  beforeEach(async () => {
+    await db.query('BEGIN'); // Start transaction for each test
+  });
+
+  afterEach(async () => {
+    await db.query('ROLLBACK'); // Rollback changes after each test
   });
 
   it('should add feedback for a target', async () => {
@@ -36,7 +36,7 @@ describe('Feedback Service', () => {
     const feedbackId = await feedbackService.addFeedback(feedbackData);
     expect(feedbackId).toBeDefined();
 
-    const feedback = feedbackService.getFeedbackById(feedbackId);
+    const feedback = await feedbackService.getFeedbackById(feedbackId);
     expect(feedback).not.toBeNull();
     expect(feedback?.targetId).toBe('task1');
     expect(feedback?.targetType).toBe('task');
@@ -62,7 +62,7 @@ describe('Feedback Service', () => {
     const updated = await feedbackService.updateFeedback(feedbackId, updates);
     expect(updated).toBe(true);
 
-    const updatedFeedback = feedbackService.getFeedbackById(feedbackId);
+    const updatedFeedback = await feedbackService.getFeedbackById(feedbackId);
     expect(updatedFeedback?.rating).toBe(5);
     expect(updatedFeedback?.comments).toBe('Outstanding work!');
   });
@@ -80,12 +80,11 @@ describe('Feedback Service', () => {
     const deleted = await feedbackService.deleteFeedback(feedbackId);
     expect(deleted).toBe(true);
 
-    const deletedFeedback = feedbackService.getFeedbackById(feedbackId);
+    const deletedFeedback = await feedbackService.getFeedbackById(feedbackId);
     expect(deletedFeedback).toBeNull();
   });
 
   it('should fetch feedback for a specific target', async () => {
-    // Add multiple feedback entries for the same target
     await feedbackService.addFeedback({
       targetId: 'memory1',
       targetType: 'memory',
@@ -100,7 +99,7 @@ describe('Feedback Service', () => {
       comments: 'Very insightful!',
     });
 
-    const feedbackList = feedbackService.getFeedbackByTarget('memory1', 'memory');
+    const feedbackList = await feedbackService.getFeedbackByTarget('memory1', 'memory');
     expect(feedbackList.length).toBeGreaterThanOrEqual(2);
     expect(feedbackList.every((feedback) => feedback.targetId === 'memory1')).toBe(true);
   });

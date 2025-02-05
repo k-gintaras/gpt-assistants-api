@@ -1,60 +1,41 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import express from 'express';
 import request from 'supertest';
 import orchestratorRoutes from '../../../routes/orchestrator.routes'; // Ensure this path is correct
 import { insertHelpers } from '../test-db-insert.helper';
-import { testDbHelper } from '../test-db.helper';
-import { getDbInstance } from '../../../database/database';
-import Database from 'better-sqlite3';
-import { OrchestratorService } from '../../../services/orchestrator-services/orchestrator.service';
 import { TaskRequest } from '../../../models/service-models/orchestrator.service.model';
+import { getDb } from '../../../database/database';
+import { Pool } from 'pg';
 
-let db: Database.Database;
 const app = express();
+let db: Pool;
+
 app.use(express.json());
 app.use('/orchestrator', orchestratorRoutes); // Register orchestrator routes
-const now = new Date().toISOString();
-let orchestratorService: OrchestratorService;
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  // Add test data to the database for the orchestrator service
-  insertHelpers.insertAssistant(db, '1');
-  insertHelpers.insertTask(db, '1'); // Add a task to be used in tests
-  insertHelpers.insertMemory(db, '3'); // Ensure a memory exists for query tests
+const uniqueIdPrefix = 'orchestratorRoutesTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  testDbHelper.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
+});
+
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('Orchestrator Controller Tests', () => {
-  orchestratorService = new OrchestratorService(db);
-
-  // Override the tagService and tagExtraService in the TaskDelegationService for predictable behavior.
-  (orchestratorService.taskDelegationService as any).tagService = {
-    ensureTagExists: async (tagName: string): Promise<string> => {
-      let tag: any = db.prepare('SELECT * FROM tags WHERE name = ?').get(tagName);
-      if (!tag) {
-        // Use a simple tag ID based on the tag name.
-        tag = { id: tagName + '-id', name: tagName };
-        db.prepare('INSERT INTO tags (id, name) VALUES (?, ?)').run(tag.id, tag.name);
-      }
-      return tag.id;
-    },
-  };
-
-  (orchestratorService.taskDelegationService as any).tagExtraService = {
-    addTagToEntity: async (entityId: string, tagId: string, entity: string): Promise<boolean> => {
-      db.prepare('INSERT INTO task_tags (task_id, tag_id, entity) VALUES (?, ?, ?)').run(entityId, tagId, entity);
-      return true;
-    },
-  };
-
   it('should remember a memory for an assistant', async () => {
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 1);
     const newMemory = {
-      assistantId: '1',
+      assistantId: uniqueIdPrefix + '1',
       memory: { type: 'knowledge', data: 'Some memory data' },
       tags: ['tag1', 'tag2'],
     };
@@ -64,8 +45,10 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should delegate a task to an assistant', async () => {
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 2);
+
     const task = {
-      assistantId: '1',
+      assistantId: uniqueIdPrefix + '2',
       task: { type: 'task', description: 'Complete the task' },
       tags: ['urgent'],
     };
@@ -75,9 +58,12 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should connect two assistants', async () => {
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 4);
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 5);
+
     const connectionData = {
-      primaryId: '1',
-      dependentId: '2',
+      primaryId: uniqueIdPrefix + '4',
+      dependentId: uniqueIdPrefix + '5', // Make sure this ID exists in your setup
       relation: 'related_to',
     };
     const response = await request(app).post('/orchestrator/connect-assistants').send(connectionData);
@@ -86,29 +72,10 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should connect two entities', async () => {
-    // Ensure that both entities exist in the DB
-    const assistantId = 'assistant1'; // Unique assistant ID
-    db.prepare('INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-      assistantId,
-      'Test Assistant',
-      'desc',
-      'assistant',
-      'modelX',
-      now,
-      now
-    );
-
-    const taskId = 'task1'; // Unique task ID
-    db.prepare('INSERT INTO tasks (id, description, assignedAssistant, status, inputData, outputData, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(
-      taskId,
-      'Test Task',
-      assistantId,
-      'pending',
-      '{}',
-      '{}',
-      now,
-      now
-    );
+    const assistantId = uniqueIdPrefix + 'assistant6'; // Unique assistant ID
+    const taskId = uniqueIdPrefix + 'task';
+    await insertHelpers.insertAssistant(db, assistantId);
+    await insertHelpers.insertTask(db, taskId, 'qq', assistantId, 'pending');
 
     const connectionData = {
       sourceType: 'assistant',
@@ -124,45 +91,44 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should query knowledge successfully', async () => {
-    const query = { query: 'memory data', assistantId: '1' };
+    const assistantId = uniqueIdPrefix + 'assistant7'; // Unique assistant ID
+
+    await insertHelpers.insertAssistant(db, assistantId);
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm1', 'amazing memory data');
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + 'm1');
+
+    const query = { query: 'memory data', assistantId: uniqueIdPrefix + '1' };
     const response = await request(app).get('/orchestrator/query-knowledge').query(query);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message', 'Knowledge fetched successfully.');
   });
 
   it('should suggest assistants for a task', async () => {
-    const assistantId = 'assistant2';
+    const assistantId = uniqueIdPrefix + 'assistant8';
     const taskReq: TaskRequest = { type: 'test', description: 'Node' };
 
-    // Insert an assistant with matching tag and memory.
-    db.prepare(
-      `INSERT INTO assistants (id, name, description, type, model, createdAt, updatedAt)
-     VALUES ('${assistantId}', 'Assistant One', 'Expert in Node.js', 'assistant', 'model1', ?, ?)`
-    ).run(now, now);
+    await insertHelpers.insertAssistant(db, assistantId);
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm1', 'Memory about Node.js');
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm2', 'Another Memory about Node2.js');
+    await insertHelpers.insertTag(db, uniqueIdPrefix + 't1', 'Node');
+    await db.query(`INSERT INTO assistant_tags (assistant_id, tag_id) VALUES ('${assistantId}', '${uniqueIdPrefix + 't1'}')`);
 
-    // Pre-insert a tag for the assistant.
-    db.prepare(`INSERT INTO tags (id, name) VALUES ('tag1', 'Node')`).run();
-    db.prepare(`INSERT INTO assistant_tags (assistant_id, tag_id) VALUES ('${assistantId}', 'tag1')`).run();
+    await insertHelpers.insertMemoryFocusRule(db, uniqueIdPrefix + 'r1', assistantId);
 
-    insertHelpers.insertMemoryFocusRule(db, assistantId);
-    // Insert a memory that matches the query.
-    db.prepare(
-      `INSERT INTO memories (id, type, description, data, createdAt, updatedAt)
-     VALUES ('mem1', 'knowledge', 'Memory about Node.js', 'Some data', ?, ?)`
-    ).run(now, now);
+    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + 'm1');
 
-    // Link the memory to the assistant
-    db.prepare(`INSERT INTO owned_memories (assistant_id, memory_id) VALUES ('${assistantId}', 'mem1')`).run();
-    db.prepare(`INSERT INTO focused_memories (memory_focus_id, memory_id) VALUES ('${assistantId}', 'mem1')`).run();
+    await insertHelpers.insertFocusedMemory(db, uniqueIdPrefix + 'r1', uniqueIdPrefix + 'm2');
 
     const response = await request(app).post('/orchestrator/suggest-assistants').send({ task: taskReq });
-
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message', 'Assistant suggestions fetched successfully.');
   });
 
   it('should evaluate an assistant’s performance', async () => {
-    const response = await request(app).get('/orchestrator/evaluate-performance/1'); // Assuming assistant ID '1'
+    const assistantId = uniqueIdPrefix + 'assistant9'; // Unique assistant ID
+
+    await insertHelpers.insertAssistant(db, assistantId);
+    const response = await request(app).get(`/orchestrator/evaluate-performance/${assistantId}`); // Assuming assistant ID is uniqueIdPrefix + '1'
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message', 'Performance evaluated successfully.');
   });

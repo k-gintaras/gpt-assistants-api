@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { FeedbackControllerService } from '../services/core-services/feedback.controller.service';
 import { Feedback } from '../models/feedback.model';
@@ -7,7 +7,7 @@ import { respond } from './controller.helper';
 export class FeedbackController {
   private readonly feedbackService: FeedbackControllerService;
 
-  constructor(db: Database.Database) {
+  constructor(db: Pool) {
     this.feedbackService = new FeedbackControllerService(db);
   }
 

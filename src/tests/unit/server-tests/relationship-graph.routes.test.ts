@@ -1,48 +1,60 @@
 import express from 'express';
 import request from 'supertest';
-import relationshipGraphRoutes from '../../../routes/relationship-graph.routes'; // Make sure the path to your routes is correct
-import { testDbHelper } from '../test-db.helper'; // Assuming you have a helper to initialize the database
-import Database from 'better-sqlite3';
-import { getDbInstance } from '../../../database/database';
+import relationshipGraphRoutes from '../../../routes/relationship-graph.routes'; // Ensure the path to your routes is correct
+import { getDb } from '../../../database/database';
+import { Pool } from 'pg';
 import { insertHelpers } from '../test-db-insert.helper';
 
-let db: Database.Database;
+let db: Pool;
 const app = express();
 app.use(express.json());
-app.use('/relationships', relationshipGraphRoutes); // Register prompt routes
+app.use('/relationships', relationshipGraphRoutes); // Register relationship routes
 
-beforeAll(() => {
-  db = getDbInstance();
-  testDbHelper.initializeTarget(db);
-  insertHelpers.insertAssistant(db, '1'); // Insert test data for assistant
-  insertHelpers.insertMemories(db);
-  // id, targetId
-  insertHelpers.insertRelationship(db, '1', '1');
+const uniqueIdPrefix = 'relationshipRoutesTest_'; // Unique identifier prefix for testing
+
+beforeAll(async () => {
+  await getDb().initialize();
+  db = getDb().getInstance();
 });
 
-afterAll(() => {
-  testDbHelper.close();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Begin transaction before each test
 });
 
-afterAll(() => {
-  testDbHelper.close(); // Clean up the database after all tests
+afterEach(async () => {
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb().close(); // Clean up the test database after tests
 });
 
 describe('Relationship Graph Controller Tests', () => {
   it('should fetch all relationships', async () => {
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 1, uniqueIdPrefix + 1);
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 2, uniqueIdPrefix + 2);
+    await insertHelpers.insertRelationship(db, uniqueIdPrefix + 1, 'memory', uniqueIdPrefix + 2);
     const response = await request(app).get('/relationships');
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 
   it('should fetch relationships by source (targetId)', async () => {
-    const response = await request(app).get('/relationships/source/1'); // Assuming targetId '1' exists
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 4, uniqueIdPrefix + 1);
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + 3, uniqueIdPrefix + 3);
+    await insertHelpers.insertRelationship(db, uniqueIdPrefix + 3, 'memory', uniqueIdPrefix + 4);
+
+    const response = await request(app).get(`/relationships/source/${uniqueIdPrefix + 3}`); // Assuming targetId exists
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 
   it('should fetch relationships by source ID and type', async () => {
-    const response = await request(app).get('/relationships/source/1/assistant'); // Assuming targetId '1' and type 'related_to' exist
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 7);
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 8);
+    await insertHelpers.insertRelationship(db, uniqueIdPrefix + 7, 'assistant', uniqueIdPrefix + 8);
+
+    const response = await request(app).get(`/relationships/source/${uniqueIdPrefix + 8}/assistant`); // Assuming targetId exists
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.data)).toBe(true); // Ensure it returns an array
     expect(response.body.data.length).toBeGreaterThan(0); // Expect at least one relationship
@@ -55,9 +67,11 @@ describe('Relationship Graph Controller Tests', () => {
   });
 
   it('should create a new relationship', async () => {
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 9);
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 10);
     const newRelationship = {
-      id: '2',
-      targetId: '2',
+      id: uniqueIdPrefix + 9, // Using a unique ID
+      targetId: uniqueIdPrefix + 10, // Using a unique target ID
       relationshipType: 'related_to',
       type: 'assistant',
     };
@@ -67,10 +81,17 @@ describe('Relationship Graph Controller Tests', () => {
   });
 
   it('should update an existing relationship', async () => {
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 9);
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 10);
+
+    await insertHelpers.insertRelationship(db, uniqueIdPrefix + 9, 'assistant', uniqueIdPrefix + 10);
+
     const updatedData = {
       relationshipType: 'related_to',
     };
-    const response = await request(app).put('/relationships/1').send(updatedData); // Assuming relationship ID '1' exists
+    const response = await request(app)
+      .put(`/relationships/${uniqueIdPrefix + '9'}`)
+      .send(updatedData); // Ensure relationship ID exists
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Relationship updated successfully.');
   });
@@ -85,7 +106,12 @@ describe('Relationship Graph Controller Tests', () => {
   });
 
   it('should delete a relationship', async () => {
-    const response = await request(app).delete('/relationships/1'); // Assuming relationship ID '1' exists
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 11);
+    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 12);
+
+    await insertHelpers.insertRelationship(db, uniqueIdPrefix + 11, 'assistant', uniqueIdPrefix + 12);
+
+    const response = await request(app).delete(`/relationships/${uniqueIdPrefix + 11}`); // Ensure relationship ID exists
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Relationship deleted successfully.');
   });

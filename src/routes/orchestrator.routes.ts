@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { OrchestratorController } from '../controllers/orchestrator.controller';
-import { getDbInstance } from '../database/database';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new OrchestratorController(db);
 
 router.post('/remember', async (req, res, next) => {

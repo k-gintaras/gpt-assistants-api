@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { MemoryController } from '../controllers/memory.controller';
-import { getDbInstance } from '../database/database';
+import { getDb } from '../database/database';
 
 const router = Router();
-const db = getDbInstance();
+const db = getDb().getInstance();
 const controller = new MemoryController(db);
 
 router.get('/', async (req, res, next) => {

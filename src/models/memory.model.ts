@@ -14,14 +14,13 @@ export interface Memory {
 export interface MemoryWithTags extends Memory {
   tags: Tag[] | null;
 }
-
 export interface MemoryRow {
   id: string;
   type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';
   description: string | null;
   data: string | null; // Serialized JSON in the database
-  createdAt: string; // ISO 8601 string
-  updatedAt: string; // ISO 8601 string
+  created_at: string; // ISO 8601 string
+  updated_at: string; // ISO 8601 string
 }
 
 export interface MemoryRelationship {

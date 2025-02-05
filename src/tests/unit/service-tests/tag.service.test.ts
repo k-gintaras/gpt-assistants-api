@@ -1,22 +1,29 @@
-import { testDbHelper } from '../test-db.helper';
-import Database from 'better-sqlite3';
-import { Tag, TagRow } from '../../../models/tag.model';
+import { Tag } from '../../../models/tag.model';
 import { TagService } from '../../../services/sqlite-services/tag.service';
+import { getDb } from '../test-db.helper';
+import { Pool } from 'pg';
 
-let db: Database.Database;
+let db: Pool;
 let tagService: TagService;
 
-beforeEach(() => {
-  db = testDbHelper.initialize();
+beforeAll(async () => {
+  await getDb.initialize();
+  db = getDb.getInstance();
   tagService = new TagService(db);
 });
 
-afterEach(() => {
-  testDbHelper.reset();
+beforeEach(async () => {
+  await db.query('BEGIN'); // Start transaction for each test
 });
 
-afterAll(() => {
-  testDbHelper.close();
+afterEach(async () => {
+  await db.query('DELETE FROM tags');
+
+  await db.query('ROLLBACK'); // Rollback changes after each test
+});
+
+afterAll(async () => {
+  await getDb.close();
 });
 
 describe('Tag Service Tests', () => {
@@ -28,41 +35,41 @@ describe('Tag Service Tests', () => {
     const tagId = await tagService.addTag(tagData);
 
     expect(tagId).toBeDefined();
-    const rows = db.prepare('SELECT * FROM tags WHERE id = ?').all(tagId);
-    expect(rows).toHaveLength(1);
+    const rows = await db.query('SELECT * FROM tags WHERE id = $1', [tagId]);
+    expect(rows.rows).toHaveLength(1);
 
-    const insertedTag = rows[0] as Tag;
+    const insertedTag = rows.rows[0] as Tag;
     expect(insertedTag.id).toBe(tagId);
     expect(insertedTag.name).toBe('Test Tag');
   });
 
   test('removeTag - should remove an existing tag', async () => {
     const tagId = 'test-tag-id';
-    db.prepare(`INSERT INTO tags (id, name) VALUES (?, ?)`).run(tagId, 'Test Tag');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tagId, 'Test Tag']);
 
-    const rowsBefore = db.prepare('SELECT * FROM tags WHERE id = ?').all(tagId);
-    expect(rowsBefore).toHaveLength(1);
+    const rowsBefore = await db.query('SELECT * FROM tags WHERE id = $1', [tagId]);
+    expect(rowsBefore.rows).toHaveLength(1);
 
     await tagService.removeTag(tagId);
 
-    const rowsAfter = db.prepare('SELECT * FROM tags WHERE id = ?').all(tagId);
-    expect(rowsAfter).toHaveLength(0);
+    const rowsAfter = await db.query('SELECT * FROM tags WHERE id = $1', [tagId]);
+    expect(rowsAfter.rows).toHaveLength(0);
   });
 
   test('updateTag - should update an existing tag', async () => {
     const tagId = 'test-tag-id';
-    db.prepare(`INSERT INTO tags (id, name) VALUES (?, ?)`).run(tagId, 'Old Tag Name');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tagId, 'Old Tag Name']);
 
     await tagService.updateTag(tagId, { name: 'Updated Tag Name' });
 
-    const updatedRow = db.prepare('SELECT * FROM tags WHERE id = ?').get(tagId) as TagRow;
-    expect(updatedRow).toBeDefined();
-    expect(updatedRow.name).toBe('Updated Tag Name');
+    const updatedRow = await db.query('SELECT * FROM tags WHERE id = $1', [tagId]);
+    expect(updatedRow.rows).toBeDefined();
+    expect(updatedRow.rows[0].name).toBe('Updated Tag Name');
   });
 
   test('getTagById - should fetch a tag by its ID', async () => {
     const tagId = 'test-tag-id';
-    db.prepare(`INSERT INTO tags (id, name) VALUES (?, ?)`).run(tagId, 'Test Tag');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tagId, 'Test Tag']);
 
     const fetchedTag = await tagService.getTagById(tagId);
     expect(fetchedTag).toBeDefined();
@@ -76,7 +83,7 @@ describe('Tag Service Tests', () => {
   });
 
   test('getAllTags - should fetch all tags', async () => {
-    db.prepare(`INSERT INTO tags (id, name) VALUES (?, ?), (?, ?)`).run('1', 'Tag 1', '2', 'Tag 2');
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2), ($3, $4)', ['1', 'Tag 1', '2', 'Tag 2']);
 
     const tags = await tagService.getAllTags();
 

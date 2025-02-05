@@ -1,40 +1,40 @@
 import { Task } from '../../models/task.model';
 import { TaskServiceModel } from '../../models/service-models/task.service.model';
+import { Pool } from 'pg';
 import { TaskService } from '../sqlite-services/task.service';
-import Database from 'better-sqlite3';
 
 export class TaskControllerService implements TaskServiceModel {
   taskService: TaskService;
 
-  constructor(db: Database.Database) {
-    this.taskService = new TaskService(db);
+  constructor(pool: Pool) {
+    this.taskService = new TaskService(pool);
   }
 
-  getTaskById(id: string): Task | null {
-    return this.taskService.getTaskById(id);
+  async getTaskById(id: string): Promise<Task | null> {
+    return await this.taskService.getTaskById(id);
   }
 
-  getAllTasks(): Task[] {
-    return this.taskService.getAllTasks();
+  async getAllTasks(): Promise<Task[]> {
+    return await this.taskService.getAllTasks();
   }
 
-  addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    return this.taskService.addTask(task);
+  async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    return await this.taskService.addTask(task);
   }
 
-  updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
-    return this.taskService.updateTask(id, updates);
+  async updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
+    return await this.taskService.updateTask(id, updates);
   }
 
-  deleteTask(id: string): Promise<boolean> {
-    return this.taskService.deleteTask(id);
+  async deleteTask(id: string): Promise<boolean> {
+    return await this.taskService.deleteTask(id);
   }
 
-  getTasksByStatus(status: Task['status']): Task[] {
-    return this.taskService.getTasksByStatus(status);
+  async getTasksByStatus(status: Task['status']): Promise<Task[]> {
+    return await this.taskService.getTasksByStatus(status);
   }
 
-  getTasksByAssistant(assistantId: string): Task[] {
-    return this.taskService.getTasksByAssistant(assistantId);
+  async getTasksByAssistant(assistantId: string): Promise<Task[]> {
+    return await this.taskService.getTasksByAssistant(assistantId);
   }
 }

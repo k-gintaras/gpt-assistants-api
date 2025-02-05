@@ -1,179 +1,183 @@
-import Database from 'better-sqlite3';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const insertHelpers = {
-  insertTagMemory(db: Database.Database, memoryId: string = '1', tagId: string = '1') {
-    db.prepare(
+  async insertTag(client: any, tagId: string, tagName: string) {
+    await client.query(
       `
-      INSERT OR IGNORE INTO memory_tags (memory_id, tag_id)
-      VALUES (?, ?)
-    `
-    ).run(memoryId, tagId);
-  },
-
-  insertTags(db: Database.Database, assistantId: string = '1') {
-    db.prepare(
-      `
-    INSERT OR IGNORE INTO tags (id, name)
-    VALUES ('1', 'Tag1'), ('2', 'Tag2')
-  `
-    ).run();
-
-    db.prepare(
-      `
-    INSERT OR IGNORE INTO assistant_tags (assistant_id, tag_id)
-    VALUES (?, ?), (?, ?)
-  `
-    ).run(assistantId, '1', assistantId, '2');
-  },
-
-  insertFeedback(db: Database.Database, feedbackId: string = '1', assistantId: string = '1') {
-    db.prepare(
-      `
-    INSERT OR IGNORE INTO feedback (id, target_id, target_type, rating, comments, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `
-    ).run(feedbackId, assistantId, 'assistant', 3, 'Great assistant!', new Date().toISOString(), new Date().toISOString());
-  },
-
-  insertFullAssistantSetup(db: Database.Database, assistantId: string = '1') {
-    // Insert the assistant
-    this.insertAssistant(db, assistantId, true);
-
-    // Insert tags and associate them with the assistant
-    this.insertTags(db, assistantId);
-
-    // Insert a memory focus rule for the assistant
-    this.insertMemoryFocusRule(db, '1', assistantId);
-
-    // Insert multiple memories and associate them with the focus rule
-    this.insertMemories(db); // Inserts multiple memories
-    this.insertFocusedMemory(db, '1', '2'); // Associate second memory
-  },
-
-  insertRelationship(db: Database.Database, sourceId: string = '1', targetId: string = '2', relationshipType: string = 'related_to') {
-    // Make sure the relationshipType is valid
-    const validRelationshipTypes = ['related_to', 'part_of', 'example_of', 'derived_from', 'depends_on', 'blocks', 'subtask_of'];
-    if (!validRelationshipTypes.includes(relationshipType)) {
-      throw new Error('Invalid relationship type.');
-    }
-
-    db.prepare(
-      `
-      INSERT OR IGNORE INTO relationship_graph (id, type, target_id, relationship_type, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `
-    ).run(sourceId, 'assistant', targetId, relationshipType, new Date().toISOString(), new Date().toISOString());
-  },
-  insertAssistant(db: Database.Database, assistantId: string = '1', isAssistant?: boolean) {
-    db.prepare(
-      `
-      INSERT OR IGNORE INTO assistants (id, name, description, type, model, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `
-    ).run(
-      assistantId,
-      `Test Assistant ${assistantId}`,
-      `Description for Assistant ${assistantId}`,
-      isAssistant ? 'assistant' : 'chat', // Use valid type
-      'gpt-3.5-turbo', // Specify a model
-      new Date().toISOString(),
-      new Date().toISOString()
+        INSERT INTO tags (id, name)
+        VALUES ($1, $2)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING *;
+      `,
+      [tagId, tagName]
     );
   },
 
-  insertTask(db: Database.Database, taskId: string = '1', description: string = 'Sample Task', assignedAssistant: string = '1', status: string = 'pending'): void {
-    const stmt = db.prepare(
+  async insertTagMemory(client: any, memoryId: string = '1', tagId: string = '1') {
+    await client.query(
       `
-    INSERT OR IGNORE INTO tasks (id, description, assignedAssistant, status, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `
+        INSERT INTO memory_tags (memory_id, tag_id)
+        VALUES ($1, $2)
+        ON CONFLICT (memory_id, tag_id) DO NOTHING
+        RETURNING *;
+      `,
+      [memoryId, tagId]
     );
-    try {
-      stmt.run(taskId, description, assignedAssistant, status, new Date().toISOString(), new Date().toISOString());
-    } catch (error) {
-      console.error(`Error inserting task (taskId: ${taskId}, assignedAssistant: ${assignedAssistant}):`, error);
-    }
   },
 
-  insertMemoryFocusRule(db: Database.Database, ruleId: string = '1', assistantId: string = '1') {
-    this.insertAssistant(db, assistantId, false);
-
-    db.prepare(
+  async insertAssistant(client: any, assistantId: string = '1', isAssistant: boolean = false) {
+    await client.query(
       `
-      INSERT OR IGNORE INTO memory_focus_rules (id, assistant_id, maxResults, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?)
-    `
-    ).run(ruleId, assistantId, 5, new Date().toISOString(), new Date().toISOString());
-  },
-
-  insertFocusedMemory(db: Database.Database, memoryFocusId: string, memoryId: string): void {
-    const stmt = db.prepare(
-      `
-      INSERT OR IGNORE INTO focused_memories (memory_focus_id, memory_id)
-      VALUES (?, ?)
-    `
+        INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING *;
+      `,
+      [
+        assistantId,
+        `Test Assistant ${assistantId}`,
+        `Description for Assistant ${assistantId}`,
+        isAssistant ? 'assistant' : 'chat',
+        'gpt-3.5-turbo',
+        new Date().toISOString(),
+        new Date().toISOString(),
+      ]
     );
-    try {
-      stmt.run(memoryFocusId, memoryId);
-    } catch (error) {
-      console.error(`Error inserting focused memory (memoryFocusId: ${memoryFocusId}, memoryId: ${memoryId}):`, error);
-    }
   },
 
-  insertOwnedMemory(db: Database.Database, assistantId: string, memoryId: string): void {
-    const stmt = db.prepare(
+  async insertMemory(client: any, id: string, text: string) {
+    await client.query(
       `
-      INSERT OR IGNORE INTO owned_memories (assistant_id, memory_id)
-      VALUES (?, ?)
-    `
+        INSERT INTO memories (id, type, description, created_at, updated_at)
+        VALUES ($1, 'knowledge', $2, $3, $3)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING *;
+      `,
+      [id, text, new Date().toISOString()]
     );
-    try {
-      stmt.run(assistantId, memoryId);
-    } catch (error) {
-      console.error(`Error inserting focused memory (memoryFocusId: ${assistantId}, memoryId: ${memoryId}):`, error);
-    }
   },
 
-  insertMemories(db: Database.Database) {
-    // Insert standalone memories
-    db.prepare(
+  async insertOwnedMemory(client: any, assistantId: string, memoryId: string) {
+    await client.query(
       `
-    INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)
-    VALUES ('1', 'knowledge', 'Memory Description', ?, ?),
-           ('2', 'knowledge', 'Another Memory Description', ?, ?)
-  `
-    ).run(new Date().toISOString(), new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
+        INSERT INTO owned_memories (assistant_id, memory_id)
+        VALUES ($1, $2)
+        ON CONFLICT (assistant_id, memory_id) DO NOTHING
+        RETURNING *;
+      `,
+      [assistantId, memoryId]
+    );
   },
 
-  insertMemoriesX3(db: Database.Database) {
-    const now = new Date().toISOString();
-    const past = new Date(Date.now() - 10000).toISOString(); // 10 seconds earlier
-
-    db.prepare(
-      `
-    INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)
-    VALUES ('1', 'knowledge', 'Memory Description', ?, ?),
-           ('2', 'knowledge', 'Another Memory Description', ?, ?),
-           ('3', 'knowledge', 'Memory Description 3', ?, ?)
-    `
-    ).run(past, past, now, now, new Date().toISOString(), new Date().toISOString());
-  },
-  insertMemory(db: Database.Database, id: string) {
-    // Insert a single memory
-    db.prepare(
-      `
-    INSERT OR IGNORE INTO memories (id, type, description, createdAt, updatedAt)
-    VALUES (?, 'knowledge', 'Memory Description ${id}', ?, ?)
-  `
-    ).run(id, new Date().toISOString(), new Date().toISOString());
+  async presetOwnedMemoryTestData(client: any) {
+    await this.insertAssistant(client, '1');
+    await this.insertMemory(client, '1', 'Memory 1');
+    await this.insertMemory(client, '2', 'Memory 2');
+    await this.insertMemory(client, '3', 'Memory 3');
   },
 
-  insertMemoryFocusRules(db: Database.Database) {
-    db.prepare(
-      `
-      INSERT OR IGNORE INTO memory_focus_rules (id, assistant_id, maxResults, relationshipTypes, priorityTags, createdAt, updatedAt)
-      VALUES ('1', '1', 10, '[]', '[]', ?, ?)
-    `
-    ).run(new Date().toISOString(), new Date().toISOString());
+  async presetMemoryExtraTestData(client: any) {
+    const id = 'memoryExtraId';
+    await insertHelpers.insertMemory(client, id + '1', 'Memory 1');
+    await insertHelpers.insertMemory(client, id + '2', 'Memory 2');
+    await insertHelpers.insertMemory(client, id + '3', 'Memory 3');
+
+    await insertHelpers.insertTag(client, id + '1', id + 'Tag1');
+    await insertHelpers.insertTag(client, id + '2', id + 'Tag2');
+    await insertHelpers.insertTag(client, id + '3', id + 'Tag3');
+    await client.query(`INSERT INTO memory_tags (memory_id, tag_id) VALUES ('${id}1', '${id}1'), ('${id}1', '${id}2') ON CONFLICT (memory_id, tag_id) DO NOTHING`);
+  },
+
+  async presetMemoryFocusRuleTestData(client: any) {
+    await insertHelpers.insertAssistant(client, '1');
+    await insertHelpers.insertMemoryFocusRule(client, '1', '1');
+  },
+  /**
+   * Inserts tags into the database.
+   */
+  async insertTags(client: any) {
+    await client.query(
+      `INSERT INTO tags (id, name) 
+       VALUES ('1', 'Tag1'), ('2', 'Tag2'), ('3', 'Tag3') 
+       ON CONFLICT (id) DO NOTHING`
+    );
+  },
+
+  /**
+   * Inserts a task into the database.
+   */
+  async insertTask(client: any, taskId: string = '1', description: string = 'Sample Task', assignedAssistant: string = '1', status: string = 'pending') {
+    await client.query(
+      `INSERT INTO tasks (id, description, assigned_assistant, status, created_at, updated_at) 
+       VALUES ($1, $2, $3, $4, NOW(), NOW())
+       ON CONFLICT (id) DO NOTHING`,
+      [taskId, description, assignedAssistant, status]
+    );
+  },
+  /**
+   * Inserts a relationship into the relationship_graph table.
+   */
+  async insertRelationship(
+    client: any,
+    relationshipId: string = '1', // Unique relationship ID
+    type: string = 'assistant', // Type of entity (could be 'assistant', 'memory', or 'task')
+    targetId: string = '1', // ID of the related entity
+    relationshipType: string = 'related_to' // Type of relationship ('related_to', 'part_of', etc.)
+  ) {
+    await client.query(
+      `INSERT INTO relationship_graph (id, type, target_id, relationship_type, created_at, updated_at) 
+     VALUES ($1, $2, $3, $4, NOW(), NOW())
+     ON CONFLICT (id) DO NOTHING`, // Prevent insertion if the relationship ID already exists
+      [relationshipId, type, targetId, relationshipType]
+    );
+  },
+  /**
+   * Inserts feedback into the database.
+   */
+  async insertFeedback(client: any, feedbackId: string = '1', assistantId: string = '1', rating: number = 5, comments: string = 'Great assistant!') {
+    await client.query(
+      `INSERT INTO feedback (id, target_id, target_type, rating, comments, created_at, updated_at) 
+       VALUES ($1, $2, 'assistant', $3, $4, NOW(), NOW())
+       ON CONFLICT (id) DO NOTHING`,
+      [feedbackId, assistantId, rating, comments]
+    );
+  },
+
+  /**
+   * Inserts a memory focus rule.
+   */
+  async insertMemoryFocusRule(client: any, ruleId: string = '1', assistantId: string = '1', maxResults: number = 5) {
+    await client.query(
+      `INSERT INTO memory_focus_rules (id, assistant_id, max_results, relationship_types, priority_tags, created_at, updated_at) 
+       VALUES ($1, $2, $3, '[]', '[]', NOW(), NOW())
+       ON CONFLICT (id) DO NOTHING`,
+      [ruleId, assistantId, maxResults]
+    );
+  },
+
+  /**
+   * Inserts a focused memory.
+   */
+  async insertFocusedMemory(client: any, memoryFocusId: string, memoryId: string) {
+    await client.query(
+      `INSERT INTO focused_memories (memory_focus_id, memory_id)
+       VALUES ($1, $2)
+       ON CONFLICT (memory_focus_id, memory_id) DO NOTHING`,
+      [memoryFocusId, memoryId]
+    );
+  },
+
+  /**
+   * Inserts a full set of test data for focused memory tests.
+   */
+  async insertFocusedMemoryTestData(client: any) {
+    const id1 = 'focusedMemoryId' + 1;
+    const id2 = 'focusedMemoryId' + 2;
+    await this.insertAssistant(client, id1);
+    await this.insertAssistant(client, id2);
+    await this.insertMemory(client, 'focusedMemoryId' + '1', 'Memory Description 1');
+    await this.insertMemory(client, 'focusedMemoryId' + '2', 'Memory Description 2');
+    await this.insertMemory(client, 'focusedMemoryId' + '3', 'Memory Description 3');
+    await this.insertMemoryFocusRule(client, id1, 'focusedMemoryId' + '1'); // Focus rule for assistant 1
+    await this.insertMemoryFocusRule(client, id2, 'focusedMemoryId' + '2'); // Focus rule for assistant 2
   },
 };

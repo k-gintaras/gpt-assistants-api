@@ -13,8 +13,8 @@ export function transformAssistantRow(row: AssistantRow): Assistant {
     description: row.description,
     type: row.type,
     model: row.model, // New field
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
