@@ -70,19 +70,19 @@ export class AssistantController {
 
   /**
    * Create a simple assistant entry.
-   * @requestBody { name: string, type: string } The name and type of the assistant.
-   * @response {201} { status: "success", message: "Assistant created successfully" }
+   * @requestBody { name: string, instructions: string } The name and instructions of the assistant.
+   * @response {201} { status: "success", message: "Assistant created successfully", data: { id: string } }
    * @response {400} { status: "error", message: "Failed to create assistant." }
    * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
    */
   async createAssistantSimple(req: Request, res: Response) {
-    const { name, type } = req.body;
+    const { name, instructions } = req.body;
     try {
-      const isCreated = await this.assistantService.createAssistantSimple(name, type);
-      if (!isCreated) {
+      const id = await this.assistantService.createAssistantSimple(name, instructions);
+      if (!id) {
         return respond(res, 400, 'Failed to create assistant.');
       }
-      return respond(res, 201, 'Assistant created successfully.');
+      return respond(res, 201, 'Assistant created successfully.', id);
     } catch (error) {
       return respond(res, 500, 'Failed to create assistant.', null, error);
     }

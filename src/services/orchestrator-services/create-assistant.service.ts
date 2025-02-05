@@ -23,8 +23,8 @@ export class CreateAssistantService {
     this.memoryRulesService = new MemoryFocusRuleService(pool);
   }
 
-  async createSimpleAssistant(name: string, instructions: string) {
-    return this.createAssistant(name, 'chat', instructions);
+  async createSimpleAssistant(name: string, instructions: string): Promise<string | null> {
+    return this.createAssistant(name, 'chat', DEFAULT_MODEL, instructions);
   }
 
   async createAssistant(name: string, type: Assistant['type'], model: string = DEFAULT_MODEL, instructions: string = DEFAULT_INSTRUCTIONS): Promise<string | null> {
