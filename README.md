@@ -1,3 +1,148 @@
-# My Node.js Project
+# GPT Assistants API
 
-This is a Node.js project created with Project Manager.
+A modular, PostgreSQL-backed API designed for interfacing with OpenAI's GPT models, structured to support various assistants, tasks, and learning tools. This API provides a scalable foundation for AI-driven workflows, decision-making, and knowledge management.
+
+## Features
+
+- 🚀 **Dynamic AI Assistants** – Create, modify, and manage AI-powered assistants with structured database support.
+- 🗄 **PostgreSQL Integration** – Persistent storage for assistants, tasks, memory, and other structured data.
+- 📡 **Modular API Architecture** – Well-structured services, controllers, and routes for easy expansion.
+- 🛠 **Robust Error Handling** – Clear logging, retries, and proper DB connection management.
+- 🔗 **Seamless OpenAI API Connectivity** – Supports `OPENAI_API_KEY` and `OPENAI_PROJECT_KEY` for chat completion requests.
+- 🔄 **Dockerized for Deployment** – Fully containerized setup for PostgreSQL and API, ensuring smooth deployment.
+- 📊 **Scalable Usage** – Can be integrated into other apps, extensions, or APIs.
+
+## Setup & Installation
+
+### 1. Clone the Repository
+
+```sh
+git clone https://github.com/yourusername/gpt-assistants-api.git
+cd gpt-assistants-api
+```
+
+### 2. Setup Environment Variables
+
+Create a `.env` file in the project root and configure:
+
+```ini
+DB_HOST=db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=password
+DB_NAME=gpt_assistants
+NODE_ENV=production
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_PROJECT_KEY=your_openai_project_key
+```
+
+### 3. Run with Docker
+
+```sh
+docker-compose up --build
+```
+
+This will:
+
+- Start a **PostgreSQL** database.
+- Build and launch the **API server**.
+
+### 4. Verify Everything is Running
+
+```sh
+docker ps
+```
+
+Check logs:
+
+```sh
+docker-compose logs -f
+```
+
+Once running, the API will be available at:
+
+```
+http://localhost:3000
+```
+
+## Endpoints & Usage
+
+### Assistant Routes
+
+- `GET /assistant/` – Fetch all assistants.
+- `GET /assistant/:id` – Fetch a specific assistant.
+- `POST /assistant/` – Create a new assistant.
+- `PUT /assistant/:id` – Update an assistant.
+- `DELETE /assistant/:id` – Remove an assistant.
+
+### Task Routes
+
+- `GET /task/` – Fetch all tasks.
+- `POST /task/` – Create a new task.
+
+### Memory & Learning Routes
+
+- `GET /memory/` – Retrieve stored knowledge.
+- `POST /memory/` – Save new information.
+
+### Chat Completion (GPT)
+
+- `POST /chat/` – Generate responses using OpenAI’s API.
+
+## Database Management
+
+### Reset Database
+
+If needed, you can manually reset the database:
+
+```sh
+docker-compose exec db psql -U postgres -d gpt_assistants -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+```
+
+### Backup Database
+
+Run a manual backup:
+
+```sh
+docker-compose exec db pg_dump -U postgres -F c gpt_assistants > backup.sql
+```
+
+## Development & Contribution
+
+### Run API Locally (Without Docker)
+
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Start PostgreSQL manually or use an existing database.
+3. Run migrations (if applicable).
+4. Start API server:
+   ```sh
+   npm run dev
+   ```
+
+### Run Tests
+
+```sh
+npm test
+```
+
+### Debugging
+
+To check logs while running Docker:
+
+```sh
+docker-compose logs -f server
+```
+
+## Future Plans
+
+- 🔥 **Angular Frontend** – A UI to interact with assistants, tasks, and learning modules.
+- 🔄 **Enhanced Caching** – Improve request efficiency with smart caching strategies.
+- 🧠 **Expanded Memory Storage** – Store and retrieve deeper contextual data across sessions.
+- 📊 **Analytics & Usage Metrics** – Track assistant interactions and effectiveness.
+
+## License
+
+MIT License – Free to use and modify.
