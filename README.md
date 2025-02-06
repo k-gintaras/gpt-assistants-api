@@ -17,7 +17,7 @@ A modular, PostgreSQL-backed API designed for interfacing with OpenAI's GPT mode
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/yourusername/gpt-assistants-api.git
+git clone https://github.com/k-gintaras/gpt-assistants-api.git
 cd gpt-assistants-api
 ```
 
