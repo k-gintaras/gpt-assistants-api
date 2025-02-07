@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -20,6 +21,33 @@ export const generateGetLinks = (swaggerPaths: OpenAPIV3.PathsObject): string =>
     .map((path) => `<li><a href="${path}" target="_blank">${path}</a></li>`)
     .join('');
 };
+
+export function getRequestParams(apiDocs: any[]) {
+  /**
+    "file": "assistant.routes.ts",
+    "httpMethod": "get",
+    "path": "/assistant/",
+    "controller": "assistant.controller",
+    "method": "getAllAssistants",
+    "requestParams": null,
+    "requestBody": null,
+    "responses": [
+     */
+
+  const params: string[] = [];
+  for (let i = 0; i < apiDocs.length; i++) {
+    const d = apiDocs[i];
+    if (d) {
+      try {
+        const ob = `${d.httpMethod || ''} ": " ${d.path || ''} "requestParams: "${d.requestParams || ''}  requestBody: ${d.requestBody || ''}`;
+        params.push(ob);
+      } catch {
+        continue;
+      }
+    }
+  }
+  return params;
+}
 
 export function homePageHandler(req: Request, res: Response) {
   // Read SQL schema from file
@@ -150,6 +178,7 @@ export function homePageHandler(req: Request, res: Response) {
       <h2>💡 Quick Usage</h2>
       <p>Use tools like <strong>Postman</strong> or <strong>cURL</strong> to interact with the API:</p>
       <pre><code class="language-bash">curl -X GET http://localhost:3000/assistant</code></pre>
+      <pre>${JSON.stringify(getRequestParams(apiDocs), null, 2)}</pre>
       <pre>${JSON.stringify(apiDocs, null, 2)}</pre>
     </body>
     </html>
