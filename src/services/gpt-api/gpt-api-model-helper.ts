@@ -20,6 +20,53 @@ export interface Model {
  * Model Definitions
  */
 export const models: Record<string, Model> = {
+  // GPT-3.5 Series
+  'gpt-3.5-turbo': {
+    alias: 'gpt-3.5-turbo',
+    contextWindow: 4096,
+    maxOutputTokens: 1024,
+    description: 'Economical, fast, widely-available model.',
+    useCase: 'General tasks, short-form content, quick responses.',
+  },
+  'gpt-3.5-turbo-16k': {
+    alias: 'gpt-3.5-turbo-16k',
+    contextWindow: 16385,
+    maxOutputTokens: 4096,
+    description: 'Economical, fast, and reliable.',
+    useCase: 'Lightweight, budget-friendly tasks.',
+  },
+
+  // GPT-4 Series
+  'gpt-4': {
+    alias: 'gpt-4',
+    contextWindow: 8192,
+    maxOutputTokens: 2048,
+    description: 'High-level reasoning with a stronger baseline than GPT-3.5.',
+    useCase: 'Complex tasks, advanced conversation, detailed analysis.',
+  },
+  'gpt-4-turbo': {
+    alias: 'gpt-4-turbo',
+    contextWindow: 128000, // adjust if needed
+    maxOutputTokens: 4096,
+    description: 'Optimized for cost and shorter responses.',
+    useCase: 'Budget-friendly conversational tasks.',
+  },
+  'gpt-4-turbo-preview': {
+    alias: 'gpt-4-turbo-preview',
+    contextWindow: 128000, // adjust if needed
+    maxOutputTokens: 8192,
+    description: 'Preview version of GPT-4 turbo with upcoming features.',
+    useCase: 'Early access, testing advanced GPT-4 functionalities.',
+  },
+  'gpt-4-turbo-2024-04-09': {
+    alias: 'gpt-4-turbo-2024-04-09',
+    contextWindow: 128000, // adjust if needed
+    maxOutputTokens: 16384,
+    description: 'A future release of GPT-4 Turbo with advanced features.',
+    useCase: 'Cutting-edge tasks, multi-turn conversations, advanced reasoning.',
+  },
+
+  // GPT-4o Series
   'gpt-4o': {
     alias: 'gpt-4o',
     contextWindow: 128000,
@@ -34,34 +81,14 @@ export const models: Record<string, Model> = {
     description: 'Fast, affordable, smaller model.',
     useCase: 'Cost-effective tasks, fine-tuning.',
   },
-  // ! not available
-  // o1: {
-  //   alias: 'o1',
-  //   contextWindow: 200000,
-  //   maxOutputTokens: 100000,
-  //   description: 'Advanced reasoning with step-by-step logic.',
-  //   useCase: 'Solving hard problems, detailed reasoning.',
-  // },
+
+  // o1 Series
   'o1-mini': {
     alias: 'o1-mini',
     contextWindow: 128000,
     maxOutputTokens: 65536,
     description: 'Affordable reasoning for specialized tasks.',
     useCase: 'Fast reasoning, smaller contexts.',
-  },
-  'gpt-4-turbo': {
-    alias: 'gpt-4-turbo',
-    contextWindow: 128000,
-    maxOutputTokens: 4096,
-    description: 'Optimized for cost and shorter responses.',
-    useCase: 'Budget-friendly conversational tasks.',
-  },
-  'gpt-3.5-turbo-16k': {
-    alias: 'gpt-3.5-turbo-16k',
-    contextWindow: 16385,
-    maxOutputTokens: 4096,
-    description: 'Economical, fast, and reliable.',
-    useCase: 'Lightweight, budget-friendly tasks.',
   },
 };
 
