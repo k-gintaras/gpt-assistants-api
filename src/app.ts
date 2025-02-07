@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { getDb } from './database/database';
 import { generateApiDocs } from './generate-doc';
 import { generateSwaggerPaths } from './swaggerHelper';
+import { homePageHandler } from './homepage';
 
 dotenv.config(); // Load environment variables
 
@@ -35,6 +36,7 @@ async function startServer() {
 
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.get('/', homePageHandler);
 
     await createRoutes();
     console.log('Routes Initialized: ');
