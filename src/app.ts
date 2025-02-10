@@ -6,6 +6,7 @@ import { getDb } from './database/database';
 import { generateApiDocs } from './generate-doc';
 import { generateSwaggerPaths } from './swaggerHelper';
 import { homePageHandler } from './homepage';
+import cors from 'cors';
 
 dotenv.config(); // Load environment variables
 
@@ -13,6 +14,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+// In your API server (e.g., Express.js server)
+
+// Allow requests from your Angular app
+app.use(
+  cors({
+    origin: 'http://localhost:4200', // Allow localhost:4200 to make requests
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // Database initialization
 async function startServer() {
