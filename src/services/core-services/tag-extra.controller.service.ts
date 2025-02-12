@@ -18,6 +18,10 @@ export class TagExtraControllerService implements TagExtraServiceModel {
     return await this.tagExtraService.addTagToEntity(entityId, tagId, entityType);
   }
 
+  async addTagNamesToEntity(entityId: string, tagNames: string[], entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
+    return await this.tagExtraService.addTagNamesToEntity(entityId, tagNames, entityType);
+  }
+
   async removeTagFromEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
     return await this.tagExtraService.removeTagFromEntity(entityId, tagId, entityType);
   }

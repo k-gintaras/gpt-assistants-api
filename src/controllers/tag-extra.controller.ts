@@ -51,6 +51,28 @@ export class TagExtraController {
   }
 
   /**
+   * Add a tag to an entity.
+   * @requestParams { entityId: string, entityType: string } The entity ID, type, and tag ID.
+   * @requestBody { tagNames: string[]}
+   * @response {201} { status: "success", message: "Tag added successfully to entity." }
+   * @response {400} { status: "error", message: "Failed to add tag to entity." }
+   * @response {500} { status: "error", message: "Failed to add tag to entity.", error: any }
+   */
+  async addTagNamesToEntity(req: Request, res: Response) {
+    const { entityId, entityType } = req.params;
+    const { tagNames } = req.body;
+    try {
+      const isAdded = await this.tagExtraService.addTagNamesToEntity(entityId, tagNames, entityType as 'memory' | 'assistant' | 'task');
+      if (!isAdded) {
+        return respond(res, 400, 'Failed to add tag to entity.');
+      }
+      return respond(res, 201, 'Tag added successfully to entity.');
+    } catch (error) {
+      return respond(res, 500, 'Failed to add tag to entity.', null, error);
+    }
+  }
+
+  /**
    * Remove a tag from an entity.
    * @requestParams { entityId: string, entityType: string, tagId: string } The entity ID, type, and tag ID.
    * @response {200} { status: "success", message: "Tag removed successfully from entity." }

@@ -22,6 +22,14 @@ router.post('/:entityType/:entityId/:tagId', async (req, res, next) => {
   }
 });
 
+router.post('/name/:entityType/:entityId', async (req, res, next) => {
+  try {
+    await controller.addTagNamesToEntity(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/:entityType/:entityId/:tagId', async (req, res, next) => {
   try {
     await controller.removeTagFromEntity(req, res);
