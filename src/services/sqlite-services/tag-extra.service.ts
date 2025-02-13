@@ -124,8 +124,7 @@ export class TagExtraService {
 
       await client.query('COMMIT'); // Commit transaction
       return true;
-    } catch (error) {
-      console.error('Error during insert:', error); // Log error for debugging
+    } catch {
       await client.query('ROLLBACK'); // Rollback transaction if anything fails
       return false;
     } finally {

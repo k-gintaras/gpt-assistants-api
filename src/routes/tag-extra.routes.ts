@@ -14,17 +14,9 @@ router.get('/:entityType/:entityId', async (req, res, next) => {
   }
 });
 
-router.post('/:entityType/:entityId/:tagId', async (req, res, next) => {
+router.post('/:entityType/:entityId/:tagId/:isNames', async (req, res, next) => {
   try {
     await controller.addTagToEntity(req, res);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post('/name/:entityType/:entityId', async (req, res, next) => {
-  try {
-    await controller.addTagNamesToEntity(req, res);
   } catch (error) {
     next(error);
   }

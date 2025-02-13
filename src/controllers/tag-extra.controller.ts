@@ -32,37 +32,25 @@ export class TagExtraController {
 
   /**
    * Add a tag to an entity.
-   * @requestParams { entityId: string, entityType: string, tagId: string } The entity ID, type, and tag ID.
+   * @requestParams { entityId: string, entityType: string, tagId: string, isNames: boolean } The entity ID, type, and tag ID or string names joined with , .
    * @response {201} { status: "success", message: "Tag added successfully to entity." }
    * @response {400} { status: "error", message: "Failed to add tag to entity." }
    * @response {500} { status: "error", message: "Failed to add tag to entity.", error: any }
    */
   async addTagToEntity(req: Request, res: Response) {
-    const { entityId, entityType, tagId } = req.params;
-    try {
-      const isAdded = await this.tagExtraService.addTagToEntity(entityId, tagId, entityType as 'memory' | 'assistant' | 'task');
-      if (!isAdded) {
-        return respond(res, 400, 'Failed to add tag to entity.');
-      }
-      return respond(res, 201, 'Tag added successfully to entity.');
-    } catch (error) {
-      return respond(res, 500, 'Failed to add tag to entity.', null, error);
-    }
-  }
+    const { entityId, entityType, tagId, isNames } = req.params;
 
-  /**
-   * Add a tag to an entity.
-   * @requestParams { entityId: string, entityType: string } The entity ID, type, and tag ID.
-   * @requestBody { tagNames: string[]}
-   * @response {201} { status: "success", message: "Tag added successfully to entity." }
-   * @response {400} { status: "error", message: "Failed to add tag to entity." }
-   * @response {500} { status: "error", message: "Failed to add tag to entity.", error: any }
-   */
-  async addTagNamesToEntity(req: Request, res: Response) {
-    const { entityId, entityType } = req.params;
-    const { tagNames } = req.body;
     try {
-      const isAdded = await this.tagExtraService.addTagNamesToEntity(entityId, tagNames, entityType as 'memory' | 'assistant' | 'task');
+      let isAdded = false;
+
+      if (isNames) {
+        const tags = tagId.split(',');
+        if (!tags) return respond(res, 400, 'Failed to add tag to entity.');
+        isAdded = await this.tagExtraService.addTagNamesToEntity(entityId, tags, entityType as 'memory' | 'assistant' | 'task');
+      } else {
+        isAdded = await this.tagExtraService.addTagToEntity(entityId, tagId, entityType as 'memory' | 'assistant' | 'task');
+      }
+
       if (!isAdded) {
         return respond(res, 400, 'Failed to add tag to entity.');
       }

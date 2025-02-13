@@ -53,7 +53,7 @@ describe('TagExtraController Tests', () => {
     await insertHelpers.insertMemory(db, entityId, 'm1');
     await insertHelpers.insertTag(db, tagId, 'qq');
 
-    const response = await request(app).post(`/tag-extra/${entityType}/${entityId}/${tagId}`);
+    const response = await request(app).post(`/tag-extra/${entityType}/${entityId}/${tagId}/false`);
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Tag added successfully to entity.');
   });
@@ -63,7 +63,7 @@ describe('TagExtraController Tests', () => {
     const tagId = '999'; // Non-existing tag ID
     const entityType = 'memory'; // Entity type
 
-    const response = await request(app).post(`/tag-extra/${entityType}/${entityId}/${tagId}`);
+    const response = await request(app).post(`/tag-extra/${entityType}/${entityId}/${tagId}/false`);
     expect(response.status).toBe(400); // Expecting failure due to non-existent tag
     expect(response.body.message).toBe('Failed to add tag to entity.');
   });
@@ -74,7 +74,7 @@ describe('TagExtraController Tests', () => {
     const entityType = 'memory'; // Entity type
 
     await insertHelpers.insertMemory(db, entityId, 'm1');
-    await insertHelpers.insertTag(db, tagId, 'qq');
+    await insertHelpers.insertTag(db, tagId, uniqueIdPrefix + 'qq');
     await insertHelpers.insertTagMemory(db, entityId, tagId);
 
     const response = await request(app).delete(`/tag-extra/${entityType}/${entityId}/${tagId}`);

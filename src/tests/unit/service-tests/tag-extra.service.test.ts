@@ -51,7 +51,7 @@ describe('Tag Extra Service', () => {
   });
 
   it('should remove a tag from an entity', async () => {
-    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', 'responsive']);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', tId + 'responsive']);
     await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
 
     await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag1', 'memory');
