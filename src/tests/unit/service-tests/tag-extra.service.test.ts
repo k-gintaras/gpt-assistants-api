@@ -36,8 +36,8 @@ describe('Tag Extra Service', () => {
   });
 
   it('should fetch tags associated with an entity', async () => {
-    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag2', 'scalable']);
-    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag3', 'responsive']);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag2', 'scalable1']);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag3', 'responsive1']);
     await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
 
     await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag2', 'memory');
@@ -46,8 +46,8 @@ describe('Tag Extra Service', () => {
     const tags = await tagExtraService.getTagsByEntity(tId + 'memory1', 'memory');
     expect(tags.length).toBe(2);
     const tagNames = tags.map((tag) => tag.name);
-    expect(tagNames).toContain('responsive');
-    expect(tagNames).toContain('scalable');
+    expect(tagNames).toContain('responsive1');
+    expect(tagNames).toContain('scalable1');
   });
 
   it('should remove a tag from an entity', async () => {
@@ -85,5 +85,25 @@ describe('Tag Extra Service', () => {
     const taskTags = await tagExtraService.getTagsByEntity(tId + 'task1', 'task');
     expect(taskTags.length).toBe(1);
     expect(taskTags[0]).toMatchObject({ id: tId + 'tag2', name: 'scalable2' }); // Same here
+  });
+
+  it('should add multiple tags to an entity', async () => {
+    const tags = ['responsive', 'scalable', 'user-friendly'];
+
+    await insertHelpers.insertMemory(db, tId + 'memory2', 'memory');
+
+    const res = await db.query('SELECT * FROM memories where id=$1', [tId + 'memory2']);
+    console.log('res.rows');
+    console.log(res.rows);
+
+    const added = await tagExtraService.addTagNamesToEntity(tId + 'memory2', tags, 'memory');
+    expect(added).toBe(true);
+
+    const entityTags = await tagExtraService.getTagsByEntity(tId + 'memory2', 'memory');
+    const tagNames = entityTags.map((tag) => tag.name);
+
+    expect(tagNames).toContain('responsive');
+    expect(tagNames).toContain('scalable');
+    expect(tagNames).toContain('user-friendly');
   });
 });

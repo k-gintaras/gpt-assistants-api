@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import { Tag } from '../../models/tag.model';
 import { generateUniqueId } from './unique-id.service';
 
@@ -61,31 +61,15 @@ export class TagExtraService {
   async ensureTagExists(tagName: string): Promise<string> {
     const existingTagResult = await this.pool.query<{ id: string }>(`SELECT id FROM tags WHERE name = $1`, [tagName]);
 
-    // Check if rowCount is valid and if there are any rows returned
     if (existingTagResult.rowCount && existingTagResult.rowCount > 0) {
-      return existingTagResult.rows[0].id;
+      return existingTagResult.rows[0].id; // Return the existing tag ID
     }
 
     // If no existing tag found, create a new one
     const newTagId = generateUniqueId();
     await this.pool.query(`INSERT INTO tags (id, name) VALUES ($1, $2)`, [newTagId, tagName]);
 
-    return newTagId;
-  }
-
-  async addTagNamesToEntity(entityId: string, tags: string[], entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
-    // Make sure tags are unique to avoid duplicate insertions
-    const uniqueTags = [...new Set(tags)];
-
-    // Loop through each tag and add it to the entity
-    for (const tag of uniqueTags) {
-      const result = await this.addTagNameToEntity(entityId, tag, entityType);
-      if (!result) {
-        return false; // If any tag addition fails, return false
-      }
-    }
-
-    return true; // All tags were added successfully
+    return newTagId; // Return the new tag ID
   }
 
   async removeTagFromEntity(entityId: string, tagId: string, entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
@@ -110,5 +94,57 @@ export class TagExtraService {
       task: 'task_tags',
     };
     return tableMap[entityType];
+  }
+
+  async addTagNamesToEntity(entityId: string, tags: string[], entityType: 'memory' | 'assistant' | 'task'): Promise<boolean> {
+    const tableName = this.getTableNameForEntity(entityType);
+
+    const client = await this.pool.connect(); // Start a client to manage the transaction
+
+    try {
+      await client.query('BEGIN'); // Begin transaction
+
+      // Step 1: Ensure all tags exist (in parallel)
+      const tagIds = await Promise.all(tags.map((tagName) => this.ensureTagExists2(tagName, client)));
+
+      // Step 2: Insert tag-entity relationships (in parallel)
+      const insertPromises = tagIds.map((tagId) => {
+        const stmt = `
+        INSERT INTO ${tableName} (${entityType}_id, tag_id)
+        SELECT $1, $2
+        WHERE NOT EXISTS (
+          SELECT 1 FROM ${tableName} WHERE ${entityType}_id = $1 AND tag_id = $2
+        )
+      `;
+        return client.query(stmt, [entityId, tagId]);
+      });
+
+      // Step 3: Wait for all insert operations to complete
+      await Promise.all(insertPromises);
+
+      await client.query('COMMIT'); // Commit transaction
+      return true;
+    } catch (error) {
+      console.error('Error during insert:', error); // Log error for debugging
+      await client.query('ROLLBACK'); // Rollback transaction if anything fails
+      return false;
+    } finally {
+      client.release(); // Always release the client back to the pool
+    }
+  }
+
+  async ensureTagExists2(tagName: string, client: PoolClient): Promise<string> {
+    // Check if the tag exists in the tags table
+    const existingTagResult = await client.query<{ id: string }>(`SELECT id FROM tags WHERE name = $1 LIMIT 1`, [tagName]);
+
+    if (existingTagResult.rowCount && existingTagResult.rowCount > 0) {
+      return existingTagResult.rows[0].id; // Return existing tag ID
+    }
+
+    // If tag doesn't exist, generate a new tag ID and insert it
+    const newTagId = generateUniqueId();
+    await client.query(`INSERT INTO tags (id, name) VALUES ($1, $2)`, [newTagId, tagName]);
+
+    return newTagId; // Return the new tag ID
   }
 }
