@@ -47,8 +47,8 @@ export class AssistantControllerService implements AssistantServiceModel {
     return this.createAssistantService.createSimpleAssistant(name, instructions);
   }
 
-  async createAssistant(name: string, type: Assistant['type'], model: string, instructions: string): Promise<string | null> {
-    return this.createAssistantService.createAssistant(name, type, model, instructions);
+  async createAssistant(name: string, description: string, type: Assistant['type'], model: string, instructions: string): Promise<string | null> {
+    return this.createAssistantService.createAssistant(name, description, type, model, instructions);
   }
 
   async updateAssistant(id: string, assistant: Assistant): Promise<boolean> {

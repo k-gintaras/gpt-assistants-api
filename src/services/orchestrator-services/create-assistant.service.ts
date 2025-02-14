@@ -24,10 +24,10 @@ export class CreateAssistantService {
   }
 
   async createSimpleAssistant(name: string, instructions: string): Promise<string | null> {
-    return this.createAssistant(name, 'chat', DEFAULT_MODEL, instructions);
+    return this.createAssistant(name, 'Simple Assistant Basic Description', 'chat', DEFAULT_MODEL, instructions);
   }
 
-  async createAssistant(name: string, type: Assistant['type'], model: string = DEFAULT_MODEL, instructions: string = DEFAULT_INSTRUCTIONS): Promise<string | null> {
+  async createAssistant(name: string, description: string, type: Assistant['type'], model: string = DEFAULT_MODEL, instructions: string = DEFAULT_INSTRUCTIONS): Promise<string | null> {
     const existingAssistant = await this.assistantService.getAssistantByName(name);
     if (existingAssistant) {
       return existingAssistant.id;
@@ -47,7 +47,7 @@ export class CreateAssistantService {
 
     const assistant: Assistant = {
       name,
-      description: '',
+      description: description,
       type,
       model,
       id: '', // Local assistant ID is empty on creation

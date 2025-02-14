@@ -90,15 +90,15 @@ export class AssistantController {
 
   /**
    * Create a new assistant with full details.
-   * @requestBody { name: string, type: string, model: string, instructions: string } The full assistant details.
+   * @requestBody { name: string, description: string, type: string, model: string, instructions: string } The full assistant details.
    * @response {201} { status: "success", message: "Assistant created successfully", data: { id: string } }
    * @response {400} { status: "error", message: "Failed to create assistant." }
    * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
    */
   async createAssistant(req: Request, res: Response) {
-    const { name, type, model, instructions } = req.body;
+    const { name, description, type, model, instructions } = req.body;
     try {
-      const assistantId = await this.assistantService.createAssistant(name, type, model, instructions);
+      const assistantId = await this.assistantService.createAssistant(name, description, type, model, instructions);
       if (!assistantId) {
         return respond(res, 400, 'Failed to create assistant.');
       }
