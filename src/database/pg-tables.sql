@@ -1,6 +1,7 @@
 -- Assistant tables 
 CREATE TABLE IF NOT EXISTS assistants (
   id TEXT PRIMARY KEY,
+  gpt_assistant_id TEXT,
   name TEXT NOT NULL,
   description TEXT,
   type TEXT CHECK(type IN ('chat', 'assistant')) NOT NULL,

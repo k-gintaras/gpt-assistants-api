@@ -87,6 +87,8 @@ export class PromptService {
     };
     messages.push(userPrompt);
 
-    return extraInstruction ? queryAssistantWithMessages(assistant.id, messages, extraInstruction) : queryAssistantWithMessages(assistant.id, messages);
+    const id = assistant.gpt_assistant_id;
+    if (!id) return null;
+    return extraInstruction ? queryAssistantWithMessages(id, messages, extraInstruction) : queryAssistantWithMessages(assistant.id, messages);
   }
 }

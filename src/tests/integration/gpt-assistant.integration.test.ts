@@ -1,6 +1,6 @@
 import { AssistantTool, FunctionTool } from 'openai/resources/beta/assistants';
 import { GptAssistantCreateRequest } from '../../services/gpt-api/gpt-api-models.model';
-import { createAssistant, getAssistantById, updateAssistant, deleteAssistant } from '../../services/gpt-api/gpt-api-assistant';
+import { createGptAssistant, getAssistantById, updateAssistant, deleteAssistant } from '../../services/gpt-api/gpt-api-assistant';
 import dotenv from 'dotenv';
 import { FunctionParameters } from 'openai/resources';
 
@@ -36,7 +36,7 @@ describe('OpenAI Assistant API Integration Tests', () => {
   let assistantId: string;
 
   it('should create an assistant', async () => {
-    const response = await createAssistant(examplePayload);
+    const response = await createGptAssistant(examplePayload);
 
     if (!response) return;
     console.log('Create Response:', response);

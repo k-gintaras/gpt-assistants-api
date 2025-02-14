@@ -9,10 +9,11 @@ import { transformTagRow } from './tag.transformer';
 export function transformAssistantRow(row: AssistantRow): Assistant {
   return {
     id: row.id,
+    gptAssistantId: row.gpt_assistant_id,
     name: row.name,
     description: row.description,
     type: row.type,
-    model: row.model, // New field
+    model: row.model,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

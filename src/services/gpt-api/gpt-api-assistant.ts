@@ -2,7 +2,7 @@ import { Assistant, AssistantCreateParams, AssistantDeleted } from 'openai/resou
 import { getOpenAI } from './gpt-api-connector';
 import { GptAssistantCreateRequest } from './gpt-api-models.model';
 
-export async function createAssistant(payload: GptAssistantCreateRequest): Promise<Assistant | null> {
+export async function createGptAssistant(payload: GptAssistantCreateRequest): Promise<Assistant | null> {
   try {
     const openai = getOpenAI();
 

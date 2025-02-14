@@ -1,6 +1,6 @@
 import { getOpenAI } from '../../../services/gpt-api/gpt-api-connector';
 import { GptAssistantCreateRequest } from '../../../services/gpt-api/gpt-api-models.model';
-import { getAssistantById, updateAssistant, deleteAssistant, createAssistant } from '../../../services/gpt-api/gpt-api-assistant';
+import { getAssistantById, updateAssistant, deleteAssistant, createGptAssistant } from '../../../services/gpt-api/gpt-api-assistant';
 
 jest.mock('../../../services/gpt-api/gpt-api-connector', () => ({
   getOpenAI: jest.fn(),
@@ -49,7 +49,7 @@ describe('Assistant API Tests', () => {
       top_p: examplePayload.top_p,
     });
 
-    const response = await createAssistant(examplePayload);
+    const response = await createGptAssistant(examplePayload);
     if (!response) return;
     createdAssistantId = response.id;
 

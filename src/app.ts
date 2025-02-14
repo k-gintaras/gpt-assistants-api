@@ -66,6 +66,7 @@ async function startServer() {
 // 🔥 Function to create and attach routes AFTER DB is ready
 async function createRoutes() {
   const db = getDb();
+  db.setFeedbackEnabled(true);
   await db.initialize(); // Ensure DB is ready before starting server
   console.log('Database initialized successfully.');
 

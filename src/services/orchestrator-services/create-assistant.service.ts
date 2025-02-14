@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { Assistant } from '../../models/assistant.model';
 import { Assistant as GptAssistant } from 'openai/resources/beta/assistants';
-import { createAssistant as createGptAssistant } from '../gpt-api/gpt-api-assistant';
+import { createGptAssistant as createGptAssistant } from '../gpt-api/gpt-api-assistant';
 import { GptAssistantCreateRequest } from '../gpt-api/gpt-api-models.model';
 import { Memory } from '../../models/memory.model';
 import { DEFAULT_MODEL, DEFAULT_INSTRUCTIONS, DEFAULT_MAX_ASSISTANT_MEMORIES } from '../config.service';
@@ -30,7 +30,6 @@ export class CreateAssistantService {
   async createAssistant(name: string, type: Assistant['type'], model: string = DEFAULT_MODEL, instructions: string = DEFAULT_INSTRUCTIONS): Promise<string | null> {
     const existingAssistant = await this.assistantService.getAssistantByName(name);
     if (existingAssistant) {
-      console.log(`Assistant "${name}" already exists.`);
       return existingAssistant.id;
     }
 
@@ -40,24 +39,24 @@ export class CreateAssistantService {
       const gptAssistant: GptAssistant | null = await createGptAssistant(gptPayload);
 
       if (!gptAssistant) {
-        console.error('Failed to create GPT assistant.');
         return null;
       }
 
       gptAssistantId = gptAssistant.id;
     }
 
-    const assistantId = gptAssistantId || null;
     const assistant: Assistant = {
       name,
       description: '',
       type,
       model,
-      id: '',
-      createdAt: '',
-      updatedAt: '',
+      id: '', // Local assistant ID is empty on creation
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      gptAssistantId: gptAssistantId,
     };
-    const id = await this.assistantService.addAssistant(assistant, assistantId);
+
+    const id = await this.assistantService.addAssistant(assistant, gptAssistantId);
     if (!id) return null;
 
     if (instructions) {

@@ -34,9 +34,10 @@ describe('TagExtraController Tests', () => {
     const entityId = uniqueIdPrefix + 'm1'; // Valid entity ID
     const tagId = uniqueIdPrefix + 't1'; // Valid entity ID
     const entityType = 'memory'; // Valid entity type (memory, assistant, task)
+    const uniqueTagName = uniqueIdPrefix + 'qq';
 
     await insertHelpers.insertMemory(db, entityId, 'm1');
-    await insertHelpers.insertTag(db, tagId, 'qq');
+    await insertHelpers.insertTag(db, tagId, uniqueTagName + 'qq');
     await insertHelpers.insertTagMemory(db, entityId, tagId);
 
     const response = await request(app).get(`/tag-extra/${entityType}/${entityId}`);

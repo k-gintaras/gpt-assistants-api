@@ -169,15 +169,15 @@ export const insertHelpers = {
   /**
    * Inserts a full set of test data for focused memory tests.
    */
-  async insertFocusedMemoryTestData(client: any) {
-    const id1 = 'focusedMemoryId' + 1;
-    const id2 = 'focusedMemoryId' + 2;
+  async insertFocusedMemoryTestData(client: any, id: string) {
+    const id1 = id + 'focusedMemoryId' + 1;
+    const id2 = id + 'focusedMemoryId' + 2;
     await this.insertAssistant(client, id1);
     await this.insertAssistant(client, id2);
-    await this.insertMemory(client, 'focusedMemoryId' + '1', 'Memory Description 1');
-    await this.insertMemory(client, 'focusedMemoryId' + '2', 'Memory Description 2');
-    await this.insertMemory(client, 'focusedMemoryId' + '3', 'Memory Description 3');
-    await this.insertMemoryFocusRule(client, id1, 'focusedMemoryId' + '1'); // Focus rule for assistant 1
-    await this.insertMemoryFocusRule(client, id2, 'focusedMemoryId' + '2'); // Focus rule for assistant 2
+    await this.insertMemory(client, id + 'focusedMemoryId' + '1', 'Memory Description 1');
+    await this.insertMemory(client, id + 'focusedMemoryId' + '2', 'Memory Description 2');
+    await this.insertMemory(client, id + 'focusedMemoryId' + '3', 'Memory Description 3');
+    await this.insertMemoryFocusRule(client, id1, id + 'focusedMemoryId' + '1'); // Focus rule for assistant 1
+    await this.insertMemoryFocusRule(client, id2, id + 'focusedMemoryId' + '2'); // Focus rule for assistant 2
   },
 };

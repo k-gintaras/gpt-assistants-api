@@ -3,6 +3,7 @@ export const GET_FULL_ASSISTANT_WITH_DETAILS = `
 SELECT 
   -- Assistant details
   a.id AS assistant_id,
+  a.gpt_assistant_id AS gpt_assistant_id,
   a.name AS assistant_name,
   a.description AS assistant_description,
   a.type AS assistant_type,
@@ -77,6 +78,7 @@ ORDER BY
 export const GET_ASSISTANT_WITHOUT_MEMORIES = `
   SELECT 
     id AS assistant_id,
+    gpt_assistant_id AS gpt_assistant_id,
     name AS assistant_name,
     description AS assistant_description,
     type AS assistant_type,
@@ -91,6 +93,7 @@ export const buildGetAssistantWithFiltersQuery = (filters: { type?: string; tags
   let query = `
     SELECT 
       a.id AS assistant_id,
+      a.gpt_assistant_id AS gpt_assistant_id,
       a.name AS assistant_name,
       a.description AS assistant_description,
       a.type AS assistant_type,

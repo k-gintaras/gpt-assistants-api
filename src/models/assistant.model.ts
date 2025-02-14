@@ -16,6 +16,7 @@ export interface FeedbackSummary {
 
 export interface Assistant {
   id: string;
+  gptAssistantId?: string | null; // GPT Assistant ID (optional for 'chat' assistants)
   name: string;
   description: string;
   type: 'chat' | 'assistant';
@@ -26,6 +27,7 @@ export interface Assistant {
 
 export interface AssistantRow {
   id: string;
+  gpt_assistant_id?: string | null; // GPT Assistant ID (optional for 'chat' assistants)
   name: string;
   description: string;
   type: 'chat' | 'assistant';

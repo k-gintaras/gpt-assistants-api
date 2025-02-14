@@ -85,7 +85,6 @@ export class RelationshipGraphController {
       }
       return respond(res, 201, 'Relationship created successfully.');
     } catch (error) {
-      console.log(error);
       return respond(res, 500, 'Failed to create relationship.', null, error);
     }
   }

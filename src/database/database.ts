@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export class DbHelper {
+  feedbackEnabled = false;
+
   private dbPool: Pool;
   private sqlDirectory: string;
   private databaseName: string;
@@ -23,13 +25,17 @@ export class DbHelper {
     this.dbPool = new Pool(options);
 
     const sqlDir = process.env.NODE_ENV === 'test' ? './' : '../database';
-    if (process.env.NODE_ENV !== 'test') console.warn('!!! Beware we are running docker sql directory, so tables might not reset: ' + sqlDir);
+    if (process.env.NODE_ENV !== 'test') this.feedback('!!! Beware we are running docker sql directory, so tables might not reset: ' + sqlDir);
     this.sqlDirectory = path.resolve(__dirname, sqlDir);
+  }
+
+  setFeedbackEnabled(feedbackEnabled: boolean) {
+    this.feedbackEnabled = feedbackEnabled;
   }
 
   // Optionally initialize the DB, if required
   public async initialize(): Promise<void> {
-    console.log('Initializing: ' + this.databaseName);
+    this.feedback('Initializing: ' + this.databaseName);
     const client = await this.dbPool.connect();
     try {
       await client.query('BEGIN');
@@ -37,9 +43,16 @@ export class DbHelper {
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error('Error initializing database:', error);
+      this.feedback('Error initializing database:', error);
     } finally {
       client.release();
+    }
+  }
+
+  feedback(s: any, error?: any) {
+    if (this.feedbackEnabled) {
+      console.log(s);
+      if (error) console.log(error);
     }
   }
 
@@ -53,7 +66,7 @@ export class DbHelper {
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error('Error resetting database:', error);
+      this.feedback('Error resetting database:', error);
     } finally {
       client.release();
     }
@@ -84,13 +97,13 @@ export class DbHelper {
   // Load schema from file
   private async loadSchema(client: any): Promise<void> {
     const sqlFilePath = path.join(this.sqlDirectory, 'pg-tables.sql');
-    console.log('Retrieving: ' + sqlFilePath);
+    this.feedback('Retrieving: ' + sqlFilePath);
     if (fs.existsSync(sqlFilePath)) {
       const sql = fs.readFileSync(sqlFilePath, 'utf8');
-      console.log('Inserting Tables ' + this.databaseName);
+      this.feedback('Inserting Tables ' + this.databaseName);
       await client.query(sql);
     } else {
-      console.warn('Could not find sql: ' + sqlFilePath);
+      this.feedback('Could not find sql: ' + sqlFilePath);
     }
   }
 

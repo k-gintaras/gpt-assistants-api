@@ -25,14 +25,16 @@ describe('Tag Extra Service', () => {
   });
 
   it('should add a tag to an entity', async () => {
-    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [tId + 'tag1', 'responsive']);
+    const uniqueTagId = Math.random().toString(36).substring(7);
+    const uniqueTagName = Math.random().toString(36).substring(7);
+    await db.query('INSERT INTO tags (id, name) VALUES ($1, $2)', [uniqueTagId, uniqueTagName]);
     await insertHelpers.insertMemory(db, tId + 'memory1', 'memory');
-    const added = await tagExtraService.addTagToEntity(tId + 'memory1', tId + 'tag1', 'memory');
+    const added = await tagExtraService.addTagToEntity(tId + 'memory1', uniqueTagId, 'memory');
     expect(added).toBe(true);
 
     const tags = await tagExtraService.getTagsByEntity(tId + 'memory1', 'memory');
     expect(tags.length).toBe(1);
-    expect(tags[0]).toMatchObject({ id: tId + 'tag1', name: 'responsive' });
+    expect(tags[0]).toMatchObject({ id: uniqueTagId, name: uniqueTagName });
   });
 
   it('should fetch tags associated with an entity', async () => {
@@ -88,22 +90,19 @@ describe('Tag Extra Service', () => {
   });
 
   it('should add multiple tags to an entity', async () => {
-    const tags = ['responsive', 'scalable', 'user-friendly'];
+    const uniqueTagId1 = Math.random().toString(36).substring(7);
+    const tags = [uniqueTagId1 + 'responsive', uniqueTagId1 + 'scalable', uniqueTagId1 + 'user-friendly'];
 
-    await insertHelpers.insertMemory(db, tId + 'memory2', 'memory');
+    await insertHelpers.insertMemory(db, uniqueTagId1 + 'memory2', 'memory');
 
-    const res = await db.query('SELECT * FROM memories where id=$1', [tId + 'memory2']);
-    console.log('res.rows');
-    console.log(res.rows);
-
-    const added = await tagExtraService.addTagNamesToEntity(tId + 'memory2', tags, 'memory');
+    const added = await tagExtraService.addTagNamesToEntity(uniqueTagId1 + 'memory2', tags, 'memory');
     expect(added).toBe(true);
 
-    const entityTags = await tagExtraService.getTagsByEntity(tId + 'memory2', 'memory');
+    const entityTags = await tagExtraService.getTagsByEntity(uniqueTagId1 + 'memory2', 'memory');
     const tagNames = entityTags.map((tag) => tag.name);
 
-    expect(tagNames).toContain('responsive');
-    expect(tagNames).toContain('scalable');
-    expect(tagNames).toContain('user-friendly');
+    expect(tagNames).toContain(uniqueTagId1 + 'responsive');
+    expect(tagNames).toContain(uniqueTagId1 + 'scalable');
+    expect(tagNames).toContain(uniqueTagId1 + 'user-friendly');
   });
 });
