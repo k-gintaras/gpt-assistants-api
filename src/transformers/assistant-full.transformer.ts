@@ -6,6 +6,7 @@ import { transformMemoryRow } from './memory.transformer';
 
 export interface FullAssistantRows {
   assistant_id: string;
+  gpt_assistant_id: string;
   assistant_name: string;
   assistant_description: string;
   assistant_type: 'chat' | 'assistant';
@@ -51,6 +52,7 @@ export function transformFullAssistantResult(rows: FullAssistantRows[]): Assista
 
   const assistant: AssistantWithDetails = {
     id: firstRow.assistant_id,
+    gptAssistantId: firstRow.gpt_assistant_id,
     name: firstRow.assistant_name,
     description: firstRow.assistant_description,
     type: firstRow.assistant_type,

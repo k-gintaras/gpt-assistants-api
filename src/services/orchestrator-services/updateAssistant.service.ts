@@ -53,30 +53,32 @@ export class UpdateAssistantService {
     return existingAssistant.type === 'assistant' && updates.type === 'chat';
   }
 
+  // Process upgrade
+  async processUpgrade(existingAssistant: Assistant, updates: Partial<Assistant>, instructions: string | null): Promise<boolean> {
+    // Only create a new GPT assistant if there isn't already one
+    if (!existingAssistant.gptAssistantId) {
+      const newGptAssistantId = await this.createNewAssistant(existingAssistant, instructions);
+      if (!newGptAssistantId) return false;
+      updates.gptAssistantId = newGptAssistantId;
+    }
+
+    existingAssistant.name = `${existingAssistant.name}_Upgraded`;
+    return await this.updateDatabase(existingAssistant.id, updates);
+  }
+
   // Process downgrade
   async processDowngrade(existingAssistant: Assistant, updates: Partial<Assistant>): Promise<boolean> {
-    // You might need to delete or reset the GPT assistant ID when downgrading
     if (existingAssistant.gptAssistantId) {
+      // Only delete the GPT assistant if it exists
       const gptUpdateSuccess = await deleteGptAssistant(existingAssistant.gptAssistantId);
       if (!gptUpdateSuccess) {
         return false;
       }
     }
 
-    // Now proceed with the normal database update (removing GPT assistant details)
-    updates.gptAssistantId = null; // Removing GPT Assistant reference
-    return await this.updateDatabase(existingAssistant.id, updates);
-  }
+    updates.gptAssistantId = null;
+    existingAssistant.name = `${existingAssistant.name}_Downgraded`;
 
-  // Process upgrade
-  async processUpgrade(existingAssistant: Assistant, updates: Partial<Assistant>, instructions: string | null): Promise<boolean> {
-    const newGptAssistantId = await this.createNewAssistant(existingAssistant, instructions);
-    if (!newGptAssistantId) return false;
-
-    // Add the new `gptAssistantId` to the update
-    updates.gptAssistantId = newGptAssistantId;
-
-    // Update the local assistant with the new `gptAssistantId`
     return await this.updateDatabase(existingAssistant.id, updates);
   }
 

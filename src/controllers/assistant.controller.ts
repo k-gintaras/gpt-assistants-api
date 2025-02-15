@@ -111,7 +111,7 @@ export class AssistantController {
   /**
    * Update an existing assistant.
    * @requestParams { id: string } The assistant's ID.
-   * @requestBody { name?: string, type?: string, model?: string, instructions?: string } The fields to update.
+   * @requestBody { name?: string, type?: string, model?: string, description?: string } The fields to update.
    * @response {200} { status: "success", message: "Assistant updated successfully" }
    * @response {404} { status: "error", message: "Assistant not found." }
    * @response {500} { status: "error", message: "Failed to update assistant.", error: any }
