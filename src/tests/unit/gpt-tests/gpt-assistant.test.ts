@@ -1,6 +1,6 @@
 import { getOpenAI } from '../../../services/gpt-api/gpt-api-connector';
 import { GptAssistantCreateRequest } from '../../../services/gpt-api/gpt-api-models.model';
-import { getAssistantById, updateAssistant, deleteAssistant, createGptAssistant } from '../../../services/gpt-api/gpt-api-assistant';
+import { getAssistantById, updateGptAssistant, deleteGptAssistant, createGptAssistant } from '../../../services/gpt-api/gpt-api-assistant';
 
 jest.mock('../../../services/gpt-api/gpt-api-connector', () => ({
   getOpenAI: jest.fn(),
@@ -84,7 +84,7 @@ describe('Assistant API Tests', () => {
       name: updatePayload.name,
     });
 
-    const result = await updateAssistant(createdAssistantId, updatePayload as GptAssistantCreateRequest);
+    const result = await updateGptAssistant(createdAssistantId, updatePayload as GptAssistantCreateRequest);
 
     expect(mockOpenAI.beta.assistants.update).toHaveBeenCalledWith(createdAssistantId, expect.objectContaining(updatePayload));
     expect(result).toBe(true);
@@ -97,7 +97,7 @@ describe('Assistant API Tests', () => {
       deleted: true,
     });
 
-    const result = await deleteAssistant(createdAssistantId);
+    const result = await deleteGptAssistant(createdAssistantId);
 
     expect(mockOpenAI.beta.assistants.del).toHaveBeenCalledWith(createdAssistantId);
     expect(result).toBe(true);

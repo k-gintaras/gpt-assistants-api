@@ -40,7 +40,7 @@ export async function getAssistantById(id: string): Promise<Assistant | null> {
 }
 
 // Function to update an assistant
-export async function updateAssistant(id: string, updates: Partial<GptAssistantCreateRequest>): Promise<boolean> {
+export async function updateGptAssistant(id: string, updates: Partial<GptAssistantCreateRequest>): Promise<boolean> {
   try {
     const openai = getOpenAI();
     const response: Assistant = await openai.beta.assistants.update(id, updates);
@@ -52,7 +52,7 @@ export async function updateAssistant(id: string, updates: Partial<GptAssistantC
 }
 
 // Function to delete an assistant
-export async function deleteAssistant(id: string): Promise<boolean> {
+export async function deleteGptAssistant(id: string): Promise<boolean> {
   try {
     const openai = getOpenAI();
     const response: AssistantDeleted = await openai.beta.assistants.del(id);

@@ -1,4 +1,4 @@
-import { createGptAssistant, updateAssistant as updateGptAssistant } from '../gpt-api/gpt-api-assistant';
+import { createGptAssistant, deleteGptAssistant, updateGptAssistant } from '../gpt-api/gpt-api-assistant';
 import { GptAssistantCreateRequest } from '../gpt-api/gpt-api-models.model';
 import { Pool } from 'pg';
 import { Assistant } from '../../models/assistant.model';
@@ -29,9 +29,13 @@ export class UpdateAssistantService {
         instructions = this.transformer.getMemoriesToInstructions(existingAssistant.focusedMemories);
       }
 
+      // Check if upgrade or downgrade is needed
       if (this.checkIfUpgradeNeeded(existingAssistant, updates)) {
         return await this.processUpgrade(existingAssistant, updates, instructions);
+      } else if (this.checkIfDowngradeNeeded(existingAssistant, updates)) {
+        return await this.processDowngrade(existingAssistant, updates);
       }
+
       // Regular update
       return await this.updateGptAssistant(existingAssistant, updates, instructions);
     } catch {
@@ -42,6 +46,38 @@ export class UpdateAssistantService {
   // Check if upgrade is needed
   checkIfUpgradeNeeded(existingAssistant: Assistant, updates: Partial<Assistant>): boolean {
     return existingAssistant.type === 'chat' && updates.type === 'assistant';
+  }
+
+  // Check if downgrade is needed (from 'assistant' to 'chat')
+  checkIfDowngradeNeeded(existingAssistant: Assistant, updates: Partial<Assistant>): boolean {
+    return existingAssistant.type === 'assistant' && updates.type === 'chat';
+  }
+
+  // Process downgrade
+  async processDowngrade(existingAssistant: Assistant, updates: Partial<Assistant>): Promise<boolean> {
+    // You might need to delete or reset the GPT assistant ID when downgrading
+    if (existingAssistant.gptAssistantId) {
+      const gptUpdateSuccess = await deleteGptAssistant(existingAssistant.gptAssistantId);
+      if (!gptUpdateSuccess) {
+        return false;
+      }
+    }
+
+    // Now proceed with the normal database update (removing GPT assistant details)
+    updates.gptAssistantId = null; // Removing GPT Assistant reference
+    return await this.updateDatabase(existingAssistant.id, updates);
+  }
+
+  // Process upgrade
+  async processUpgrade(existingAssistant: Assistant, updates: Partial<Assistant>, instructions: string | null): Promise<boolean> {
+    const newGptAssistantId = await this.createNewAssistant(existingAssistant, instructions);
+    if (!newGptAssistantId) return false;
+
+    // Add the new `gptAssistantId` to the update
+    updates.gptAssistantId = newGptAssistantId;
+
+    // Update the local assistant with the new `gptAssistantId`
+    return await this.updateDatabase(existingAssistant.id, updates);
   }
 
   // Create a new GPT assistant for upgrading
@@ -59,14 +95,13 @@ export class UpdateAssistantService {
 
     return gptAssistant.id;
   }
+
   // Update GPT assistant (no upgrade)
   async updateGptAssistant(existingAssistant: Assistant, updates: Partial<Assistant>, instructions: string | null): Promise<boolean> {
-    // If the assistant is not of type 'assistant', skip updating the GPT assistant
     if (existingAssistant.type !== 'assistant') {
-      return await this.updateDatabase(existingAssistant.id, updates); // Only update the local database
+      return await this.updateDatabase(existingAssistant.id, updates); // Only update local database
     }
 
-    // Prepare GPT update only if the assistant is of type 'assistant'
     const gptUpdates: Partial<GptAssistantCreateRequest> = {
       ...(updates.name ? { name: updates.name } : {}),
       ...(updates.description ? { description: updates.description } : {}),
@@ -74,46 +109,23 @@ export class UpdateAssistantService {
       ...(instructions ? { instructions } : {}),
     };
 
-    // Ensure the GPT Assistant ID exists
     const gptAssistantId = existingAssistant.gptAssistantId;
     if (!gptAssistantId) {
-      return false; // If no GPT assistant ID is present, return false
+      return false;
     }
 
-    // Update the GPT assistant
     const gptUpdateSuccess = await updateGptAssistant(gptAssistantId, gptUpdates);
     if (!gptUpdateSuccess) {
       return false;
     }
 
-    // If GPT update is successful, update the local assistant
     const dbUpdateSuccess = await this.updateDatabase(existingAssistant.id, updates);
-    if (!dbUpdateSuccess) {
-      return false;
-    }
-
-    return true; // Return true if both updates (GPT and local) are successful
+    return dbUpdateSuccess;
   }
 
   // Update local assistant database
   async updateDatabase(id: string, updates: Partial<Assistant>): Promise<boolean> {
     const dbUpdateSuccess = await this.assistantService.updateAssistant(id, updates);
-    if (!dbUpdateSuccess) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // Process upgrade
-  async processUpgrade(existingAssistant: Assistant, updates: Partial<Assistant>, instructions: string | null): Promise<boolean> {
-    const newGptAssistantId = await this.createNewAssistant(existingAssistant, instructions);
-    if (!newGptAssistantId) return false;
-
-    // Add the new `gptAssistantId` to the update
-    updates.gptAssistantId = newGptAssistantId;
-
-    // Update the local assistant with the new `gptAssistantId`
-    return await this.updateDatabase(existingAssistant.id, updates);
+    return dbUpdateSuccess;
   }
 }

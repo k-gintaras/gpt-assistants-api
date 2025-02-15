@@ -49,37 +49,38 @@ describe('OrchestratorService Integration Tests', () => {
     expect(result).toBe(true);
 
     // Ensure memory is stored in the memories table
-    const memory: any = await db.query(`SELECT * FROM memories ORDER BY created_at DESC LIMIT 1`).then((res) => res.rows[0]);
-    expect(memory).toBeDefined();
-    expect(memory.type).toBe('knowledge');
-    expect(memory.description).toBe(memoryReq.text);
+    const memories: any = await db.query(`SELECT * FROM memories`).then((res) => res.rows);
+    const mm = memories.find((m: any) => m.description === memoryReq.text);
+    expect(mm).toBeDefined();
+    expect(mm.type).toBe('knowledge');
+    expect(mm.description).toBe(memoryReq.text);
 
     // Ensure that the memory is linked to the assistant
     const owned: any = await db.query(`SELECT * FROM owned_memories WHERE assistant_id = $1`, [assistantId]).then((res) => res.rows[0]);
     expect(owned).toBeDefined();
-    expect(owned.memory_id).toBe(memory.id); // Verify the memory is linked
+    expect(owned.memory_id).toBe(mm.id); // Verify the memory is linked
 
     // Check if the memory is correctly stored again through the owned_memories link
     const m: any = await db.query(`SELECT * FROM memories WHERE id = $1`, [owned.memory_id]).then((res) => res.rows[0]);
     expect(m).toBeDefined();
-    expect(m.id).toBe(memory.id); // Ensure we have the correct memory record
+    expect(m.id).toBe(mm.id); // Ensure we have the correct memory record
 
     // Ensure that the tag is inserted and associated with the memory
     const tag: any = await db.query(`SELECT * FROM tags WHERE name = $1`, ['tag1']).then((res) => res.rows[0]);
     expect(tag).toBeDefined();
 
-    const mapping: any = await db.query(`SELECT * FROM memory_tags WHERE memory_id = $1 AND tag_id = $2`, [memory.id, tag.id]).then((res) => res.rows[0]);
+    const mapping: any = await db.query(`SELECT * FROM memory_tags WHERE memory_id = $1 AND tag_id = $2`, [mm.id, tag.id]).then((res) => res.rows[0]);
     expect(mapping).toBeDefined();
 
     // Verify the tag is properly associated with the memory
-    expect(mapping.memory_id).toBe(memory.id);
+    expect(mapping.memory_id).toBe(mm.id);
     expect(mapping.tag_id).toBe(tag.id);
 
     // Clean up: Ensure that the memory is removed from the tables if no longer needed
     // (Optional, for cleaning up the test data in between tests)
-    await db.query('DELETE FROM memory_tags WHERE memory_id = $1', [memory.id]);
-    await db.query('DELETE FROM owned_memories WHERE memory_id = $1', [memory.id]);
-    await db.query('DELETE FROM memories WHERE id = $1', [memory.id]);
+    await db.query('DELETE FROM memory_tags WHERE memory_id = $1', [mm.id]);
+    await db.query('DELETE FROM owned_memories WHERE memory_id = $1', [mm.id]);
+    await db.query('DELETE FROM memories WHERE id = $1', [mm.id]);
   });
 
   test('delegateTask: creates task without tags', async () => {

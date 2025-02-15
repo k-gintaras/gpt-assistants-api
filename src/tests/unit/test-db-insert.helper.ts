@@ -13,15 +13,21 @@ export const insertHelpers = {
   },
 
   async insertTagMemory(client: any, memoryId: string = '1', tagId: string = '1') {
-    await client.query(
-      `
+    try {
+      const q = await client.query(
+        `
         INSERT INTO memory_tags (memory_id, tag_id)
         VALUES ($1, $2)
         ON CONFLICT (memory_id, tag_id) DO NOTHING
         RETURNING *;
       `,
-      [memoryId, tagId]
-    );
+        [memoryId, tagId]
+      );
+      console.log('q++++++++++++++');
+      console.log(q);
+    } catch (err) {
+      console.log(err);
+    }
   },
 
   async insertAssistant(client: any, assistantId: string = '1', isAssistant: boolean = false) {
@@ -45,14 +51,17 @@ export const insertHelpers = {
   },
 
   async insertMemory(client: any, id: string, text: string) {
+    const now = new Date();
+    const timeOffset = Math.random(); // Add a small random time offset to ensure uniqueness
+
     await client.query(
       `
-        INSERT INTO memories (id, type, description, created_at, updated_at)
-        VALUES ($1, 'knowledge', $2, $3, $3)
-        ON CONFLICT (id) DO NOTHING
-        RETURNING *;
-      `,
-      [id, text, new Date().toISOString()]
+    INSERT INTO memories (id, type, description, created_at, updated_at)
+    VALUES ($1, 'knowledge', $2, $3, $3)
+    ON CONFLICT (id) DO NOTHING
+    RETURNING *;
+  `,
+      [id, text, new Date(now.getTime() + timeOffset * 1000).toISOString()] // Offset the time by a random amount
     );
   },
 

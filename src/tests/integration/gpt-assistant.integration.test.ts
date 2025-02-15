@@ -1,6 +1,6 @@
 import { AssistantTool, FunctionTool } from 'openai/resources/beta/assistants';
 import { GptAssistantCreateRequest } from '../../services/gpt-api/gpt-api-models.model';
-import { createGptAssistant, getAssistantById, updateAssistant, deleteAssistant } from '../../services/gpt-api/gpt-api-assistant';
+import { createGptAssistant, getAssistantById, updateGptAssistant, deleteGptAssistant } from '../../services/gpt-api/gpt-api-assistant';
 import dotenv from 'dotenv';
 import { FunctionParameters } from 'openai/resources';
 
@@ -68,7 +68,7 @@ describe('OpenAI Assistant API Integration Tests', () => {
       description: 'This is an updated description.',
     };
 
-    const response = await updateAssistant(assistantId, updatePayload);
+    const response = await updateGptAssistant(assistantId, updatePayload);
     console.log('Update Response:', response);
 
     expect(response).toBe(true);
@@ -79,7 +79,7 @@ describe('OpenAI Assistant API Integration Tests', () => {
       throw new Error('Assistant ID is not set. Create an assistant first.');
     }
 
-    const response = await deleteAssistant(assistantId);
+    const response = await deleteGptAssistant(assistantId);
     console.log('Delete Response:', response);
 
     expect(response).toBe(true);

@@ -70,6 +70,7 @@ export class MemoryExtraService extends MemoryService {
   }
 
   async getMemoriesByTags(tags: string[]): Promise<MemoryWithTags[]> {
+    console.log('tags:', tags.join(','));
     if (tags.length === 0) {
       throw new Error('Tags array cannot be empty.');
     }
@@ -84,6 +85,8 @@ export class MemoryExtraService extends MemoryService {
       WHERE t.name IN (${placeholders})`,
       tags
     );
+
+    console.log(result.rows);
 
     const memoryMap = new Map<string, { row: MemoryRow; tags: Tag[] }>();
 

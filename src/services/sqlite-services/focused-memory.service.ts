@@ -25,7 +25,7 @@ export class FocusedMemoryService {
       WHERE assistant_id = $2 
       ORDER BY created_at DESC 
       LIMIT 1
-    ), 10)  -- Ensure that the result respects maxResults
+    ), 10)
     `,
       [assistantId, assistantId]
     );
