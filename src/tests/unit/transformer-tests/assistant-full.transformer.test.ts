@@ -101,6 +101,7 @@ describe('transformFullAssistantResult', () => {
           memory_updated_at: null,
           memory_tag_id: null,
           memory_tag_name: null,
+          gpt_assistant_id: '',
         },
       ];
 
