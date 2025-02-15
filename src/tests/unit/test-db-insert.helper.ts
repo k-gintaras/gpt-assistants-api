@@ -13,21 +13,15 @@ export const insertHelpers = {
   },
 
   async insertTagMemory(client: any, memoryId: string = '1', tagId: string = '1') {
-    try {
-      const q = await client.query(
-        `
+    await client.query(
+      `
         INSERT INTO memory_tags (memory_id, tag_id)
         VALUES ($1, $2)
         ON CONFLICT (memory_id, tag_id) DO NOTHING
         RETURNING *;
       `,
-        [memoryId, tagId]
-      );
-      console.log('q++++++++++++++');
-      console.log(q);
-    } catch (err) {
-      console.log(err);
-    }
+      [memoryId, tagId]
+    );
   },
 
   async insertAssistant(client: any, assistantId: string = '1', isAssistant: boolean = false) {

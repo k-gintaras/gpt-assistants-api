@@ -27,6 +27,7 @@ export const testFullAssistantRows: FullAssistantRows[] = [
     memory_updated_at: '2025-01-02T11:00:00Z',
     memory_tag_id: 'memory-tag1',
     memory_tag_name: 'Memory Tag 1',
+    gpt_assistant_id: '',
   },
   {
     assistant_id: '1',
@@ -54,5 +55,6 @@ export const testFullAssistantRows: FullAssistantRows[] = [
     memory_updated_at: '2025-01-02T11:00:00Z',
     memory_tag_id: 'memory-tag2',
     memory_tag_name: 'Memory Tag 2',
+    gpt_assistant_id: '',
   },
 ];
