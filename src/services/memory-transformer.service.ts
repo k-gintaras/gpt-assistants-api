@@ -52,7 +52,8 @@ export class MemoryTransformerService {
       // ? do we store them different types in database?
       //   const role: 'user' | 'assistant' = memory.type === 'instruction' || memory.type === 'prompt' ? 'assistant' : 'user';
 
-      const role = 'assistant';
+      // if we use assistant, it will simply respond with the same thing, so we must use user
+      const role = 'user';
       return {
         role,
         content: memory.description || JSON.stringify(memory.data) || '',
