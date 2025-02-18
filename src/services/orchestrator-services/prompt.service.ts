@@ -78,7 +78,9 @@ export class PromptService {
   }
 
   async handleAssistantPrompt(assistant: AssistantRow, prompt: string, extraInstruction?: string): Promise<string | null> {
-    const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantId(assistant.id);
+    // because instructions supposed to be on GPT api server
+    // we don't want to include them in conversation - thread
+    const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions(assistant.id);
     const messages: GptThreadMessageArray = this.memoryTransformerService.getThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });
 
     const userPrompt: GptThreadMessage = {

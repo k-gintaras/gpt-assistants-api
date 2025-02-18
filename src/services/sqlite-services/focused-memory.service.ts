@@ -33,6 +33,36 @@ export class FocusedMemoryService {
     return this.aggregateMemoriesWithTags(rows.rows);
   }
 
+  async getLimitedFocusedMemoriesByAssistantIdNoInstructions(assistantId: string): Promise<MemoryWithTags[]> {
+    const rows = await this.pool.query<MemoryRow & { tag_ids: string | null; tag_names: string | null }>(
+      `
+      SELECT 
+        m.*, 
+        string_agg(t.id::text, ',') AS tag_ids, 
+        string_agg(t.name, ',') AS tag_names
+      FROM memory_focus_rules fr
+      JOIN focused_memories fm ON fr.id = fm.memory_focus_id
+      JOIN memories m ON fm.memory_id = m.id
+      LEFT JOIN memory_tags mt ON m.id = mt.memory_id
+      LEFT JOIN tags t ON mt.tag_id = t.id
+      WHERE fr.assistant_id = $1
+      AND m.type != 'instruction'  -- Ensure 'instruction' type is excluded
+      GROUP BY m.id
+      ORDER BY m.created_at DESC
+      LIMIT COALESCE((
+        SELECT max_results 
+        FROM memory_focus_rules 
+        WHERE assistant_id = $2 
+        ORDER BY created_at DESC 
+        LIMIT 1
+      ), 10)
+      `,
+      [assistantId, assistantId]
+    );
+
+    return this.aggregateMemoriesWithTags(rows.rows);
+  }
+
   async getAllFocusedMemoriesByRuleId(ruleId: string): Promise<MemoryWithTags[]> {
     const rows = await this.pool.query<MemoryRow & { tag_ids: string | null; tag_names: string | null }>(
       `

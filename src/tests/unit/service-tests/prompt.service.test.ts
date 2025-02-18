@@ -118,14 +118,14 @@ describe('PromptService Tests', () => {
 
       const memories: MemoryWithTags[] = [{ id: 'm1', type: 'knowledge', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
 
-      mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
+      mockMemoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([{ role: 'assistant', content: 'Memory 1' }]);
       (queryAssistantWithMessages as jest.Mock).mockResolvedValueOnce('Thread reply');
 
       const result = await promptService.handleAssistantPrompt(assistant, 'User prompt');
 
       expect(result).toBe('Thread reply');
-      expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
+      expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions).toHaveBeenCalledWith(assistant.id);
       expect(mockMemoryTransformer.getThreadMessages).toHaveBeenCalledWith(expect.arrayContaining(memories), { includeTypes: ['knowledge', 'prompt', 'meta', 'session'] });
       expect(queryAssistantWithMessages).toHaveBeenCalledWith(assistant.id, [
         { role: 'assistant', content: 'Memory 1' },

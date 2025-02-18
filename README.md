@@ -12,6 +12,20 @@ A modular, PostgreSQL-backed API designed for interfacing with OpenAI's GPT mode
 - 🔄 **Dockerized for Deployment** – Fully containerized setup for PostgreSQL and API, ensuring smooth deployment.
 - 📊 **Scalable Usage** – Can be integrated into other apps, extensions, or APIs.
 
+## Assistant and prompt usage with memories
+
+1. Assistant Update
+   Chat Assistants: Only basic fields are updated. No instructions are involved, and memories stay as-is.
+   Regular Assistants: Focused memories are treated as instructions only when the assistant is updated. These are saved and used in GPT.
+   Instructions remain ignored until the assistant is updated, even though they exist in the system.
+2. Prompting the Assistant
+   Both Chat Assistants and Regular Assistants receive limited focused memories based on the focus rule.
+   Chat Assistant: Uses all memories, treating everything as context (conversation).
+   Regular Assistant: Filters out instructions (as they are internal to GPT) and uses only non-instruction memories for context in the prompt.
+   Key Points:
+   Chat Assistant: Updates only basic fields, no instructions. Memories are treated as conversation context.
+   Regular Assistant: Focused memories are saved as instructions only upon update and are otherwise ignored in prompts.
+
 ## Setup & Installation
 
 ### 1. Clone the Repository
