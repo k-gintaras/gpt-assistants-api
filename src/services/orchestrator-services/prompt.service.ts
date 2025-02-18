@@ -91,6 +91,6 @@ export class PromptService {
 
     const id = assistant.gpt_assistant_id;
     if (!id) return null;
-    return extraInstruction ? queryAssistantWithMessages(id, messages, extraInstruction) : queryAssistantWithMessages(assistant.id, messages);
+    return extraInstruction ? queryAssistantWithMessages(id, messages, extraInstruction) : queryAssistantWithMessages(id, messages);
   }
 }
