@@ -5,6 +5,12 @@ import { transformMemoryRow } from '../../transformers/memory.transformer';
 import { generateUniqueId } from './unique-id.service';
 import { MemoryService } from './memory.service';
 
+export interface OrganizedMemoriesResponse {
+  looseMemories: Memory[];
+  ownedMemories: { assistantId: string; memories: Memory[] }[];
+  focusedMemories: { memoryFocusRuleId: string; memories: Memory[] }[];
+}
+
 export class MemoryExtraService extends MemoryService {
   constructor(protected pool: Pool) {
     super(pool);
@@ -148,6 +154,83 @@ export class MemoryExtraService extends MemoryService {
       return false;
     } finally {
       client.release();
+    }
+  }
+
+  // TODO: write test getOrganizedMemories memory extra service
+  async getOrganizedMemories(): Promise<OrganizedMemoriesResponse> {
+    try {
+      // Query to fetch all memories with their relationships (assistant, focus rule)
+      const result = await this.pool.query<MemoryRow & { assistant_id: string | null; memory_focus_id: string | null }>(`
+        SELECT m.id AS memory_id, m.description, m.type, om.assistant_id, fm.memory_focus_id
+        FROM memories m
+        LEFT JOIN owned_memories om ON m.id = om.memory_id
+        LEFT JOIN focused_memories fm ON m.id = fm.memory_id;
+      `);
+
+      // Initialize response structure
+      const memoryResponse: OrganizedMemoriesResponse = {
+        looseMemories: [],
+        ownedMemories: [],
+        focusedMemories: [],
+      };
+
+      // Temporary maps to hold grouped memories
+      const ownedMap = new Map<string, Memory[]>();
+      const focusedMap = new Map<string, Memory[]>();
+
+      // Loop through the result rows and organize memories into categories
+      result.rows.forEach((row) => {
+        const memory = transformMemoryRow(row, []);
+
+        if (row.assistant_id && row.memory_focus_id) {
+          // Memory is both owned and focused
+          if (!ownedMap.has(row.assistant_id)) {
+            ownedMap.set(row.assistant_id, []);
+          }
+          ownedMap.get(row.assistant_id)!.push(memory);
+
+          if (!focusedMap.has(row.memory_focus_id)) {
+            focusedMap.set(row.memory_focus_id, []);
+          }
+          focusedMap.get(row.memory_focus_id)!.push(memory);
+        } else if (row.assistant_id) {
+          // Memory is owned by an assistant
+          if (!ownedMap.has(row.assistant_id)) {
+            ownedMap.set(row.assistant_id, []);
+          }
+          ownedMap.get(row.assistant_id)!.push(memory);
+        } else if (row.memory_focus_id) {
+          // Memory is part of a focus rule
+          if (!focusedMap.has(row.memory_focus_id)) {
+            focusedMap.set(row.memory_focus_id, []);
+          }
+          focusedMap.get(row.memory_focus_id)!.push(memory);
+        } else {
+          // Memory is "loose" (not associated with anything)
+          memoryResponse.looseMemories.push(memory);
+        }
+      });
+
+      // Convert ownedMap and focusedMap into the final response structure
+      memoryResponse.ownedMemories = Array.from(ownedMap.entries()).map(([assistantId, memories]) => ({
+        assistantId,
+        memories,
+      }));
+
+      memoryResponse.focusedMemories = Array.from(focusedMap.entries()).map(([focusRuleId, memories]) => ({
+        memoryFocusRuleId: focusRuleId,
+        memories,
+      }));
+
+      return memoryResponse;
+    } catch (error) {
+      console.error('Error fetching and organizing memories:', error);
+      return {
+        looseMemories: [],
+        ownedMemories: [],
+        focusedMemories: [],
+      };
     }
   }
 }

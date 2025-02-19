@@ -2,6 +2,7 @@ import { Pool } from 'pg';
 import { Request, Response } from 'express';
 import { MemoryExtraControllerService } from '../services/core-services/memory-extra.controller.service';
 import { respond } from './controller.helper';
+import { OrganizedMemoriesResponse } from '../services/sqlite-services/memory-extra.service';
 
 export class MemoryExtraController {
   private readonly memoryExtraService: MemoryExtraControllerService;
@@ -51,6 +52,31 @@ export class MemoryExtraController {
       return respond(res, 200, 'Memories for the provided tags fetched successfully', memories);
     } catch (error) {
       return respond(res, 500, 'Failed to retrieve memories by tags.', null, error);
+    }
+  }
+
+  // TODO: write test getOrganizedMemories memory extra controller
+  /**
+   * Retrieve organized memories.
+   * @response {200} { status: "success", message: "Memories retrieved successfully", data: { looseMemories: Memory[], ownedMemories: { assistantId: string, memories: Memory[] }, focusedMemories: { memoryFocusRuleId: string, memories: Memory[] } } }
+   * @response {404} { status: "error", message: "No memories found." }
+   * @response {500} { status: "error", message: "Failed to retrieve organized memories.", error: any }
+   */
+  async getOrganizedMemories(_req: Request, res: Response) {
+    try {
+      // Fetch organized memories without any filtering based on tags
+      const memories: OrganizedMemoriesResponse = await this.memoryExtraService.getOrganizedMemories();
+
+      // If no memories are found, return a 404 response
+      if (!memories || (!memories.looseMemories.length && !memories.ownedMemories.length && !memories.focusedMemories.length)) {
+        return respond(res, 404, 'No memories found.');
+      }
+
+      // Return the retrieved memories with a success message
+      return respond(res, 200, 'Memories retrieved successfully', memories);
+    } catch (error) {
+      // Handle any errors that occur during the memory retrieval process
+      return respond(res, 500, 'Failed to retrieve organized memories.', null, error);
     }
   }
 

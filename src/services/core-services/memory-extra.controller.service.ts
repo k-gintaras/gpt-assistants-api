@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { MemoryWithTags } from '../../models/memory.model';
 import { MemoryExtraServiceModel } from '../../models/service-models/memory-extra.service.model';
-import { MemoryExtraService } from '../sqlite-services/memory-extra.service';
+import { MemoryExtraService, OrganizedMemoriesResponse } from '../sqlite-services/memory-extra.service';
 
 export class MemoryExtraControllerService implements MemoryExtraServiceModel {
   memoryExtraService: MemoryExtraService;
@@ -20,5 +20,10 @@ export class MemoryExtraControllerService implements MemoryExtraServiceModel {
 
   async updateMemoryTags(memoryId: string, newTags: string[]): Promise<boolean> {
     return await this.memoryExtraService.updateMemoryTags(memoryId, newTags);
+  }
+
+  // TODO: write test getOrganizedMemories memory extra controller service
+  async getOrganizedMemories(): Promise<OrganizedMemoriesResponse> {
+    return await this.memoryExtraService.getOrganizedMemories();
   }
 }

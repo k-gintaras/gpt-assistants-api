@@ -22,6 +22,15 @@ router.get('/tags', async (req, res, next) => {
   }
 });
 
+// TODO: write test getOrganizedMemories memory extra router
+router.get('/memories', async (req, res, next) => {
+  try {
+    await controller.getOrganizedMemories(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.put('/tags/:memoryId', async (req, res, next) => {
   try {
     await controller.updateMemoryTags(req, res);
