@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { AssistantRow } from '../../models/assistant.model';
-import { generateChatReply, GptMessage, GptMessageArray } from '../gpt-api/gpt-api-chat-completion';
+import { generateChatReply, GptMessageArray } from '../gpt-api/gpt-api-chat-completion';
 import { Memory } from '../../models/memory.model';
 import { MemoryTransformerService } from '../memory-transformer.service';
 import { GptThreadMessage, GptThreadMessageArray, queryAssistantWithMessages } from '../gpt-api/gpt-api-thread';
@@ -8,6 +8,7 @@ import { MEMORY_TYPES_PASSED_AS_MESSAGES } from '../config.service';
 import { AssistantService } from '../sqlite-services/assistant.service';
 import { FocusedMemoryService } from '../sqlite-services/focused-memory.service';
 import { TaskService } from '../sqlite-services/task.service';
+import { estimateTokens, estimateTokensForResponse, models } from '../gpt-api/gpt-api-model-helper';
 
 export class PromptService {
   assistantService: AssistantService;
@@ -56,25 +57,26 @@ export class PromptService {
     }
   }
 
-  async handleChatPrompt(assistant: AssistantRow, prompt: string, extraInstruction?: string): Promise<string | null> {
+  async handleChatPrompt(assistant: AssistantRow, prompt: string, extraInstruction?: string, responseSize: 'sentence' | 'paragraph' | 'page' | 'multi-page' = 'page'): Promise<string | null> {
     const model = assistant.model;
     const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantId(assistant.id);
     const messages: GptMessageArray = this.memoryTransformerService.getMessages(memories);
 
-    const userPrompt: GptMessage = {
-      role: 'user',
-      content: prompt,
-    };
-    messages.push(userPrompt);
+    const inputTokens = estimateTokens(prompt); // Estimate input token count
+    const outputTokens = estimateTokensForResponse(inputTokens, responseSize).outputTokens; // Adjust based on response size
+
+    // Ensure total tokens fit within model's context limit
+    const modelData = models[model] || models['gpt-3.5-turbo'];
+    const availableTokens = modelData.contextWindow - inputTokens;
+    const maxTokens = Math.min(outputTokens, availableTokens, modelData.maxOutputTokens);
+
+    messages.push({ role: 'user', content: prompt });
 
     if (extraInstruction) {
-      const extra: GptMessage = {
-        role: 'system',
-        content: extraInstruction,
-      };
-      messages.push(extra);
+      messages.push({ role: 'system', content: extraInstruction });
     }
-    return generateChatReply(model, messages);
+
+    return generateChatReply(model, messages, { max_tokens: maxTokens });
   }
 
   async handleAssistantPrompt(assistant: AssistantRow, prompt: string, extraInstruction?: string): Promise<string | null> {
