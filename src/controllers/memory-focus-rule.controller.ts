@@ -49,6 +49,27 @@ export class MemoryFocusRuleController {
   }
 
   /**
+   * Retrieve memory focus rules by id.
+   * @requestParams { ruleId: string } The ID of the rule.
+   * @response {200} { status: "success", message: "Memory focus rule fetched successfully", data: MemoryFocusRule }
+   * @response {404} { status: "error", message: "Memory focus rule with ID {ruleId} not found." }
+   * @response {500} { status: "error", message: "Failed to retrieve memory focus rule.", error: any }
+   */
+  async getMemoryFocusRuleById(req: Request, res: Response) {
+    const { ruleId } = req.params;
+
+    try {
+      const memoryFocusRule = await this.memoryFocusRuleService.getMemoryFocusRules(ruleId);
+      if (!memoryFocusRule) {
+        return respond(res, 404, `Memory focus rule with ID ${ruleId} not found.`);
+      }
+      return respond(res, 200, 'Memory focus rule fetched successfully', memoryFocusRule);
+    } catch (error) {
+      return respond(res, 500, 'Failed to retrieve memory focus rule.', null, error);
+    }
+  }
+
+  /**
    * Update an existing memory focus rule.
    * @requestParams { id: string } The ID of the memory focus rule.
    * @requestBody { assistantId: string, maxResults: number, relationshipTypes: string[], priorityTags: string[] } The updated memory focus rule details.

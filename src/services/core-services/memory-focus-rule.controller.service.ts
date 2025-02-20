@@ -17,6 +17,10 @@ export class MemoryFocusRuleControllerService implements MemoryFocusRuleServiceM
   async getMemoryFocusRules(assistantId: string): Promise<MemoryFocusRule | null> {
     return await this.memoryFocusRuleService.getMemoryFocusRules(assistantId);
   }
+  // TODO :TEST THIS too MemoryFocusRuleControllerService getMemoryFocusRuleById
+  async getMemoryFocusRuleById(ruleId: string): Promise<MemoryFocusRule | null> {
+    return await this.memoryFocusRuleService.getMemoryFocusRuleById(ruleId);
+  }
 
   async updateMemoryFocusRule(id: string, updates: MemoryFocusRule): Promise<boolean> {
     return await this.memoryFocusRuleService.updateMemoryFocusRule(id, updates);

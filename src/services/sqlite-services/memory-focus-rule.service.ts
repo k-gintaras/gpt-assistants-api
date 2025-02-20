@@ -38,6 +38,11 @@ export class MemoryFocusRuleService {
     return result.rowCount ? transformMemoryFocusRuleRow(result.rows[0]) : null;
   }
 
+  async getMemoryFocusRuleById(ruleId: string): Promise<MemoryFocusRule | null> {
+    const result = await this.pool.query<MemoryFocusRuleRow>('SELECT * FROM memory_focus_rules WHERE id = $1', [ruleId]);
+    return result.rowCount ? transformMemoryFocusRuleRow(result.rows[0]) : null;
+  }
+
   async updateMemoryFocusRule(id: string, updates: Partial<Omit<MemoryFocusRule, 'id' | 'assistantId' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
     const stmt = `
     UPDATE memory_focus_rules
