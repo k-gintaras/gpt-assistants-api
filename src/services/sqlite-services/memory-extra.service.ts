@@ -7,8 +7,8 @@ import { MemoryService } from './memory.service';
 
 export interface OrganizedMemoriesResponse {
   looseMemories: Memory[];
-  ownedMemories: { assistantId: string; memories: Memory[] }[];
-  focusedMemories: { memoryFocusRuleId: string; memories: Memory[] }[];
+  ownedMemories: { assistantName: string; assistantId: string; memories: Memory[] }[];
+  focusedMemories: { assistantName: string; memoryFocusRuleId: string; memories: Memory[] }[];
 }
 
 export class MemoryExtraService extends MemoryService {
@@ -163,7 +163,10 @@ export class MemoryExtraService extends MemoryService {
       const result = await this.pool.query<
         MemoryRow & {
           assistant_id: string | null;
+          assistant_name: string | null;
           memory_focus_id: string | null;
+          focus_assistant_id: string | null;
+          focus_assistant_name: string | null;
         }
       >(`
   SELECT 
@@ -173,14 +176,25 @@ export class MemoryExtraService extends MemoryService {
     m.data,
     m.created_at, 
     m.updated_at,
-    om.assistant_id, 
-    fm.memory_focus_id
+
+    -- Owned Memory (Assistant Info)
+    om.assistant_id AS assistant_id,
+    a.name AS assistant_name,
+
+    -- Focused Memory (Assistant Info via memory_focus_rules)
+    fm.memory_focus_id AS memory_focus_id,
+    mfr.assistant_id AS focus_assistant_id,
+    fa.name AS focus_assistant_name
+
   FROM memories m
   LEFT JOIN owned_memories om ON m.id = om.memory_id
-  LEFT JOIN focused_memories fm ON m.id = fm.memory_id;
+  LEFT JOIN assistants a ON om.assistant_id = a.id
+
+  LEFT JOIN focused_memories fm ON m.id = fm.memory_id
+  LEFT JOIN memory_focus_rules mfr ON fm.memory_focus_id = mfr.id
+  LEFT JOIN assistants fa ON mfr.assistant_id = fa.id
 `);
 
-      // Initialize response structure
       // Initialize response structure
       const memoryResponse: OrganizedMemoriesResponse = {
         looseMemories: [],
@@ -188,39 +202,39 @@ export class MemoryExtraService extends MemoryService {
         focusedMemories: [],
       };
 
-      // Temporary maps for grouping
-      const ownedMap = new Map<string, Memory[]>();
-      const focusedMap = new Map<string, Memory[]>();
+      // Maps for grouping
+      const ownedMap = new Map<string, { assistantName: string; memories: Memory[] }>();
+      const focusedMap = new Map<string, { assistantName: string; memories: Memory[] }>();
 
       result.rows.forEach((row) => {
-        const memory = transformBasicMemoryRow(row); // Using new transformer
+        const memory = transformBasicMemoryRow(row);
 
-        if (row.assistant_id && row.memory_focus_id) {
-          if (!ownedMap.has(row.assistant_id)) ownedMap.set(row.assistant_id, []);
-          ownedMap.get(row.assistant_id)!.push(memory);
+        if (row.assistant_id) {
+          if (!ownedMap.has(row.assistant_id)) {
+            ownedMap.set(row.assistant_id, { assistantName: row.assistant_name || 'Unknown', memories: [] });
+          }
+          ownedMap.get(row.assistant_id)!.memories.push(memory);
+        }
 
-          if (!focusedMap.has(row.memory_focus_id)) focusedMap.set(row.memory_focus_id, []);
-          focusedMap.get(row.memory_focus_id)!.push(memory);
-        } else if (row.assistant_id) {
-          if (!ownedMap.has(row.assistant_id)) ownedMap.set(row.assistant_id, []);
-          ownedMap.get(row.assistant_id)!.push(memory);
-        } else if (row.memory_focus_id) {
-          if (!focusedMap.has(row.memory_focus_id)) focusedMap.set(row.memory_focus_id, []);
-          focusedMap.get(row.memory_focus_id)!.push(memory);
-        } else {
-          memoryResponse.looseMemories.push(memory);
+        if (row.memory_focus_id) {
+          if (!focusedMap.has(row.memory_focus_id)) {
+            focusedMap.set(row.memory_focus_id, { assistantName: row.focus_assistant_name || 'Unknown', memories: [] });
+          }
+          focusedMap.get(row.memory_focus_id)!.memories.push(memory);
         }
       });
 
-      // Convert maps to arrays
-      memoryResponse.ownedMemories = Array.from(ownedMap.entries()).map(([assistantId, memories]) => ({
+      // Convert maps to structured response
+      memoryResponse.ownedMemories = Array.from(ownedMap.entries()).map(([assistantId, data]) => ({
         assistantId,
-        memories,
+        assistantName: data.assistantName,
+        memories: data.memories,
       }));
 
-      memoryResponse.focusedMemories = Array.from(focusedMap.entries()).map(([focusRuleId, memories]) => ({
+      memoryResponse.focusedMemories = Array.from(focusedMap.entries()).map(([focusRuleId, data]) => ({
         memoryFocusRuleId: focusRuleId,
-        memories,
+        assistantName: data.assistantName,
+        memories: data.memories,
       }));
 
       return memoryResponse;
