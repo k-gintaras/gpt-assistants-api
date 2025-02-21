@@ -22,7 +22,7 @@ router.get('/:assistantId', async (req, res, next) => {
   }
 });
 
-router.get('rule/:ruleId', async (req, res, next) => {
+router.get('/rule/:ruleId', async (req, res, next) => {
   try {
     await controller.getMemoryFocusRuleById(req, res);
   } catch (error) {
