@@ -67,6 +67,30 @@ export async function addMultipleMessages(threadId: string, messages: GptThreadM
 }
 
 /**
+ * Adds multiple messages to a thread.
+ * @param threadId - The thread ID.
+ * @param messages - Array of message objects with roles and content.
+ * @returns Array of message IDs.
+ */
+export async function addMultipleMessagesAndPrompt(threadId: string, messages: GptThreadMessageArray, prompt: GptThreadMessage): Promise<string[]> {
+  try {
+    const openai = getOpenAI();
+    const messageIds = await Promise.all(messages.map((msg) => openai.beta.threads.messages.create(threadId, msg).then((m) => m.id)));
+
+    // Add prompt message with a delay, because gpt API has 1 second delay between messages, if we insert all same time, they will all be same time
+    // gpt therefore will reply to random one or all of them
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const promptMessageId = await openai.beta.threads.messages.create(threadId, prompt);
+    messageIds.push(promptMessageId.id);
+
+    return messageIds;
+  } catch (error) {
+    console.error('Error adding multiple messages:', error);
+    return [];
+  }
+}
+
+/**
  * Retrieves all messages from a thread.
  * @param threadId - The thread ID.
  * @param limit - The maximum number of messages to retrieve.
@@ -204,6 +228,31 @@ export async function queryAssistantWithMessages(assistantId: string, messages: 
     if (!threadId) throw new Error('Thread creation failed.');
 
     const messageId = await addMultipleMessages(threadId, messages);
+    if (!messageId) throw new Error('Failed to add user message.');
+
+    const run = await waitForRunCompletion(threadId, assistantId, instructions);
+    if (!run) throw new Error('Assistant run did not complete.');
+
+    return getAssistantReply(threadId);
+  } catch (error) {
+    console.error('Error querying assistant:', error);
+    return null;
+  }
+}
+
+/**
+ * Sends a prompt to the assistant and retrieves the response.
+ * @param assistantId - The assistant ID.
+ * @param prompt - The user's prompt.
+ * @param instructions - Optional instructions for the assistant. (just dont, these as gpt told me are same as gpt api assistant instructions, but overwritten)
+ * @returns The assistant's response as a string or null if any step fails.
+ */
+export async function queryAssistantWithMessagesAndPrompt(assistantId: string, messages: GptThreadMessageArray, prompt: GptThreadMessage, instructions?: string): Promise<string | null> {
+  try {
+    const threadId = await createNewThread('Direct Query', 'system');
+    if (!threadId) throw new Error('Thread creation failed.');
+
+    const messageId = await addMultipleMessagesAndPrompt(threadId, messages, prompt);
     if (!messageId) throw new Error('Failed to add user message.');
 
     const run = await waitForRunCompletion(threadId, assistantId, instructions);

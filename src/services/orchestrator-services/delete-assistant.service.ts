@@ -13,7 +13,6 @@ export class DeleteAssistantService {
     try {
       const assistant: AssistantRow | null = await this.assistantService.getAssistantById(id);
       if (!assistant) {
-        console.log(`Assistant with ID ${id} does not exist. Nothing to delete.`);
         return true; // Nothing to delete
       }
 

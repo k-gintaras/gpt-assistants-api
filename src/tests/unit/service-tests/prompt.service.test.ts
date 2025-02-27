@@ -95,11 +95,15 @@ describe('PromptService Tests', () => {
       expect(result).toBe('Chat reply');
       expect(mockMemoryService.getLimitedFocusedMemoriesByAssistantId).toHaveBeenCalledWith(assistant.id);
       expect(mockMemoryTransformer.getMessages).toHaveBeenCalledWith(memories);
-      expect(generateChatReply).toHaveBeenCalledWith(assistant.model, [
-        { role: 'system', content: 'Memory 1' },
-        { role: 'user', content: 'User prompt' },
-        { role: 'system', content: 'Extra instruction' },
-      ]);
+      expect(generateChatReply).toHaveBeenCalledWith(
+        assistant.model,
+        [
+          { role: 'system', content: 'Memory 1' },
+          { role: 'user', content: 'User prompt' },
+          { role: 'system', content: 'Extra instruction' },
+        ],
+        { max_tokens: 400 }
+      );
     });
   });
 

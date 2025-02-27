@@ -21,7 +21,8 @@ export class PromptController {
     const { id, prompt, extraInstruction } = req.body;
 
     try {
-      const result = await this.promptControllerService.prompt(id, prompt, extraInstruction);
+      // ! original prompt method didnt have delay between messages and prompt, causing gpt reply to random message
+      const result = await this.promptControllerService.promptWithDelay(id, prompt, extraInstruction);
       if (result === null) {
         return respond(res, 400, 'Prompt failed or assistant not found.');
       }
