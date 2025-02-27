@@ -61,6 +61,17 @@ This will:
 - Start a **PostgreSQL** database.
 - Build and launch the **API server**.
 
+### 3.1 Run Just Server
+
+```sh
+ts-node src/app.ts
+```
+
+You can then just go to
+localhost:3000/api-docs
+to see them docs and try api
+BEWARE: api docs not perfect, not all inputs are correct, you might need to go check src/controllers/controllerName.controller.ts
+
 ### 4. Verify Everything is Running
 
 ```sh
