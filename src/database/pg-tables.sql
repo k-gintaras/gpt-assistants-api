@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS assistants (
   gpt_assistant_id TEXT,
   name TEXT NOT NULL,
   description TEXT,
-  type TEXT CHECK(type IN ('chat', 'assistant')) NOT NULL,
+  type TEXT NOT NULL,
   model TEXT NOT NULL, -- Specifies the GPT model
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP for date
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- Use TIMESTAMP for date
