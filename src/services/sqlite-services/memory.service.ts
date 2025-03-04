@@ -12,11 +12,11 @@ export class MemoryService {
     const updatedAt = createdAt;
 
     const stmt = `
-      INSERT INTO memories (id, type, description, data, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO memories (id, name, summary, type, description, data, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `;
 
-    await this.pool.query(stmt, [id, memory.type, memory.description || null, memory.data || null, createdAt, updatedAt]);
+    await this.pool.query(stmt, [id, memory.name || null, memory.summary || null, memory.type, memory.description || null, memory.data || null, createdAt, updatedAt]);
 
     return id;
   }
@@ -24,9 +24,7 @@ export class MemoryService {
   // Remove an existing memory
   async removeMemory(memoryId: string): Promise<boolean> {
     const result = await this.pool.query('DELETE FROM memories WHERE id = $1', [memoryId]);
-    if (!result.rowCount) return false;
-
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0; // ✅ Safe check for null
   }
 
   // Update an existing memory
@@ -34,29 +32,35 @@ export class MemoryService {
     const stmt = `
       UPDATE memories
       SET
-        type = COALESCE($1, type),
-        description = COALESCE($2, description),
-        data = COALESCE($3, data),
-        updated_at = $4
-      WHERE id = $5
+        name = COALESCE($1, name),
+        summary = COALESCE($2, summary),
+        type = COALESCE($3, type),
+        description = COALESCE($4, description),
+        data = COALESCE($5, data),
+        updated_at = $6
+      WHERE id = $7
     `;
 
-    const result = await this.pool.query(stmt, [updates.type || null, updates.description || null, updates.data || null, new Date().toISOString(), id]);
-    if (!result.rowCount) return false;
+    const result = await this.pool.query(stmt, [updates.name || null, updates.summary || null, updates.type || null, updates.description || null, updates.data || null, new Date().toISOString(), id]);
 
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0; // ✅ Safe check for null
   }
 
   // Fetch memory by ID
   async getMemoryById(memoryId: string): Promise<Memory | null> {
     const result = await this.pool.query<MemoryRow>('SELECT * FROM memories WHERE id = $1', [memoryId]);
-    if (result.rowCount === 0) return null;
+    if ((result.rowCount ?? 0) === 0) return null; // ✅ Safe check
 
     const row = result.rows[0];
     return {
-      ...row,
-      createdAt: new Date(row.created_at), // Updated to snake_case
-      updatedAt: new Date(row.updated_at), // Updated to snake_case
+      id: row.id,
+      name: row.name || null,
+      summary: row.summary || null,
+      type: row.type,
+      description: row.description || null,
+      data: row.data || null,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
     };
   }
 
@@ -64,9 +68,14 @@ export class MemoryService {
   async getAllMemories(): Promise<Memory[]> {
     const results = await this.pool.query<MemoryRow>('SELECT * FROM memories');
     return results.rows.map((row) => ({
-      ...row,
-      createdAt: new Date(row.created_at), // Updated to snake_case
-      updatedAt: new Date(row.updated_at), // Updated to snake_case
+      id: row.id,
+      name: row.name || null,
+      summary: row.summary || null,
+      type: row.type,
+      description: row.description || null,
+      data: row.data || null,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
     }));
   }
 }
