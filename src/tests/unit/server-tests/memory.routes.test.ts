@@ -61,6 +61,8 @@ describe('Memory Controller Tests', () => {
       data: null,
       createdAt: null,
       updatedAt: null,
+      name: null,
+      summary: null,
     };
     const response = await request(app).post('/memories').send(newMemory);
     expect(response.status).toBe(201);

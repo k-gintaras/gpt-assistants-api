@@ -24,6 +24,8 @@ export const testFullAssistantObject: AssistantWithDetails = {
         { id: 'memory-tag1', name: 'Memory Tag 1' },
         { id: 'memory-tag2', name: 'Memory Tag 2' },
       ],
+      name: null,
+      summary: null,
     },
   ],
   memoryFocusRule: {

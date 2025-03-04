@@ -34,6 +34,8 @@ export class RememberService {
       data: null,
       createdAt: null,
       updatedAt: null,
+      name: null,
+      summary: null,
     };
 
     let memoryId;

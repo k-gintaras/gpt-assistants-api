@@ -4,6 +4,8 @@ import { Tag } from '../models/tag.model';
 export function transformMemoryRow(row: MemoryRow, tags: Tag[] = []): MemoryWithTags {
   return {
     id: row.id,
+    name: row.name || null, // Ensure name is included
+    summary: row.summary || null, // Ensure summary is included
     type: row.type,
     description: row.description || null, // Use null for missing descriptions
     data: row.data ? row.data : null, // Parse JSON or return null
@@ -16,6 +18,8 @@ export function transformMemoryRow(row: MemoryRow, tags: Tag[] = []): MemoryWith
 export function transformBasicMemoryRow(row: MemoryRow): Memory {
   return {
     id: row.id,
+    name: row.name || null,
+    summary: row.summary || null,
     type: row.type,
     description: row.description || null,
     data: row.data ? row.data : null,

@@ -16,6 +16,8 @@ describe('transformMemoryRow', () => {
       data: '{"key":"value"}',
       created_at: '2025-01-01T00:00:00Z',
       updated_at: '2025-01-02T00:00:00Z',
+      name: null,
+      summary: null,
     };
 
     const result = transformMemoryRow(row, tags);
@@ -28,6 +30,8 @@ describe('transformMemoryRow', () => {
       data: '{"key":"value"}',
       createdAt: new Date('2025-01-01T00:00:00Z'),
       updatedAt: new Date('2025-01-02T00:00:00Z'),
+      name: null,
+      summary: null,
     });
   });
 
@@ -39,6 +43,8 @@ describe('transformMemoryRow', () => {
       data: null,
       created_at: '2025-01-03T00:00:00Z',
       updated_at: '2025-01-04T00:00:00Z',
+      name: null,
+      summary: null,
     };
 
     const result = transformMemoryRow(row, tags);
@@ -51,6 +57,8 @@ describe('transformMemoryRow', () => {
       data: null,
       createdAt: new Date('2025-01-03T00:00:00Z'),
       updatedAt: new Date('2025-01-04T00:00:00Z'),
+      name: null,
+      summary: null,
     });
   });
 });

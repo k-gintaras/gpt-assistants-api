@@ -6,7 +6,7 @@ import { RelationshipGraph } from '../relationship.model';
  * -- Data Structures --
  */
 export type MemoryRequest = {
-  type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';
+  type: string;
   text: string; // Content being stored
 };
 

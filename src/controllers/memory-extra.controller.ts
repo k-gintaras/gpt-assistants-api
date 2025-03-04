@@ -13,7 +13,7 @@ export class MemoryExtraController {
 
   /**
    * Retrieve all memories with their associated tags.
-   * @response {200} { status: "success", message: "Memories with tags fetched successfully", data: Memory[] }
+   * @response {200} { status: "success", message: "Memories with tags fetched successfully", data: MemoryWithTags[] }
    * @response {404} { status: "error", message: "No memories found." }
    * @response {500} { status: "error", message: "Failed to retrieve memories with tags.", error: any }
    */

@@ -24,6 +24,8 @@ export interface FullAssistantRows {
   focus_rule_created_at: string | null;
   focus_rule_updated_at: string | null;
   memory_id: string | null;
+  memory_name: string | null; // Added
+  memory_summary: string | null; // Added
   memory_type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta' | null;
   memory_description: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,6 +88,8 @@ function transformMemoriesWithTags(rows: FullAssistantRows[]): MemoryWithTags[] 
         memoriesMap.set(memoryId, {
           memory: {
             id: memoryId,
+            name: row.memory_name || null, // Added
+            summary: row.memory_summary || null, // Added
             type: row.memory_type as Memory['type'],
             description: row.memory_description,
             data: row.memory_data,

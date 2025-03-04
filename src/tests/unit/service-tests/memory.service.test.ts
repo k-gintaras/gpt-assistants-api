@@ -36,6 +36,8 @@ describe('MemoryService Tests', () => {
       type: 'knowledge',
       description: 'Test memory description',
       data: JSON.stringify({ key: 'value' }),
+      name: null,
+      summary: null,
     };
     const memoryId = await memoryService.addMemory(memoryData);
 

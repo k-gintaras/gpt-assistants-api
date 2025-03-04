@@ -4,7 +4,9 @@ import { Tag } from './tag.model';
 // prompt service also uses description to create instructions
 export interface Memory {
   id: string;
-  type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';
+  name: string | null;
+  summary: string | null;
+  type: string; // Changed from union type to generic string to allow flexibility
   description: string | null; // Nullable in the database
   data: string | null; // Nullable in the database
   createdAt: Date | null;
@@ -14,9 +16,12 @@ export interface Memory {
 export interface MemoryWithTags extends Memory {
   tags: Tag[] | null;
 }
+
 export interface MemoryRow {
   id: string;
-  type: 'instruction' | 'session' | 'prompt' | 'knowledge' | 'meta';
+  name: string | null;
+  summary: string | null;
+  type: string; // Now flexible instead of a fixed set
   description: string | null;
   data: string | null; // Serialized JSON in the database
   created_at: string; // ISO 8601 string

@@ -85,7 +85,11 @@ describe('PromptService Tests', () => {
   describe('handleChatPrompt', () => {
     it('should generate a chat reply with user prompt and extra instruction', async () => {
       const assistant: AssistantRow = { id: pId + '1', gpt_assistant_id: pId + '1', name: 'Chat Assistant', type: 'chat', model: 'gpt-4o', description: '', created_at: '', updated_at: '' };
-      const memories: MemoryWithTags[] = [{ id: pId + 'm1', type: 'instruction', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
+      const memories: MemoryWithTags[] = [{
+        id: pId + 'm1', type: 'instruction', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null,
+        name: null,
+        summary: null
+      }];
       mockMemoryService.getLimitedFocusedMemoriesByAssistantId.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getMessages.mockReturnValueOnce([{ role: 'system', content: 'Memory 1' }]);
       (generateChatReply as jest.Mock).mockResolvedValueOnce('Chat reply');
@@ -120,7 +124,11 @@ describe('PromptService Tests', () => {
         updated_at: '',
       };
 
-      const memories: MemoryWithTags[] = [{ id: 'm1', type: 'knowledge', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null }];
+      const memories: MemoryWithTags[] = [{
+        id: 'm1', type: 'knowledge', tags: [], description: 'Memory 1', data: null, createdAt: null, updatedAt: null,
+        name: null,
+        summary: null
+      }];
 
       mockMemoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions.mockResolvedValueOnce(memories);
       mockMemoryTransformer.getThreadMessages.mockReturnValueOnce([{ role: 'assistant', content: 'Memory 1' }]);

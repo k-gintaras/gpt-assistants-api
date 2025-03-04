@@ -74,6 +74,8 @@ export class CreateAssistantService {
       data: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      name: null,
+      summary: null,
     };
     const memoryId = await this.memoryService.addMemory(memory);
 

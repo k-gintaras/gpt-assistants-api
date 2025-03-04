@@ -14,7 +14,7 @@ export class MemoryTransformerService {
     const { includeTypes, maxMemories } = options;
 
     // Filter memories by type if specified
-    const filteredMemories = includeTypes ? memories.filter((memory) => includeTypes.includes(memory.type)) : memories;
+    const filteredMemories = includeTypes ? memories.filter((memory) => memory.type && includeTypes.includes(memory.type)) : memories;
 
     // Limit the number of memories if maxMemories is specified
     const limitedMemories = maxMemories ? filteredMemories.slice(0, maxMemories) : filteredMemories;
