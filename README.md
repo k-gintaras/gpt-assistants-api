@@ -90,7 +90,10 @@ Once running, the API will be available at:
 http://localhost:3000
 ```
 
-## Endpoints & Usage
+## Example Endpoints & Usage
+
+get all from
+http://localhost:3000/api-docs
 
 ### Assistant Routes
 

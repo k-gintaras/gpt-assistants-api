@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS assistants (
 -- Memories table
 CREATE TABLE IF NOT EXISTS memories (
   id TEXT PRIMARY KEY,
-  type TEXT CHECK(type IN ('instruction', 'session', 'prompt', 'knowledge', 'meta')) NOT NULL,
+  name TEXT,
+  type TEXT NOT NULL,
+  summary TEXT,
   description TEXT,
   data JSONB, -- Use JSONB for optional serialized JSON
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP for date

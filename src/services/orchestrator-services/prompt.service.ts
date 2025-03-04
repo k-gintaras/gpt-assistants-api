@@ -23,6 +23,7 @@ export class PromptService {
   }
 
   // TODO: make this service cooler, allow prompt GROK, CLAUDE... shalalalal
+  // TODO: return task id, so we can check the status of the task if this stuff fails or something,, otherwise we may wait this nonsense forever or... we cannopt have it logged for later checks...
   // if assistant.type="grok" "claude"... ???
   async prompt(id: string, prompt: string, extraInstruction?: string): Promise<string | null> {
     const assistant: AssistantRow | null = await this.assistantService.getAssistantById(id);
