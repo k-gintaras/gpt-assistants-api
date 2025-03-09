@@ -88,6 +88,7 @@ async function createRoutes() {
   const assistantMemoryRoutes = (await import('./routes/assistant-memory.routes')).default;
 
   // ✅ Attach routes after DB is initialized
+  // !@Warn beware, route must have same name as {item}.routes.ts or else!
   app.use('/backup', backupRoutes);
   app.use('/orchestrator', orchestratorRoutes);
   app.use('/assistant', assistantRoutes);
@@ -102,7 +103,7 @@ async function createRoutes() {
   app.use('/tag-extra', tagExtraRoutes);
   app.use('/tag', tagRoutes);
   app.use('/task', taskRoutes);
-  app.use('/assistants', assistantMemoryRoutes);
+  app.use('/assistant-memory', assistantMemoryRoutes);
 }
 
 startServer();
