@@ -174,3 +174,132 @@ docker-compose logs -f server
 ## License
 
 MIT License – Free to use and modify.
+
+## Other stuff:
+
+### Adding functionality guide:
+
+🚀 Steps to Add New Functionality
+1️⃣ Create the Core Service (Business Logic)
+Go to /services/sqlite-services/ (or appropriate directory).
+Create a new [Feature]Service.ts (e.g., TaskService.ts).
+Implement methods for DB queries, CRUD operations, etc.
+✅ Example:
+
+typescript
+Copy
+Edit
+import { Pool } from 'pg';
+
+export class TaskService {
+constructor(private pool: Pool) {}
+
+async getAllTasks() {
+const result = await this.pool.query('SELECT \* FROM tasks');
+return result.rows;
+}
+}
+2️⃣ Create the Service Controller (Middleware Layer)
+Go to /services/core-services/.
+Create [Feature]ControllerService.ts (e.g., TaskControllerService.ts).
+This will act as a bridge between the DB service and the controller.
+✅ Example:
+
+typescript
+Copy
+Edit
+import { Pool } from 'pg';
+import { TaskService } from '../sqlite-services/task.service';
+
+export class TaskControllerService {
+private taskService: TaskService;
+
+constructor(pool: Pool) {
+this.taskService = new TaskService(pool);
+}
+
+async getTasks() {
+return await this.taskService.getAllTasks();
+}
+}
+3️⃣ Create the Controller (Express API Logic)
+Go to /controllers/.
+Create [Feature].controller.ts (e.g., task.controller.ts).
+This exposes endpoints using the service controller.
+✅ Example:
+
+typescript
+Copy
+Edit
+import { Pool } from 'pg';
+import { Request, Response } from 'express';
+import { TaskControllerService } from '../services/core-services/task.controller.service';
+import { respond } from './controller.helper';
+
+export class TaskController {
+private readonly taskService: TaskControllerService;
+
+constructor(db: Pool) {
+this.taskService = new TaskControllerService(db);
+}
+
+async getTasks(req: Request, res: Response) {
+try {
+const tasks = await this.taskService.getTasks();
+if (!tasks.length) return respond(res, 404, 'No tasks found.');
+return respond(res, 200, 'Tasks retrieved successfully.', tasks);
+} catch (error) {
+return respond(res, 500, 'Failed to fetch tasks.', null, error);
+}
+}
+}
+4️⃣ Create the Route (Attach to Express Router)
+Go to /routes/.
+Create [feature].route.ts (e.g., task.route.ts).
+This maps HTTP endpoints to controller methods.
+✅ Example:
+
+typescript
+Copy
+Edit
+import { Router } from 'express';
+import { TaskController } from '../controllers/task.controller';
+import { getDb } from '../database/database';
+
+const router = Router();
+const db = getDb().getInstance();
+const controller = new TaskController(db);
+
+router.get('/', async (req, res, next) => {
+try {
+await controller.getTasks(req, res);
+} catch (error) {
+next(error);
+}
+});
+
+export default router;
+5️⃣ Register Route in app.ts
+Open app.ts (or server.ts).
+Import and attach the new route using app.use().
+✅ Example:
+
+typescript
+Copy
+Edit
+import express from 'express';
+import taskRoutes from './routes/task.route';
+
+const app = express();
+app.use('/tasks', taskRoutes);
+🎯 Finalized Process (TL;DR)
+Create Service in /services/sqlite-services/
+Create Service Controller in /services/core-services/
+Create Express Controller in /controllers/
+Create Route in /routes/
+Register Route in app.ts
+
+## tools
+
+add-functionality.ts
+makes this process a bit easier, creates files in correct directories with comments and boilerplate to edit

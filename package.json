@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "db":"docker exec -it gpt-assistants-api-db-1 psql -U postgres",
+    "add": "ts-node add-functionality.ts",
+    "db": "docker exec -it gpt-assistants-api-db-1 psql -U postgres",
     "initdb": "ts-node src/database/init.ts",
     "test:all": "jest",
     "test:unit": "jest tests/unit",
