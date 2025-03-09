@@ -85,6 +85,7 @@ async function createRoutes() {
   const tagRoutes = (await import('./routes/tag.routes')).default;
   const taskRoutes = (await import('./routes/task.routes')).default;
   const backupRoutes = (await import('./routes/backup.routes')).default;
+  const assistantMemoryRoutes = (await import('./routes/assistant-memory.routes')).default;
 
   // ✅ Attach routes after DB is initialized
   app.use('/backup', backupRoutes);
@@ -101,6 +102,7 @@ async function createRoutes() {
   app.use('/tag-extra', tagExtraRoutes);
   app.use('/tag', tagRoutes);
   app.use('/task', taskRoutes);
+  app.use('/assistants', assistantMemoryRoutes);
 }
 
 startServer();
