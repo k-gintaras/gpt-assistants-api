@@ -14,6 +14,6 @@ export class PromptControllerService implements PromptServiceModel {
   }
 
   async promptWithDelay(id: string, prompt: string, extraInstruction?: string): Promise<string | null> {
-    return await this.promptService.prompt(id, prompt, extraInstruction);
+    return await this.promptService.promptWithDelay(id, prompt, extraInstruction);
   }
 }

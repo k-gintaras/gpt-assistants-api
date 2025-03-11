@@ -88,7 +88,7 @@ async function createRoutes() {
   const assistantMemoryRoutes = (await import('./routes/assistant-memory.routes')).default;
 
   // ✅ Attach routes after DB is initialized
-  // !@Warn beware, route must have same name as {item}.routes.ts or else!
+  // !@Warn beware, route must have same name as {item}.routes.ts or else doc generator will be confused!
   app.use('/backup', backupRoutes);
   app.use('/orchestrator', orchestratorRoutes);
   app.use('/assistant', assistantRoutes);
