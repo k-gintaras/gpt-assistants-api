@@ -41,6 +41,8 @@ export class PromptService {
 
     try {
       let result: string | null;
+      // TODO: assistant type= chat or assistant (use gpt api), assistant type= grok, claude (use grok api)
+      // TODO: move prompt with delay to gpt api service
       if (assistant.type === 'chat') {
         result = await this.handleChatPrompt(assistant, prompt, extraInstruction);
       } else {

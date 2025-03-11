@@ -22,13 +22,6 @@ CREATE TABLE IF NOT EXISTS memories (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- Use TIMESTAMP for date
 );
 
--- Owned memories
-CREATE TABLE IF NOT EXISTS owned_memories (
-  assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
-  memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
-  PRIMARY KEY (assistant_id, memory_id)
-);
-
 -- Memory focus rules, 1 rule per assistant
 CREATE TABLE IF NOT EXISTS memory_focus_rules (
   id TEXT PRIMARY KEY,
@@ -41,11 +34,20 @@ CREATE TABLE IF NOT EXISTS memory_focus_rules (
   CONSTRAINT unique_assistant_rule UNIQUE (assistant_id) -- Enforce only one rule per assistant
 );
 
--- Focused memories
+-- Focused memories, this is for future use, hot swap memories and more advanced memory usage
+-- currently this is called with prompt service to get assistant memories but you can use owned memories with type="whatever" for most cases
 CREATE TABLE IF NOT EXISTS focused_memories (
   memory_focus_id TEXT NOT NULL REFERENCES memory_focus_rules(id) ON DELETE CASCADE,
   memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
   PRIMARY KEY (memory_focus_id, memory_id)
+);
+
+-- Owned memories, simply use this for most cases even with memory rules
+-- for simplicity sake you can just have type= instruction|focus|whatever and then add to prompt
+CREATE TABLE IF NOT EXISTS owned_memories (
+  assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
+  memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
+  PRIMARY KEY (assistant_id, memory_id)
 );
 
 -- Tasks tables
