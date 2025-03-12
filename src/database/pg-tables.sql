@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS memory_focus_rules (
 
 -- Focused memories, this is for future use, hot swap memories and more advanced memory usage
 -- currently this is called with prompt service to get assistant memories but you can use owned memories with type="whatever" for most cases
+-- An assistant can quickly shift between different sets of focused memories without changing ownership. 
 CREATE TABLE IF NOT EXISTS focused_memories (
   memory_focus_id TEXT NOT NULL REFERENCES memory_focus_rules(id) ON DELETE CASCADE,
   memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
