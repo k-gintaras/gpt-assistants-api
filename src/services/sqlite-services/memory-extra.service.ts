@@ -178,7 +178,6 @@ export class MemoryExtraService extends MemoryService {
 `);
 
       // Initialize response structure
-      // Initialize response structure
       const memoryResponse: OrganizedMemoriesResponse = {
         looseMemories: [],
         ownedMemories: [],
@@ -228,6 +227,37 @@ export class MemoryExtraService extends MemoryService {
         ownedMemories: [],
         focusedMemories: [],
       };
+    }
+  }
+
+  async forgetMemory(assistantId: string, memoryId: string): Promise<boolean> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Step 1: Remove from owned_memories
+      await client.query(`DELETE FROM owned_memories WHERE assistant_id = $1 AND memory_id = $2`, [assistantId, memoryId]);
+
+      // Step 2: Delete from focused_memories based on assistant's focus rule
+      await client.query(
+        `
+      DELETE FROM focused_memories 
+      WHERE memory_id = $1 
+      AND memory_focus_id = (
+        SELECT id FROM memory_focus_rules WHERE assistant_id = $2
+      )
+      `,
+        [memoryId, assistantId]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('Error forgetting memory:', error);
+      return false;
+    } finally {
+      client.release();
     }
   }
 }

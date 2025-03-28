@@ -14,6 +14,14 @@ router.post('/remember', async (req, res, next) => {
   }
 });
 
+router.post('/forget', async (req, res, next) => {
+  try {
+    await controller.forget(req, res);
+  } catch (error) {
+    next(error); // Pass the error to Express error handling
+  }
+});
+
 router.post('/delegate-task', async (req, res, next) => {
   try {
     await controller.delegateTask(req, res);

@@ -9,10 +9,12 @@ import { AssistantEvaluationService } from '../sqlite-services/assistant-evaluat
 import { AssistantSuggestionService } from '../sqlite-services/assistant-suggestion.service';
 import { MemoryExtraService } from '../sqlite-services/memory-extra.service';
 import { RelationshipGraphService } from '../sqlite-services/relationship-graph.service';
+import { ForgetService } from './forget.service';
 
 export class OrchestratorService implements OrchestratorServiceModel {
   pool: Pool;
   rememberService: RememberService;
+  forgetService: ForgetService;
   taskDelegationService: TaskDelegationService;
   assistantConnectionService: AssistantConnectionService;
   entityConnectionService: EntityConnectionService;
@@ -23,6 +25,7 @@ export class OrchestratorService implements OrchestratorServiceModel {
   constructor(pool: Pool) {
     this.pool = pool;
     this.rememberService = new RememberService(pool);
+    this.forgetService = new ForgetService(pool);
     this.taskDelegationService = new TaskDelegationService(pool);
     this.assistantConnectionService = new AssistantConnectionService(pool);
     this.entityConnectionService = new EntityConnectionService(pool);
@@ -34,8 +37,19 @@ export class OrchestratorService implements OrchestratorServiceModel {
     this.knowledgeService = new KnowledgeService(memoryExtraService, relationshipGraphService);
   }
 
+  /**
+   * although is focused added, it is not really useful in the current implementation
+   * because if we ask assistant to remember, it is highly likely to keep that in focused memories
+   */
   async remember(assistantId: string, memory: MemoryRequest, tags?: string[]): Promise<boolean> {
     return await this.rememberService.remember(assistantId, memory, tags);
+  }
+
+  /**
+   * unlike remember or remove from focused, it has to be basically disconnected from assistant (likely also removing tag, but lets keep it for later if we want to "restore")
+   */
+  async forget(assistantId: string, memoryId: string): Promise<boolean> {
+    return await this.forgetService.forget(assistantId, memoryId);
   }
 
   async delegateTask(assistantId: string, task: TaskRequest, tags?: string[]): Promise<TaskResponse> {

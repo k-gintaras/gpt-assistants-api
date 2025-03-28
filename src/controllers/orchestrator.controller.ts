@@ -28,6 +28,23 @@ export class OrchestratorController {
   }
 
   /**
+   * Store a memory for an assistant.
+   * @requestBody { assistantId: string, memoryId: string } The assistant ID, memory ID
+   * @response {201} { status: "success", message: "Memory forgotten." }
+   * @response {400} { status: "error", message: "Failed to forget memory." }
+   * @response {500} { status: "error", message: "Error forgetting memory.", error: any }
+   */
+  async forget(req: Request, res: Response) {
+    const { assistantId, memoryId } = req.body;
+    try {
+      const success = await this.orchestratorService.forget(assistantId, memoryId);
+      return success ? respond(res, 201, 'Memory forgotten.') : respond(res, 400, 'Failed to forget memory.');
+    } catch (error) {
+      return respond(res, 500, 'Error forgetting memory.', null, error);
+    }
+  }
+
+  /**
    * Delegate a task to an assistant.
    * @requestBody { assistantId: string, task: TaskRequest, tags?: string[] } The assistant ID, task details, and optional tags.
    * @response {200} { status: "success", message: "Task delegated successfully.", data: TaskResponse }
