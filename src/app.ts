@@ -87,8 +87,14 @@ async function createRoutes() {
   const backupRoutes = (await import('./routes/backup.routes')).default;
   const assistantMemoryRoutes = (await import('./routes/assistant-memory.routes')).default;
 
+  // 0.2 addition
+  const chatmessagesRoutes = (await import('./routes/chat-messages.route')).default;
+  const chatsRoutes = (await import('./routes/chats.route')).default;
+  const sessionsRoutes = (await import('./routes/sessions.route')).default;
+
   // ✅ Attach routes after DB is initialized
   // !@Warn beware, route must have same name as {item}.routes.ts or else doc generator will be confused!
+
   app.use('/backup', backupRoutes);
   app.use('/orchestrator', orchestratorRoutes);
   app.use('/assistant', assistantRoutes);
@@ -104,6 +110,11 @@ async function createRoutes() {
   app.use('/tag', tagRoutes);
   app.use('/task', taskRoutes);
   app.use('/assistant-memory', assistantMemoryRoutes);
+
+  // 0.2 addition
+  app.use('/chatmessages', chatmessagesRoutes);
+  app.use('/chats', chatsRoutes);
+  app.use('/sessions', sessionsRoutes);
 }
 
 startServer();

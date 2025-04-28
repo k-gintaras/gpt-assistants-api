@@ -11,3 +11,8 @@ DROP TABLE IF EXISTS memory_focus_rules;
 DROP TABLE IF EXISTS owned_memories;
 DROP TABLE IF EXISTS memories;
 DROP TABLE IF EXISTS assistants;
+
+-- new addition 0.2 deletion of sessions and chats
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS chats;
+DROP TABLE IF EXISTS chat_messages;

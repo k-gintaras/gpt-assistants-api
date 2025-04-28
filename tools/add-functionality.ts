@@ -3,11 +3,11 @@ import * as path from 'path';
 import * as readline from 'readline';
 
 // Paths for different parts of the app
-const SERVICES_DIR = path.join(__dirname, 'services/sqlite-services');
-const CONTROLLER_SERVICES_DIR = path.join(__dirname, 'services/core-services');
-const CONTROLLERS_DIR = path.join(__dirname, 'controllers');
-const ROUTES_DIR = path.join(__dirname, 'routes');
-const APP_FILE = path.join(__dirname, 'app.ts'); // Ensure this is your correct main file
+const SERVICES_DIR = path.join(__dirname, '../src/services/sqlite-services');
+const CONTROLLER_SERVICES_DIR = path.join(__dirname, '../src/services/core-services');
+const CONTROLLERS_DIR = path.join(__dirname, '../src/controllers');
+const ROUTES_DIR = path.join(__dirname, '../src/routes');
+const APP_FILE = path.join(__dirname, '../src/app.ts'); // Ensure this is your correct main file
 
 // Function to create readline interface
 const rl = readline.createInterface({
@@ -34,7 +34,8 @@ const createFile = (filePath: string, content: string) => {
 (async () => {
   console.log('🚀 Adding new functionality to your app!\n');
 
-  const featureName = await askQuestion('Enter the feature name (e.g., Task): ');
+  let featureName = await askQuestion('Enter the feature name (e.g., Task): ');
+  featureName = featureName.trim().charAt(0).toUpperCase() + featureName.slice(1); // Capitalize first letter
   const featureDesc = await askQuestion(`Enter a short description for ${featureName}: `);
   const featureLower = featureName.toLowerCase();
   const featureCamel = featureName.charAt(0).toLowerCase() + featureName.slice(1);
@@ -144,7 +145,7 @@ export default router;
 
   // Ensure the import line for the route exists in `createRoutes()`
   const importStatement = `const ${featureLower}Routes = (await import('./routes/${featureLower}.route')).default;`;
-  const appUseStatement = `app.use('/${featureLower}s', ${featureLower}Routes);`;
+  const appUseStatement = `app.use('/${featureLower}', ${featureLower}Routes);`;
 
   if (!appContent.includes(importStatement)) {
     const createRoutesMatch = appContent.match(/async function createRoutes\(\) \{([\s\S]*?)\}/);
