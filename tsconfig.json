@@ -7,6 +7,6 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "src/database/*.sql"],
+  "include": ["src/**/*.ts", "src/database/*.sql", "src/tests/testing-tidy.js"],
   "exclude": ["node_modules"]
 }
