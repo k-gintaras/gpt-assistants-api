@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "clean": "rimraf dist && rimraf coverage"
+    "clean": "rimraf dist && rimraf coverage",
+    "update-database": "ts-node ./tools/update-database.ts"
   },
   "keywords": [],
   "author": "",

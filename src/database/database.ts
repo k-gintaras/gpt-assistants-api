@@ -49,6 +49,43 @@ export class DbHelper {
     }
   }
 
+  // Run update on both the test and production databases
+  public async updateDatabases(sqlFile: string): Promise<void> {
+    // Run update on the test database
+    await this.runUpdateOnDatabase(getTestDb(), sqlFile);
+
+    // Run update on the production database
+    await this.runUpdateOnDatabase(getProductionDb(), sqlFile);
+  }
+
+  private async runUpdateOnDatabase(dbHelper: DbHelper, sqlFile: string): Promise<void> {
+    const client = await dbHelper.getInstance().connect();
+    try {
+      await client.query('BEGIN');
+      await this.executeSqlFile(client, sqlFile); // Execute SQL file (update schema, insert records)
+      await client.query('COMMIT');
+      this.feedback(`Database update executed on ${dbHelper['databaseName']}`);
+    } catch (error) {
+      await client.query('ROLLBACK');
+      this.feedback(`Error executing update on ${dbHelper['databaseName']}:`, error);
+    } finally {
+      client.release();
+    }
+  }
+
+  // Executes SQL from the file
+  private async executeSqlFile(client: any, sqlFile: string): Promise<void> {
+    const sqlFilePath = path.join(this.sqlDirectory, sqlFile);
+    this.feedback('Retrieving: ' + sqlFilePath);
+    if (fs.existsSync(sqlFilePath)) {
+      const sql = fs.readFileSync(sqlFilePath, 'utf8');
+      this.feedback('Executing SQL update');
+      await client.query(sql);
+    } else {
+      this.feedback('Could not find sql: ' + sqlFilePath);
+    }
+  }
+
   feedback(s: any, error?: any) {
     if (this.feedbackEnabled) {
       console.log(s);
@@ -132,4 +169,12 @@ export const getDb = (): DbHelper => {
     dbHelper = new DbHelper(dbName); // Create a new DbHelper instance
   }
   return dbHelper;
+};
+
+export const getTestDb = (): DbHelper => {
+  return new DbHelper('gpt_assistants_test');
+};
+
+export const getProductionDb = (): DbHelper => {
+  return new DbHelper('gpt_assistants');
 };
