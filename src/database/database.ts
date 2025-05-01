@@ -49,25 +49,33 @@ export class DbHelper {
     }
   }
 
-  // Run update on both the test and production databases
-  public async updateDatabases(sqlFile: string): Promise<void> {
-    // Run update on the test database
-    await this.runUpdateOnDatabase(getTestDb(), sqlFile);
+  async runUpdateOnDatabase(dbHelper: DbHelper, sqlFile: string): Promise<void> {
+    console.log('Running update on database:', dbHelper['databaseName']); // Debugging log
 
-    // Run update on the production database
-    await this.runUpdateOnDatabase(getProductionDb(), sqlFile);
-  }
-
-  private async runUpdateOnDatabase(dbHelper: DbHelper, sqlFile: string): Promise<void> {
     const client = await dbHelper.getInstance().connect();
     try {
+      console.log('Beginning transaction...');
       await client.query('BEGIN');
-      await this.executeSqlFile(client, sqlFile); // Execute SQL file (update schema, insert records)
+
+      // Add a log before executing the SQL file
+      const sqlFilePath = path.join(this.sqlDirectory, sqlFile);
+      console.log('Executing SQL file:', sqlFilePath);
+
+      if (fs.existsSync(sqlFilePath)) {
+        const sql = fs.readFileSync(sqlFilePath, 'utf8');
+        console.log('Executing SQL update:\n', sql); // Debugging log
+        await client.query(sql);
+      } else {
+        console.log('SQL file not found:', sqlFilePath);
+        throw new Error(`SQL file ${sqlFilePath} does not exist.`);
+      }
+
+      console.log('Committing transaction...');
       await client.query('COMMIT');
       this.feedback(`Database update executed on ${dbHelper['databaseName']}`);
     } catch (error) {
+      console.error(`Error during update on ${dbHelper['databaseName']}:`, error);
       await client.query('ROLLBACK');
-      this.feedback(`Error executing update on ${dbHelper['databaseName']}:`, error);
     } finally {
       client.release();
     }
@@ -124,6 +132,9 @@ export class DbHelper {
       'memory_tags',
       'assistant_tags',
       'relationship_graph',
+      'sessions',
+      'chats',
+      'chat_messages',
     ];
 
     for (const table of tablesToClear) {
@@ -134,10 +145,8 @@ export class DbHelper {
   // Load schema from file
   private async loadSchema(client: any): Promise<void> {
     const sqlFilePath = path.join(this.sqlDirectory, 'pg-tables.sql');
-    this.feedback('Retrieving: ' + sqlFilePath);
     if (fs.existsSync(sqlFilePath)) {
       const sql = fs.readFileSync(sqlFilePath, 'utf8');
-      this.feedback('Inserting Tables ' + this.databaseName);
       await client.query(sql);
     } else {
       this.feedback('Could not find sql: ' + sqlFilePath);

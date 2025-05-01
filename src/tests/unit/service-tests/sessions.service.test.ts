@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { getDb } from '../test-db.helper';
 import { SessionsService } from '../../../services/sqlite-services/sessions.service';
+import { insertHelpers } from '../test-db-insert.helper'; // Assuming helper is there to insert assistant
 
 let db: Pool;
 let sessionsService: SessionsService;
@@ -13,21 +14,26 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await db.query('BEGIN'); // Start transaction for each test
+
+  // Insert a mock assistant to satisfy foreign key constraint
+  await insertHelpers.insertAssistant(db, 'assistant123'); // Insert the assistant with a unique ID
 });
 
 afterEach(async () => {
-  await db.query('DELETE FROM sessions'); // Clean up after each test
-  await db.query('ROLLBACK'); // Rollback changes
+  // Clean up after each test
+  await db.query('DELETE FROM sessions');
+  await db.query('DELETE FROM assistants'); // Clean up assistants table as well to prevent clutter
+  await db.query('ROLLBACK'); // Rollback changes after each test
 });
 
 afterAll(async () => {
-  await getDb.close();
+  await getDb.close(); // Close DB connection after all tests
 });
 
 describe('SessionsService Tests', () => {
   test('createSession - should create a new session', async () => {
-    const assistantId = 'assistant123';
-    const userId = 'user123';
+    const assistantId = 'assistant123'; // Mock assistant ID
+    const userId = 'user123'; // Mock user ID
     const name = 'Test Session';
 
     const session = await sessionsService.createSession(assistantId, userId, name);
@@ -42,7 +48,7 @@ describe('SessionsService Tests', () => {
   });
 
   test('getSessionById - should retrieve session by ID', async () => {
-    const assistantId = 'assistant123';
+    const assistantId = 'assistant123'; // Use the same assistant ID
     const userId = 'user123';
     const name = 'Test Session';
 
@@ -56,7 +62,7 @@ describe('SessionsService Tests', () => {
   });
 
   test('updateSession - should update an existing session', async () => {
-    const assistantId = 'assistant123';
+    const assistantId = 'assistant123'; // Mock assistant ID
     const userId = 'user123';
     const name = 'Test Session';
 
@@ -68,7 +74,7 @@ describe('SessionsService Tests', () => {
   });
 
   test('deleteSession - should delete an existing session', async () => {
-    const assistantId = 'assistant123';
+    const assistantId = 'assistant123'; // Mock assistant ID
     const userId = 'user123';
     const name = 'Test Session';
 

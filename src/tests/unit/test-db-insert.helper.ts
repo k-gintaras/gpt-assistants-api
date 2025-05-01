@@ -1,18 +1,62 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const insertHelpers = {
-  async insertTag(client: any, tagId: string, tagName: string) {
+  async insertSession(client: any, sessionId: string, assistantId: string, userId: string) {
     await client.query(
       `
-        INSERT INTO tags (id, name)
-        VALUES ($1, $2)
+        INSERT INTO sessions (id, name, assistant_id, user_id, started_at, created_at)
+        VALUES ($1, 'Test Session', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT (id) DO NOTHING
         RETURNING *;
       `,
-      [tagId, tagName]
+      [sessionId, assistantId, userId]
     );
   },
 
+  async insertChat(client: any, chatId: string, sessionId: string) {
+    await client.query(
+      `
+        INSERT INTO chats (id, session_id, created_at)
+        VALUES ($1, $2, CURRENT_TIMESTAMP)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING *;
+      `,
+      [chatId, sessionId]
+    );
+  },
+
+  async insertChatMessage(client: any, messageId: string, chatId: string, memoryId: string) {
+    // Ensure the memory exists before inserting the chat message
+    await this.insertMemory(client, memoryId, 'Sample Memory Description');
+
+    await client.query(
+      `
+        INSERT INTO chat_messages (id, type, memory_id, created_at, chat_id)
+        VALUES ($1, 'user', $2, CURRENT_TIMESTAMP, $3)
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      [messageId, memoryId, chatId]
+    );
+  },
+
+  async insertTag(client: any, tagId: string, tagName: string) {
+    await client.query(
+      `
+      INSERT INTO tags (id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (id) DO NOTHING
+      RETURNING *;
+    `,
+      [tagId, tagName]
+    );
+  },
   async insertTagMemory(client: any, memoryId: string = '1', tagId: string = '1') {
+    // Ensure the memory exists before inserting the tag-memory relationship
+    await this.insertMemory(client, memoryId, 'Sample Memory Description'); // Insert memory if it doesn't exist
+
+    // Ensure the tag exists before inserting the tag-memory relationship
+    await this.insertTag(client, tagId, `TestTag${tagId}`); // Insert tag if not already present
+
+    // Insert the memory-tag association
     await client.query(
       `
         INSERT INTO memory_tags (memory_id, tag_id)
@@ -24,7 +68,7 @@ export const insertHelpers = {
     );
   },
 
-  async insertAssistant(client: any, assistantId: string = '1', isAssistant: boolean = false) {
+  async insertAssistant(client: any, assistantId: string = '1') {
     await client.query(
       `
         INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
@@ -32,15 +76,7 @@ export const insertHelpers = {
         ON CONFLICT (id) DO NOTHING
         RETURNING *;
       `,
-      [
-        assistantId,
-        `Test Assistant ${assistantId}`,
-        `Description for Assistant ${assistantId}`,
-        isAssistant ? 'assistant' : 'chat',
-        'gpt-3.5-turbo',
-        new Date().toISOString(),
-        new Date().toISOString(),
-      ]
+      [assistantId, `Test Assistant ${assistantId}`, `Description for Assistant ${assistantId}`, 'assistant', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString()]
     );
   },
 
@@ -109,6 +145,9 @@ export const insertHelpers = {
    * Inserts a task into the database.
    */
   async insertTask(client: any, taskId: string = '1', description: string = 'Sample Task', assignedAssistant: string = '1', status: string = 'pending') {
+    // Ensure the assistant exists first
+    await this.insertAssistant(client, assignedAssistant); // Ensure valid assistant before inserting task
+
     await client.query(
       `INSERT INTO tasks (id, description, assigned_assistant, status, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, NOW(), NOW())

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE, -- ID of the assistant
   user_id TEXT, -- ID of the user
   started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP for date
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  -- Use TIMESTAMP for date
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Use TIMESTAMP for date
   ended_at TIMESTAMP
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS chats (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP for date
-  session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE, -- ID of the session
+  session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE -- ID of the session
 );
 
 -- chat_messages table for each message in a chat
@@ -23,5 +23,9 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   type TEXT, -- Message type (user or assistant)
   memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE, -- ID of the memory
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP for date
-  chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE, -- ID of the chat
+  chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE -- ID of the chat
 );
+
+ALTER TABLE tasks
+  DROP CONSTRAINT tasks_assigned_assistant_fkey,
+  ADD CONSTRAINT tasks_assigned_assistant_fkey FOREIGN KEY (assigned_assistant) REFERENCES assistants(id) ON DELETE CASCADE;

@@ -1,23 +1,35 @@
 import { Pool } from 'pg';
 import { getDb } from '../test-db.helper'; // Assuming this helper is for database setup
 import { ChatMessagesService } from '../../../services/sqlite-services/chat-messages.service';
+import { insertHelpers } from '../test-db-insert.helper'; // Import insert helpers
 
 let db: Pool;
 let chatMessagesService: ChatMessagesService;
 
 beforeAll(async () => {
-  await getDb.initialize();
+  await getDb.initialize(); // Initialize the database before tests
   db = getDb.getInstance();
   chatMessagesService = new ChatMessagesService(db);
 });
 
 beforeEach(async () => {
   await db.query('BEGIN'); // Start transaction before each test
+
+  // Insert required data (sessions, assistants, chats, memories)
+  await insertHelpers.insertAssistant(db, 'assistant123'); // Insert assistant
+  await insertHelpers.insertSession(db, 'session123', 'assistant123', 'user123'); // Insert session
+  await insertHelpers.insertChat(db, 'chat123', 'session123'); // Insert chat
+  await insertHelpers.insertMemory(db, 'memory123', 'Sample memory'); // Insert memory for valid memory_id
+  await insertHelpers.insertTagMemory(db, 'memory123', 'tag1'); // Ensure valid tag memory association
 });
 
 afterEach(async () => {
-  await db.query('DELETE FROM chat_messages'); // Clean up after each test
-  await db.query('ROLLBACK'); // Rollback changes after each test
+  await db.query('DELETE FROM chat_messages'); // Clean up chat_messages table after each test
+  await db.query('DELETE FROM chats'); // Clean up chats table
+  await db.query('DELETE FROM sessions'); // Clean up sessions table
+  await db.query('DELETE FROM assistants'); // Clean up assistants table
+  await db.query('DELETE FROM memories'); // Clean up memories table
+  await db.query('ROLLBACK'); // Rollback changes after each test to maintain isolation
 });
 
 afterAll(async () => {
@@ -51,12 +63,12 @@ describe('ChatMessagesService Tests', () => {
     const chatId = 'chat123';
     const memoryId1 = 'memory123';
     const memoryId2 = 'memory456';
-    const type1 = 'user';
-    const type2 = 'assistant';
+    // const type1 = 'user';
+    // const type2 = 'assistant';
 
     // Add two messages to the database for the same chat
-    await db.query('INSERT INTO chat_messages (id, type, memory_id, created_at, chat_id) VALUES ($1, $2, $3, $4, $5)', ['message1', type1, memoryId1, new Date().toISOString(), chatId]);
-    await db.query('INSERT INTO chat_messages (id, type, memory_id, created_at, chat_id) VALUES ($1, $2, $3, $4, $5)', ['message2', type2, memoryId2, new Date().toISOString(), chatId]);
+    await insertHelpers.insertChatMessage(db, 'message1', chatId, memoryId1);
+    await insertHelpers.insertChatMessage(db, 'message2', chatId, memoryId2);
 
     // Fetch messages for the chat
     const messages = await chatMessagesService.getMessagesByChatId(chatId);

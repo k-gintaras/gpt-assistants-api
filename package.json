@@ -9,6 +9,7 @@
     "test:core": "jest tests/unit/gpt-tests && jest tests/unit/orchestrator-tests && jest tests/unit/other-tests && jest tests/unit/server-tests && jest tests/unit/service-tests && jest tests/unit/transformer-tests",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
+    "test:basic": "jest tests/unit/service-tests",
     "test": "npm run test:core",
     "build": "tsc",
     "start": "node dist/app.js",

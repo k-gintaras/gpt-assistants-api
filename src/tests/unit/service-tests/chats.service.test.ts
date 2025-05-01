@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { getDb } from '../test-db.helper'; // Assuming this helper is for database setup
 import { ChatsService } from '../../../services/sqlite-services/chats.service';
+import { insertHelpers } from '../test-db-insert.helper'; // Ensure insertHelpers is imported
 
 let db: Pool;
 let chatsService: ChatsService;
@@ -12,12 +13,18 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  // Insert a mock session and assistant to satisfy the foreign key constraints
+  await insertHelpers.insertAssistant(db, 'assistant123'); // Insert an assistant
+  await insertHelpers.insertSession(db, 'session123', 'assistant123', 'user123'); // Insert a session with the assistant and user
+
   await db.query('BEGIN'); // Start a transaction before each test
 });
 
 afterEach(async () => {
-  await db.query('DELETE FROM chats'); // Clean up after each test
-  await db.query('ROLLBACK'); // Rollback changes after each test to maintain test isolation
+  await db.query('DELETE FROM chats'); // Clean up chats table after each test
+  await db.query('DELETE FROM sessions'); // Clean up sessions table after each test
+  await db.query('DELETE FROM assistants'); // Clean up assistants table after each test
+  await db.query('ROLLBACK'); // Rollback changes after each test to maintain isolation
 });
 
 afterAll(async () => {
@@ -44,8 +51,8 @@ describe('ChatsService Tests', () => {
     const sessionId = 'session123';
 
     // Add some chats to the database manually
-    await db.query('INSERT INTO chats (id, session_id, created_at) VALUES ($1, $2, $3)', ['chat1', sessionId, new Date().toISOString()]);
-    await db.query('INSERT INTO chats (id, session_id, created_at) VALUES ($1, $2, $3)', ['chat2', sessionId, new Date().toISOString()]);
+    await insertHelpers.insertChat(db, 'chat1', sessionId);
+    await insertHelpers.insertChat(db, 'chat2', sessionId);
 
     // Fetch chats for the session
     const chats = await chatsService.getChatsBySessionId(sessionId);
