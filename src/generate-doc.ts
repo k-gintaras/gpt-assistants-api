@@ -12,10 +12,17 @@ export const generateApiDocs = (): any[] => {
   const controllerFiles = project.getSourceFiles('src/controllers/*.ts');
   const apiDocs: any[] = [];
 
+  console.log('Generating API docs...');
+  console.log(
+    'Route files:',
+    routeFiles.map((file) => file.getBaseName())
+  );
+
   // Helper to extract types from JSDoc comments
   const extractTypeFromComment = (method: any, tag: string): string | null => {
     const jsDoc = method.getJsDocs();
     for (const doc of jsDoc) {
+      // console.log('JSDoc:', doc.getInnerText());
       for (const tagNode of doc.getTags()) {
         if (tagNode.getTagName() === tag) {
           // { id: string } The assistant's ID.
@@ -30,14 +37,23 @@ export const generateApiDocs = (): any[] => {
 
   // Helper to find a controller method by name
   const findControllerMethod = (controllerName: string, methodName: string) => {
+    // console.log('Controller name:', controllerName);
+
     const controllerFile = controllerFiles.find((file) => file.getBaseNameWithoutExtension() === controllerName);
+    // console.log('Controller file:', controllerFile);
+
     if (!controllerFile) return null;
 
     const classDeclaration = controllerFile.getClasses()[0];
     if (!classDeclaration) return null;
 
     const method = classDeclaration.getMethod(methodName);
+    // console.log('Controller method:', method?.getName());
+    // console.log('Controller class:', classDeclaration.getName());
     if (!method) return null;
+
+    // console.log('Controller method found:', method.getName());
+    // console.log('Controller file:', controllerFile.getBaseName());
 
     // Extract request params & body from JSDoc comments
     const inferredParams = extractTypeFromComment(method, 'requestParams');
@@ -99,3 +115,5 @@ export const generateApiDocs = (): any[] => {
 
   return apiDocs;
 };
+
+generateApiDocs();

@@ -74,8 +74,15 @@ describe('FocusedMemory Controller Tests', () => {
   });
 
   it('should add focused memory', async () => {
+    const assistantId = uniqueIdPrefix + 'assistant3';
+    const ruleId = uniqueIdPrefix + '3';
+    await insertHelpers.insertAssistant(db, assistantId); // Use unique ID for assistant
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '4', 'm1'); // Unique memory ID
+    await insertHelpers.insertMemory(db, uniqueIdPrefix + '5', 'm2'); // Unique memory ID
+    await insertHelpers.insertMemoryFocusRule(db, ruleId, assistantId); // Unique memory focus rule
+
     const response = await request(app)
-      .post(`/focused-memories/${uniqueIdPrefix + '1'}/${uniqueIdPrefix + '3'}`)
+      .post(`/focused-memories/${ruleId}/${uniqueIdPrefix + '4'}`)
       .send();
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Memory added to focus group successfully.');

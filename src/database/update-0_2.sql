@@ -29,3 +29,8 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 ALTER TABLE tasks
   DROP CONSTRAINT tasks_assigned_assistant_fkey,
   ADD CONSTRAINT tasks_assigned_assistant_fkey FOREIGN KEY (assigned_assistant) REFERENCES assistants(id) ON DELETE CASCADE;
+
+ALTER TABLE assistants
+  ADD COLUMN IF NOT EXISTS gpt_assistant_id TEXT,
+  ADD COLUMN IF NOT EXISTS gpt_assistant_key TEXT;
+

@@ -19,6 +19,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await db.query('BEGIN'); // Begin transaction before each test
+  const id = uniqueIdPrefix + 'assistant' + 3;
+  await insertHelpers.insertAssistant(db, id);
 });
 
 afterEach(async () => {
@@ -31,14 +33,23 @@ afterAll(async () => {
 
 describe('Prompt Controller Tests', () => {
   it('should respond to a valid prompt request', async () => {
-    const id = uniqueIdPrefix + 'assistant' + 1;
+    const id = uniqueIdPrefix + 'assistant' + 3;
     await insertHelpers.insertAssistant(db, id);
     const newPrompt = {
-      id: id,
+      id: uniqueIdPrefix + 'assistant' + 3,
       prompt: 'What is the capital of France?',
       extraInstruction: 'Provide a detailed answer.',
     };
+    const promise = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(newPrompt);
+      }, 1000); // Log the response after a delay
+    });
+
+    await promise; // Wait for the promise to resolve
+
     const response = await request(app).post('/prompt').send(newPrompt);
+
     expect(response.status).toBe(200);
     expect(response.body.status).toBe('success');
     expect(response.body.message).toBe('Prompt processed successfully');

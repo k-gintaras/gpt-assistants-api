@@ -9,10 +9,9 @@ export class AssistantService {
     return this.pool.query<AssistantRow>('SELECT * FROM assistants').then((res) => res.rows);
   }
 
-  getAssistantById(id: string): Promise<AssistantRow | null> {
+  async getAssistantById(id: string): Promise<AssistantRow | null> {
     return this.pool.query<AssistantRow>('SELECT * FROM assistants WHERE id = $1', [id]).then((res) => res.rows[0] || null);
   }
-
   getAssistantByName(name: string): Promise<AssistantRow | null> {
     return this.pool.query<AssistantRow>('SELECT * FROM assistants WHERE name = $1', [name]).then((res) => res.rows[0] || null);
   }

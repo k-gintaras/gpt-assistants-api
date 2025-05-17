@@ -39,7 +39,7 @@ const createFile = (filePath: string, content: string) => {
   const featureDesc = await askQuestion(`Enter a short description for ${featureName}: `);
   const featureLower = featureName.toLowerCase();
   const featureCamel = featureName.charAt(0).toLowerCase() + featureName.slice(1);
-  const featureRouteFile = `${featureLower}.route.ts`;
+  const featureRouteFile = `${featureLower}.routes.ts`;
 
   // Create Service
   const servicePath = path.join(SERVICES_DIR, `${featureLower}.service.ts`);
@@ -144,7 +144,7 @@ export default router;
   let appContent = fs.readFileSync(APP_FILE, 'utf8');
 
   // Ensure the import line for the route exists in `createRoutes()`
-  const importStatement = `const ${featureLower}Routes = (await import('./routes/${featureLower}.route')).default;`;
+  const importStatement = `const ${featureLower}Routes = (await import('./routes/${featureLower}.routes')).default;`;
   const appUseStatement = `app.use('/${featureLower}', ${featureLower}Routes);`;
 
   if (!appContent.includes(importStatement)) {

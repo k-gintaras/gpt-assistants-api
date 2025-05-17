@@ -27,6 +27,7 @@ export class PromptService {
   // if assistant.type="grok" "claude"... ???
   async prompt(id: string, prompt: string, extraInstruction?: string): Promise<string | null> {
     const assistant: AssistantRow | null = await this.assistantService.getAssistantById(id);
+
     if (!assistant) {
       return null; // Assistant does not exist
     }
@@ -64,6 +65,7 @@ export class PromptService {
 
   async promptWithDelay(id: string, prompt: string, extraInstruction?: string): Promise<string | null> {
     const assistant: AssistantRow | null = await this.assistantService.getAssistantById(id);
+
     if (!assistant) {
       return null; // Assistant does not exist
     }

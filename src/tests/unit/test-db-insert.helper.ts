@@ -71,12 +71,21 @@ export const insertHelpers = {
   async insertAssistant(client: any, assistantId: string = '1') {
     await client.query(
       `
-        INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO assistants (id, name, description, type, model, created_at, updated_at, gpt_assistant_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (id) DO NOTHING
         RETURNING *;
       `,
-      [assistantId, `Test Assistant ${assistantId}`, `Description for Assistant ${assistantId}`, 'assistant', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString()]
+      [
+        assistantId,
+        `Test Assistant ${assistantId}`,
+        `Description for Assistant ${assistantId}`,
+        'chat',
+        'gpt-3.5-turbo',
+        new Date().toISOString(),
+        new Date().toISOString(),
+        'test_gpt_assistant_id', // Add a fake GPT assistant ID for testing
+      ]
     );
   },
 
