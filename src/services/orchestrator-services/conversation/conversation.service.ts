@@ -43,21 +43,34 @@ export class ConversationService {
     this.aiApiService = new AiApiService();
   }
 
-  public async ask(conversationRequest: ConversationRequest): Promise<ConversationResponse | null> {
+  public async ask(conversationRequest: ConversationRequest): Promise<ConversationResponse> {
     const { assistantId, userId, chatId, sessionId, prompt } = conversationRequest;
-    if (!assistantId || !prompt) return null;
 
-    const assistantData = await this.getAssistantData(assistantId);
-    const aiApi = await this.getAiApi(assistantData);
-    if (!assistantData || !aiApi?.isAvailable(assistantData.type)) return null;
+    if (!assistantId || !prompt) {
+      throw new Error('Missing assistantId or prompt');
+    }
+
+    await this.validateConversationReferences(chatId, sessionId);
+
+    const assistant = await this.getAssistantData(assistantId);
+    if (!assistant) {
+      throw new Error(`Assistant not found: ${assistantId}`);
+    }
+
+    const aiApi = await this.getAiApi(assistant);
+    if (!aiApi?.isAvailable(assistant.type)) {
+      throw new Error(`AI API is unavailable for assistant type: ${assistant.type}`);
+    }
 
     const previousMessages = await this.previousConversationService.getConversation(chatId, sessionId);
-    const resolvedChatId = await this.getValidChatId(previousMessages);
+    const resolvedChatId = await this.getValidChatId(chatId, previousMessages);
 
     const taskId = await this.createPromptTask(assistantId, prompt);
-    const aiApiResponse = await this.getAiResponse(aiApi, assistantData, prompt, resolvedChatId, previousMessages);
 
-    if (!aiApiResponse) return null;
+    const aiApiResponse = await this.getAiResponse(aiApi, assistant, prompt, resolvedChatId, previousMessages);
+    if (!aiApiResponse) {
+      throw new Error('AI API failed to return a response');
+    }
 
     await this.finalizeTask(taskId, aiApiResponse);
 
@@ -65,7 +78,7 @@ export class ConversationService {
       assistantId,
       userId,
       sessionId,
-      chatId: aiApiResponse.conversationId,
+      chatId: aiApiResponse.conversationId ?? resolvedChatId,
       userPrompt: prompt,
       aiResponse: this.extractResponse(aiApiResponse),
       taskId,
@@ -90,7 +103,16 @@ export class ConversationService {
     return this.aiApiService.getAiApi(assistant.type);
   }
 
-  private async getValidChatId(messages: Awaited<ReturnType<PreviousConversationService['getConversation']>>) {
+  private async getValidChatId(inputChatId: string | null, messages: ConversationMessage[] | null) {
+    // First, check if we have an input chatId and if it's valid (not expired)
+    if (inputChatId) {
+      const expired = await this.chatLifecycleService.isChatExpired(inputChatId);
+      if (!expired) {
+        return inputChatId; // Use the provided chat ID if it's valid
+      }
+    }
+
+    // Fallback to getting chatId from messages if no valid input chatId
     if (!messages?.length) return null;
     const chatId = messages[0].chatId;
     const expired = await this.chatLifecycleService.isChatExpired(chatId);
@@ -132,5 +154,21 @@ export class ConversationService {
 
   private async saveInteraction(convo: Conversation): Promise<{ sessionId: string; chatId: string }> {
     return this.conversationSaver.saveConversation(convo);
+  }
+
+  private async validateConversationReferences(chatId: string | null, sessionId: string | null): Promise<void> {
+    if (sessionId) {
+      const sessionExists = await this.previousConversationService.sessionExists(sessionId);
+      if (!sessionExists) throw new Error('Invalid session ID.');
+    }
+    if (chatId) {
+      const sessionExists = await this.previousConversationService.chatExists(chatId);
+      if (!sessionExists) throw new Error('Invalid chat ID.');
+    }
+
+    if (chatId && sessionId) {
+      const isMatch = await this.previousConversationService.chatBelongsToSession(chatId, sessionId);
+      if (!isMatch) throw new Error('Chat ID does not match the provided session.');
+    }
   }
 }

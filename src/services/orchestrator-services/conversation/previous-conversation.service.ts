@@ -43,4 +43,19 @@ export class PreviousConversationService {
     );
     return res.rows;
   }
+
+  async sessionExists(sessionId: string): Promise<boolean> {
+    const result = await this.pool.query('SELECT 1 FROM sessions WHERE id = $1 LIMIT 1', [sessionId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async chatExists(chatId: string): Promise<boolean> {
+    const result = await this.pool.query('SELECT 1 FROM chats WHERE id = $1 LIMIT 1', [chatId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async chatBelongsToSession(chatId: string, sessionId: string): Promise<boolean> {
+    const result = await this.pool.query('SELECT 1 FROM chats WHERE id = $1 AND session_id = $2 LIMIT 1', [chatId, sessionId]);
+    return (result.rowCount ?? 0) > 0;
+  }
 }

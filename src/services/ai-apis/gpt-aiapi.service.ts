@@ -11,7 +11,7 @@ export class GptAiApiService implements AiApi {
   async ask(request: AiApiRequest): Promise<AiApiResponse | null> {
     const responseExample: AiApiResponse = {
       response: 'This is a test response from GPT API' + new Date().toUTCString(),
-      conversationId: null,
+      conversationId: null, //request.conversationId, // or API id..
       responseType: 'text',
       error: null,
     };
