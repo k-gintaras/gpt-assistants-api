@@ -1,7 +1,8 @@
-import { AiApi, AiApiRequest, AiApiResponse, AiApiService } from '../../../../services/ai-api.service';
 import { Pool } from 'pg';
 import { ConversationRequest, ConversationService } from '../../../../services/orchestrator-services/conversation/conversation.service';
 import { getDb } from '../../test-db.helper';
+import { AiApiRequest, AiApiResponse } from '../../../../services/ai-api.model';
+import { AiApi, AiApiService } from '../../../../services/ai-api.service';
 
 // Mock AiApi for testing
 class MockAiApi implements AiApi {

@@ -111,7 +111,7 @@ async function createRoutes() {
   app.use('/tag', tagRoutes);
   app.use('/task', taskRoutes);
   app.use('/assistant-memory', assistantMemoryRoutes);
-  app.use('/chatmessages', chatmessagesRoutes);
+  app.use('/chat-messages', chatmessagesRoutes);
   app.use('/chats', chatsRoutes);
   app.use('/sessions', sessionsRoutes);
   app.use('/conversation', conversationRoutes);

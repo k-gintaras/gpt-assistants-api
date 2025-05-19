@@ -10,7 +10,7 @@ export class MemoryTransformerService {
    * @param options - Options for filtering or formatting messages.
    * @returns Array of GPT-compatible messages.
    */
-  getMessages(memories: Memory[], options: { includeTypes?: Memory['type'][]; maxMemories?: number } = {}): GptMessageArray {
+  getGptChatMessages(memories: Memory[], options: { includeTypes?: Memory['type'][]; maxMemories?: number } = {}): GptMessageArray {
     const { includeTypes, maxMemories } = options;
 
     // Filter memories by type if specified
@@ -36,7 +36,7 @@ export class MemoryTransformerService {
    * @param options - Options for filtering or formatting messages.
    * @returns Array of thread-compatible messages.
    */
-  getThreadMessages(memories: Memory[], options: { includeTypes?: Memory['type'][]; maxMemories?: number } = {}): GptThreadMessageArray {
+  getGptThreadMessages(memories: Memory[], options: { includeTypes?: Memory['type'][]; maxMemories?: number } = {}): GptThreadMessageArray {
     const { includeTypes, maxMemories } = options;
 
     // Filter memories by type if specified

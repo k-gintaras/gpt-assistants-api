@@ -102,7 +102,7 @@ export class PromptService {
   async handleChatPrompt(assistant: AssistantRow, prompt: string, extraInstruction?: string, responseSize: 'sentence' | 'paragraph' | 'page' | 'multi-page' = 'page'): Promise<string | null> {
     const model = assistant.model;
     const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantId(assistant.id);
-    const messages: GptMessageArray = this.memoryTransformerService.getMessages(memories);
+    const messages: GptMessageArray = this.memoryTransformerService.getGptChatMessages(memories);
 
     const inputTokens = estimateTokens(prompt); // Estimate input token count
     const outputTokens = estimateTokensForResponse(inputTokens, responseSize).outputTokens; // Adjust based on response size
@@ -125,7 +125,7 @@ export class PromptService {
     // because instructions supposed to be on GPT api server
     // we don't want to include them in conversation - thread
     const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions(assistant.id);
-    const messages: GptThreadMessageArray = this.memoryTransformerService.getThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });
+    const messages: GptThreadMessageArray = this.memoryTransformerService.getGptThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });
 
     const userPrompt: GptThreadMessage = {
       role: 'user',
@@ -142,7 +142,7 @@ export class PromptService {
     // because instructions supposed to be on GPT api server
     // we don't want to include them in conversation - thread
     const memories: Memory[] = await this.memoryService.getLimitedFocusedMemoriesByAssistantIdNoInstructions(assistant.id);
-    const messages: GptThreadMessageArray = this.memoryTransformerService.getThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });
+    const messages: GptThreadMessageArray = this.memoryTransformerService.getGptThreadMessages(memories, { includeTypes: MEMORY_TYPES_PASSED_AS_MESSAGES });
 
     const userPrompt: GptThreadMessage = {
       role: 'user',

@@ -3,10 +3,11 @@ import { FocusedMemoryService } from '../../sqlite-services/focused-memory.servi
 import { ConversationMessage, PreviousConversationService } from './previous-conversation.service';
 import { FullAssistantService } from '../../sqlite-services/assistant-full.service';
 import { AssistantWithDetails } from '../../../models/assistant.model';
-import { AiApi, AiApiRequest, AiApiResponse, AiApiService } from '../../ai-api.service';
 import { Conversation, ConversationSaverService } from './conversation-saver.service';
 import { ChatLifecycleService } from '../chat-lifecycle.service';
 import { TaskService } from '../../sqlite-services/task.service';
+import { AiApiRequest, AiApiResponse } from '../../ai-api.model';
+import { AiApiService, AiApi } from '../../ai-api.service';
 
 export interface ConversationRequest {
   assistantId: string;
