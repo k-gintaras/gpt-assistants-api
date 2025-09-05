@@ -11,9 +11,9 @@ SELECT
   a.created_at AS assistant_created_at,
   a.updated_at AS assistant_updated_at,
   
-  -- Feedback summary (calculated directly)
-  COALESCE(AVG(f.rating), 0) AS avg_rating,
-  COALESCE(COUNT(f.id), 0) AS total_feedback,
+  -- Feedback summary (calculated via subquery to avoid GROUP BY issues)
+  COALESCE(feedback_agg.avg_rating, 0) AS avg_rating,
+  COALESCE(feedback_agg.total_feedback, 0) AS total_feedback,
 
   -- Assistant tags
   at.tag_id AS assistant_tag_id,
@@ -42,12 +42,24 @@ SELECT
 FROM 
   assistants a
 
--- Join feedback for aggregate calculation (using LEFT JOIN to include both task and assistant feedback)
-LEFT JOIN tasks t ON a.id = t.assigned_assistant
-LEFT JOIN feedback f ON (
-  t.id = f.target_id AND f.target_type = 'task'  -- For task feedback
-  OR a.id = f.target_id AND f.target_type = 'assistant' -- For assistant feedback
-)
+-- Feedback calculation as a subquery
+LEFT JOIN (
+  SELECT 
+    CASE 
+      WHEN f.target_type = 'assistant' THEN f.target_id
+      WHEN f.target_type = 'task' THEN t.assigned_assistant
+    END AS assistant_id,
+    AVG(f.rating) AS avg_rating,
+    COUNT(f.id) AS total_feedback
+  FROM feedback f
+  LEFT JOIN tasks t ON f.target_id = t.id AND f.target_type = 'task'
+  WHERE f.target_type IN ('assistant', 'task')
+  GROUP BY 
+    CASE 
+      WHEN f.target_type = 'assistant' THEN f.target_id
+      WHEN f.target_type = 'task' THEN t.assigned_assistant
+    END
+) feedback_agg ON a.id = feedback_agg.assistant_id
 
 -- Join assistant tags
 LEFT JOIN assistant_tags at ON a.id = at.assistant_id
@@ -64,12 +76,6 @@ LEFT JOIN tags t2 ON mt.tag_id = t2.id
 
 WHERE 
   a.id = $1  -- Updated to use PostgreSQL parameter placeholder
-
-GROUP BY 
-  a.id, a.model, at.tag_id, t1.name, qs.id, qs.max_results, qs.relationship_types, 
-  qs.priority_tags, qs.created_at, qs.updated_at, 
-  m.id, m.type, m.description, m.data, m.created_at, m.updated_at, 
-  mt.tag_id, t2.name
 
 ORDER BY 
   m.created_at DESC;

@@ -1,6 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} **/
 module.exports = {
-  setupFilesAfterEnv: ['./src/tests/setupTestDB.ts'],
+  // For local/basic integration tests (no DB)
+  roots: ['<rootDir>/src/tests/unit'],
 
   testEnvironment: 'node',
   transform: {

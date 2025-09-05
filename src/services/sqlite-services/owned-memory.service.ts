@@ -8,7 +8,7 @@ export class OwnedMemoryService {
   async getMemoriesByAssistantId(assistantId: string): Promise<MemoryWithTags[]> {
     const rows = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at, t.id AS tag_id, t.name AS tag_name
       FROM owned_memories om
       JOIN memories m ON om.memory_id = m.id
       LEFT JOIN memory_tags mt ON m.id = mt.memory_id
@@ -24,7 +24,7 @@ export class OwnedMemoryService {
   async getOwnedMemories(assistantId: string): Promise<MemoryWithTags[]> {
     const rows = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at, t.id AS tag_id, t.name AS tag_name
       FROM owned_memories om
       JOIN memories m ON om.memory_id = m.id
       LEFT JOIN memory_tags mt ON m.id = mt.memory_id
@@ -39,16 +39,24 @@ export class OwnedMemoryService {
 
   async addOwnedMemory(assistantId: string, memoryId: string): Promise<boolean> {
     try {
-      const result = await this.pool.query(
-        `
-      INSERT INTO owned_memories (assistant_id, memory_id)
-      VALUES ($1, $2)
-      ON CONFLICT (assistant_id, memory_id) DO NOTHING
-      `,
+      // First check if the record already exists
+      const existingResult = await this.pool.query(
+        `SELECT 1 FROM owned_memories WHERE assistant_id = $1 AND memory_id = $2`,
         [assistantId, memoryId]
       );
-      if (!result.rowCount) return false;
-      return result.rowCount > 0;
+      
+      // If record already exists, return false
+      if (existingResult.rows.length > 0) {
+        return false;
+      }
+      
+      // If record doesn't exist, insert it
+      const result = await this.pool.query(
+        `INSERT INTO owned_memories (assistant_id, memory_id) VALUES ($1, $2)`,
+        [assistantId, memoryId]
+      );
+      
+      return (result.rowCount ?? 0) > 0;
     } catch {
       return false;
     }

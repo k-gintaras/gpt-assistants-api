@@ -51,19 +51,43 @@ describe('ConversationService Integration Tests', () => {
   });
 
   beforeEach(async () => {
-    await db.query('BEGIN'); // Start transaction for each test
+    // Ensure a clean database state before each test by deleting commonly used tables.
+    // Using explicit deletes is safer here because Pool.query runs each statement on a
+    // different client and BEGIN/ROLLBACK won't reliably wrap subsequent queries.
+    await db.query('DELETE FROM chat_messages');
+    await db.query('DELETE FROM chats');
+    await db.query('DELETE FROM sessions');
+    await db.query('DELETE FROM memories');
+    await db.query('DELETE FROM tasks');
+    await db.query('DELETE FROM memory_tags');
+    await db.query('DELETE FROM task_tags');
+    await db.query('DELETE FROM tags');
+    await db.query('DELETE FROM assistant_tags');
+    await db.query('DELETE FROM focused_memories');
+    await db.query('DELETE FROM owned_memories');
+    await db.query('DELETE FROM memory_focus_rules');
+    await db.query('DELETE FROM relationship_graph');
+    await db.query('DELETE FROM assistants');
+
     conversationService = new ConversationService(db);
   });
 
   afterEach(async () => {
-    // Clean up test data
+    // Additional safety cleanup after each test
     await db.query('DELETE FROM chat_messages');
-    await db.query('DELETE FROM memories');
     await db.query('DELETE FROM chats');
     await db.query('DELETE FROM sessions');
+    await db.query('DELETE FROM memories');
     await db.query('DELETE FROM tasks');
-
-    await db.query('ROLLBACK'); // Rollback changes after each test
+    await db.query('DELETE FROM memory_tags');
+    await db.query('DELETE FROM task_tags');
+    await db.query('DELETE FROM tags');
+    await db.query('DELETE FROM assistant_tags');
+    await db.query('DELETE FROM focused_memories');
+    await db.query('DELETE FROM owned_memories');
+    await db.query('DELETE FROM memory_focus_rules');
+    await db.query('DELETE FROM relationship_graph');
+    await db.query('DELETE FROM assistants');
   });
 
   // Helper to create a test assistant in the database

@@ -1,0 +1,55 @@
+
+> gpt-assistants-api@0.2.0 test:core
+> jest src/tests/unit/gpt-tests && jest src/tests/unit/orchestrator-tests && jest src/tests/unit/other-tests && jest src/tests/unit/server-tests && jest src/tests/unit/service-tests && jest src/tests/unit/transformer-tests
+
+PASS src/tests/unit/gpt-tests/gpt-assistant.test.ts (6.515 s)
+  Assistant API Tests
+    √ should create an assistant (8 ms)
+    √ should retrieve an assistant by ID (1 ms)
+    √ should update an assistant (2 ms)
+    √ should delete an assistant (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        6.827 s
+Ran all test suites matching /src\\tests\\unit\\gpt-tests/i.
+PASS src/tests/unit/orchestrator-tests/remember.service.test.ts (22.978 s)
+PASS src/tests/unit/orchestrator-tests/task-delegation.service.test.ts (23.499 s)
+PASS src/tests/unit/orchestrator-tests/knowledge.service.test.ts
+PASS src/tests/unit/orchestrator-tests/orchestrator.service.test.ts (24.336 s)
+PASS src/tests/unit/orchestrator-tests/entity-connection.service.test.ts
+PASS src/tests/unit/orchestrator-tests/assistant-connection.service.test.ts
+
+Test Suites: 6 passed, 6 total
+Tests:       22 passed, 22 total
+Snapshots:   0 total
+Time:        26.559 s, estimated 28 s
+Ran all test suites matching /src\\tests\\unit\\orchestrator-tests/i.
+PASS src/tests/unit/other-tests/gpt-api-model.helper.test.ts (5.973 s)
+  Token Utility Functions
+    √ should correctly estimate tokens from text (4 ms)
+    √ should evaluate a feasible prompt correctly (2 ms)
+    √ should evaluate a non-feasible prompt correctly (1 ms)
+    √ should return suitable models for a given input-output requirement (2 ms)
+    √ should handle edge cases for token estimation (1 ms)
+  Model Definitions
+    √ should include all defined models (2 ms)
+    √ should validate model properties (3 ms)
+  Word and Token Estimation
+    √ should estimate tokens from word count accurately (1 ms)
+    √ should estimate token usage for response sizes (1 ms)
+    √ should integrate with evaluatePrompt for larger scenarios (1 ms)
+    √ should handle edge cases for minimal input and response sizes (2 ms)
+  Estimate Tokens from Prompt
+    √ should estimate tokens for a short sentence prompt with a sentence response (3 ms)
+    √ should estimate tokens for a paragraph prompt with a multi-page response (1 ms)
+    √ should handle edge cases for empty prompt (1 ms)
+    √ should handle edge cases for single-word prompt (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       15 passed, 15 total
+Snapshots:   0 total
+Time:        6.358 s
+Ran all test suites matching /src\\tests\\unit\\other-tests/i.
+^C

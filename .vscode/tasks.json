@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run wait-test.sh",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/wait-test.sh",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "C:\\Users\\emnom\\AppData\\Local\\Programs\\Git\\bin\\bash.exe",
+          "args": ["-lc"]
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run terminal-check.sh",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/terminal-check.sh",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "C:\\Users\\emnom\\AppData\\Local\\Programs\\Git\\bin\\bash.exe",
+          "args": ["-lc"]
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

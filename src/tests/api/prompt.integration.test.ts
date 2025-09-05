@@ -29,14 +29,14 @@ afterEach(async () => {
 
 describe('PromptService Integration Tests', () => {
   test('prompt - should handle chat-type assistant', async () => {
-    await insertHelpers.insertAssistant(db, pId + '2');
+    await insertHelpers.insertAssistant(db, pId + '2', 'chat');
     const result = await promptService.prompt(pId + '2', 'Hello Chat Assistant!');
     expect(result).not.toBeNull();
     expect(typeof result).toBe('string');
   });
 
   test('prompt - should handle thread-type assistant', async () => {
-    await insertHelpers.insertAssistant(db, testAssistantId, false);
+    await insertHelpers.insertAssistant(db, testAssistantId, 'assistant', testAssistantId);
     const result = await promptService.prompt(testAssistantId, 'Hello Thread Assistant!');
     expect(result).not.toBeNull();
     expect(typeof result).toBe('string');
@@ -49,14 +49,14 @@ describe('PromptService Integration Tests', () => {
 
   test('handleChatPrompt - should use focused memories and extra instruction', async () => {
     const aId = pId + '4';
-    await insertHelpers.insertAssistant(db, aId, false);
+    await insertHelpers.insertAssistant(db, aId, 'assistant', aId);
     const result = await promptService.prompt(aId, 'User input', 'Extra system instruction');
     expect(result).not.toBeNull();
     expect(typeof result).toBe('string');
   });
 
   test('handleAssistantPrompt - should query assistant with focused memories', async () => {
-    await insertHelpers.insertAssistant(db, testAssistantId, true);
+    await insertHelpers.insertAssistant(db, testAssistantId, 'assistant', testAssistantId);
     await insertHelpers.insertMemory(db, pId + '1', 'weather is good'); // Inserts memory records with IDs 1, 2
     await insertHelpers.insertMemoryFocusRule(db, pId + '2', testAssistantId); // Inserts focus rule for assistant 2
     await insertHelpers.insertFocusedMemory(db, pId + '2', pId + '1'); // Associates memory 1 with focus rule 1
@@ -66,14 +66,14 @@ describe('PromptService Integration Tests', () => {
   });
 
   test('handleAssistantPrompt - should include extra instruction if provided', async () => {
-    await insertHelpers.insertAssistant(db, testAssistantId, true);
+    await insertHelpers.insertAssistant(db, testAssistantId, 'assistant', testAssistantId);
     const result = await promptService.prompt(testAssistantId, 'Thread input', 'Thread-specific instruction');
     expect(result).not.toBeNull();
     expect(typeof result).toBe('string');
   });
 
   test('prompt - should return something even if no focused memories are available', async () => {
-    await insertHelpers.insertAssistant(db, testAssistantId, true);
+    await insertHelpers.insertAssistant(db, testAssistantId, 'assistant', testAssistantId);
     const result = await promptService.prompt(testAssistantId, 'Should return something even if no focused memories');
     expect(result).not.toBeNull();
   });

@@ -24,20 +24,20 @@ export class AssistantMemoryService {
       const query = `
         WITH
           focused AS (
-            SELECT m.*
+            SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at
             FROM focused_memories fm
             JOIN memories m ON fm.memory_id = m.id
             JOIN memory_focus_rules fr ON fm.memory_focus_id = fr.id
             WHERE fr.assistant_id = $1
           ),
           owned AS (
-            SELECT m.*
+            SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at
             FROM owned_memories om
             JOIN memories m ON om.memory_id = m.id
             WHERE om.assistant_id = $1
           ),
           related AS (
-            SELECT m.*
+            SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at
             FROM memories m
             JOIN memory_tags mt ON m.id = mt.memory_id
             JOIN tags t ON mt.tag_id = t.id

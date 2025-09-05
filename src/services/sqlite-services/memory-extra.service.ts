@@ -55,7 +55,7 @@ export class MemoryExtraService extends MemoryService {
   async getAllMemoriesWithTags(): Promise<MemoryWithTags[]> {
     const result = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at, t.id AS tag_id, t.name AS tag_name
       FROM memories m
       LEFT JOIN memory_tags mt ON m.id = mt.memory_id
       LEFT JOIN tags t ON mt.tag_id = t.id`
@@ -83,7 +83,7 @@ export class MemoryExtraService extends MemoryService {
     const placeholders = tags.map((_, index) => `$${index + 1}`).join(', '); // Start from $1 for parameter placeholders
     const result = await this.pool.query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
       `
-      SELECT m.*, t.id AS tag_id, t.name AS tag_name
+      SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at, t.id AS tag_id, t.name AS tag_name
       FROM memories m
       LEFT JOIN memory_tags mt ON m.id = mt.memory_id
       LEFT JOIN tags t ON mt.tag_id = t.id

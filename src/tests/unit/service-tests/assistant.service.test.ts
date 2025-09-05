@@ -50,10 +50,10 @@ describe('Assistant Service Tests', () => {
       INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
     `,
-      [aId + '1', 'Test Assistant 1', 'A description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString()]
+      [aId + 'FetchAll', 'Test Assistant 1', 'A description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString()]
     );
 
-    const assistants = (await assistantService.getAllAssistants()).filter((a) => a.id === aId + '1');
+    const assistants = (await assistantService.getAllAssistants()).filter((a) => a.id === aId + 'FetchAll');
     expect(assistants).toHaveLength(1);
     expect(assistants[0].name).toBe('Test Assistant 1');
     expect(assistants[0].model).toBe('gpt-3.5-turbo');
@@ -76,7 +76,7 @@ describe('Assistant Service Tests', () => {
   });
 
   test('Should update an existing assistant', async () => {
-    const id = aId + '1';
+    const id = aId + 'Update';
     await db.query(
       `
       INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)

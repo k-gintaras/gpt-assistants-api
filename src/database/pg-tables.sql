@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS owned_memories (
 CREATE TABLE IF NOT EXISTS tasks (
   id TEXT PRIMARY KEY,
   description TEXT NOT NULL,
-  assigned_assistant TEXT NOT NULL REFERENCES assistants(id) ON DELETE SET NULL, -- Assigned assistant
+  assigned_assistant TEXT REFERENCES assistants(id) ON DELETE SET NULL, -- Assigned assistant (nullable to allow SET NULL on delete)
   status TEXT CHECK(status IN ('pending', 'in_progress', 'completed', 'failed')) NOT NULL,
   input_data JSONB, -- Serialized JSON for task input (use JSONB)
   output_data JSONB, -- Serialized JSON for task output (use JSONB)

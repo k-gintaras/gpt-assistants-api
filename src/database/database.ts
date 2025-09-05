@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { newDb } from 'pg-mem';
 
 dotenv.config();
 
@@ -22,11 +23,17 @@ export class DbHelper {
       password: process.env.DB_PASSWORD || 'password',
       port: parseInt(process.env.DB_PORT || '5432', 10),
     };
-    this.dbPool = new Pool(options);
 
-    const sqlDir = process.env.NODE_ENV === 'test' ? './' : '../database';
-    if (process.env.NODE_ENV !== 'test') this.feedback('!!! Beware we are running docker sql directory, so tables might not reset: ' + sqlDir);
-    this.sqlDirectory = path.resolve(__dirname, sqlDir);
+    if (process.env.NODE_ENV === 'test') {
+      const db = newDb();
+      this.dbPool = new (db.adapters.createPg().Pool)(options);
+      this.sqlDirectory = path.resolve(__dirname, '.');
+    } else {
+      this.dbPool = new Pool(options);
+      this.sqlDirectory = path.resolve(__dirname, '../database');
+    }
+
+    if (process.env.NODE_ENV !== 'test') this.feedback('!!! Beware we are running docker sql directory, so tables might not reset: ' + this.sqlDirectory);
   }
 
   setFeedbackEnabled(feedbackEnabled: boolean) {

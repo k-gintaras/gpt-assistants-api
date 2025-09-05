@@ -12,7 +12,21 @@ describe('PreviousConversationService', () => {
   });
 
   beforeEach(async () => {
-    await db.query('BEGIN');
+    // Ensure clean DB state and insert a fresh assistant record for each test.
+    await db.query('DELETE FROM chat_messages');
+    await db.query('DELETE FROM chats');
+    await db.query('DELETE FROM sessions');
+    await db.query('DELETE FROM memories');
+    await db.query('DELETE FROM tasks');
+    await db.query('DELETE FROM memory_tags');
+    await db.query('DELETE FROM task_tags');
+    await db.query('DELETE FROM tags');
+    await db.query('DELETE FROM assistant_tags');
+    await db.query('DELETE FROM focused_memories');
+    await db.query('DELETE FROM owned_memories');
+    await db.query('DELETE FROM memory_focus_rules');
+    await db.query('DELETE FROM relationship_graph');
+    await db.query('DELETE FROM assistants');
 
     await db.query(`
       INSERT INTO assistants (id, name, description, type, model)
@@ -23,7 +37,21 @@ describe('PreviousConversationService', () => {
   });
 
   afterEach(async () => {
-    await db.query('ROLLBACK');
+    // cleanup after each test to keep state isolated
+    await db.query('DELETE FROM chat_messages');
+    await db.query('DELETE FROM chats');
+    await db.query('DELETE FROM sessions');
+    await db.query('DELETE FROM memories');
+    await db.query('DELETE FROM tasks');
+    await db.query('DELETE FROM memory_tags');
+    await db.query('DELETE FROM task_tags');
+    await db.query('DELETE FROM tags');
+    await db.query('DELETE FROM assistant_tags');
+    await db.query('DELETE FROM focused_memories');
+    await db.query('DELETE FROM owned_memories');
+    await db.query('DELETE FROM memory_focus_rules');
+    await db.query('DELETE FROM relationship_graph');
+    await db.query('DELETE FROM assistants');
   });
 
   afterAll(async () => {

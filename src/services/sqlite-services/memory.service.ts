@@ -41,7 +41,16 @@ export class MemoryService {
       WHERE id = $7
     `;
 
-    const result = await this.pool.query(stmt, [updates.name || null, updates.summary || null, updates.type || null, updates.description || null, updates.data || null, new Date().toISOString(), id]);
+    // Only include non-null values in the update. If a field is null, we skip updating it by using undefined.
+    const result = await this.pool.query(stmt, [
+      updates.name !== null ? updates.name : undefined,
+      updates.summary !== null ? updates.summary : undefined,
+      updates.type !== null ? updates.type : undefined,
+      updates.description !== null ? updates.description : undefined,
+      updates.data !== null ? updates.data : undefined,
+      new Date().toISOString(),
+      id
+    ]);
 
     return (result.rowCount ?? 0) > 0; // ✅ Safe check for null
   }

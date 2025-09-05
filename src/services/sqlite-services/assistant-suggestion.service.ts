@@ -8,52 +8,61 @@ export class AssistantSuggestionService {
   async suggestAssistants(task: TaskRequest, tags?: string[]): Promise<AssistantSuggestion[]> {
     const taskDescription = `%${task.description}%`;
     const tagList = tags && tags.length ? tags : [];
-    // Define two sets of placeholders for separate tag conditions.
-    const tagPlaceholders1 = tagList.map((_, i) => `$${i + 2}`).join(', ');
-    const tagPlaceholders2 = tagList.map((_, i) => `$${i + 2 + tagList.length}`).join(', ');
-
-    const query = `
-WITH relevant_memories AS (
-  SELECT DISTINCT m.id
-  FROM memories m
-  LEFT JOIN memory_tags mt ON m.id = mt.memory_id
-  LEFT JOIN tags t ON mt.tag_id = t.id
-  WHERE m.description ILIKE $1 ${tagList.length ? `OR t.name IN (${tagPlaceholders1})` : ''}
-),
-assistant_ranking AS (
-  SELECT a.id AS assistant_id,
-         COUNT(DISTINCT om.memory_id) AS memory_match_count
-  FROM assistants a
-  LEFT JOIN owned_memories om ON a.id = om.assistant_id
-  LEFT JOIN relevant_memories rm ON om.memory_id = rm.id
-  ${
-    tagList.length
-      ? `LEFT JOIN assistant_tags at ON a.id = at.assistant_id
-  LEFT JOIN tags t2 ON at.tag_id = t2.id`
-      : ''
-  }
-  WHERE rm.id IS NOT NULL ${tagList.length ? `OR t2.name IN (${tagPlaceholders2})` : ''}
-  GROUP BY a.id
-),
-final_ranking AS (
-  SELECT ar.assistant_id,
-         ar.memory_match_count,
-         COALESCE(AVG(f.rating), 0) AS avg_feedback
-  FROM assistant_ranking ar
-  LEFT JOIN feedback f ON f.target_id = ar.assistant_id AND f.target_type = 'assistant'
-  GROUP BY ar.assistant_id, ar.memory_match_count
-)
-SELECT assistant_id,
-       (memory_match_count + avg_feedback) AS score
-FROM final_ranking
-ORDER BY score DESC
-LIMIT 5;
-`;
-
-    const params = [taskDescription, ...tagList, ...tagList];
+    
     const client = await this.pool.connect();
     try {
+      // Start with a working base query and build it dynamically
+      let query = `
+        SELECT DISTINCT a.id AS assistant_id,
+               (
+                 COALESCE(memory_score.score, 0) + 
+                 COALESCE(tag_score.score, 0) + 
+                 COALESCE(feedback_score.score, 0)
+               ) AS score
+        FROM assistants a
+        LEFT JOIN (
+          SELECT om.assistant_id, COUNT(DISTINCT m.id) * 2 AS score
+          FROM owned_memories om
+          JOIN memories m ON om.memory_id = m.id
+          WHERE LOWER(m.description) LIKE LOWER($1)
+          GROUP BY om.assistant_id
+        ) memory_score ON a.id = memory_score.assistant_id
+        LEFT JOIN (
+          SELECT at.assistant_id, COUNT(DISTINCT t.id) AS score
+          FROM assistant_tags at
+          JOIN tags t ON at.tag_id = t.id
+          WHERE LOWER(t.name) LIKE LOWER($1)
+          GROUP BY at.assistant_id
+        ) tag_score ON a.id = tag_score.assistant_id
+        LEFT JOIN (
+          SELECT target_id AS assistant_id, AVG(rating) AS score
+          FROM feedback
+          WHERE target_type = 'assistant'
+          GROUP BY target_id
+        ) feedback_score ON a.id = feedback_score.assistant_id
+        WHERE (memory_score.score > 0 OR tag_score.score > 0)`;
+
+      const params = [taskDescription];
+      
+      // Add tag filtering if tags are provided
+      if (tagList.length > 0) {
+        const tagPlaceholders = tagList.map((_, i) => `$${i + 2}`).join(', ');
+        query += ` OR a.id IN (
+          SELECT DISTINCT at.assistant_id 
+          FROM assistant_tags at 
+          JOIN tags t ON at.tag_id = t.id 
+          WHERE LOWER(t.name) IN (${tagPlaceholders})
+        )`;
+        params.push(...tagList.map(tag => tag.toLowerCase()));
+      }
+      
+      query += `
+        ORDER BY score DESC
+        LIMIT 5;
+      `;
+
       const { rows } = await client.query<{ assistant_id: string; score: number }>(query, params);
+      
       return rows.map((row) => ({
         assistantId: row.assistant_id,
         score: Number(row.score),

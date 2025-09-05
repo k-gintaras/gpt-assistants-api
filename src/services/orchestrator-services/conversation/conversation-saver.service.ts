@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { generateUniqueId } from '../../sqlite-services/unique-id.service';
+import { SessionsService } from '../../sqlite-services/sessions.service';
 
 export interface Conversation {
   assistantId: string;
@@ -12,7 +13,11 @@ export interface Conversation {
 }
 
 export class ConversationSaverService {
-  constructor(private pool: Pool) {}
+  private sessionsService: SessionsService;
+
+  constructor(private pool: Pool) {
+    this.sessionsService = new SessionsService(pool);
+  }
 
   public async saveConversation(conversation: Conversation): Promise<{ sessionId: string; chatId: string }> {
     // Step 1: Resolve the session ID
@@ -60,13 +65,8 @@ export class ConversationSaverService {
   }
 
   private async createSession(assistantId: string, userId: string | null): Promise<string> {
-    const sessionId = generateUniqueId();
-    await this.pool.query(
-      `INSERT INTO sessions (id, assistant_id, user_id, name, started_at, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [sessionId, assistantId, userId, `Session ${new Date().toISOString()}`, new Date().toISOString(), new Date().toISOString()]
-    );
-    return sessionId;
+    const session = await this.sessionsService.createSession(assistantId, userId, `Session ${new Date().toISOString()}`);
+    return session.id;
   }
 
   private async createChat(sessionId: string, chatId?: string): Promise<string> {

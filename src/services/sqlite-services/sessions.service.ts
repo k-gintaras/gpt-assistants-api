@@ -12,7 +12,7 @@ export class SessionsService {
   }
 
   // Create a new session
-  async createSession(assistantId: string, userId: string, name: string): Promise<Session> {
+  async createSession(assistantId: string, userId: string | null, name?: string): Promise<Session> {
     const sessionId = generateUniqueId();
     const createdAt = new Date().toISOString();
     const startedAt = createdAt;
@@ -23,7 +23,7 @@ export class SessionsService {
       RETURNING *;
     `;
 
-    const result = await this.pool.query(stmt, [sessionId, assistantId, userId, name, startedAt, createdAt]);
+    const result = await this.pool.query(stmt, [sessionId, assistantId, userId, name || null, startedAt, createdAt]);
 
     return result.rows[0]; // Returning the created Session object
   }
@@ -41,15 +41,34 @@ export class SessionsService {
 
   // Update session (e.g., set ended_at)
   async updateSession(sessionId: string, updates: Partial<Session>): Promise<Session | null> {
-    const { ended_at } = updates;
+    const fields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (updates.ended_at !== undefined) {
+      fields.push(`ended_at = $${paramIndex++}`);
+      values.push(updates.ended_at);
+    }
+    if (updates.name !== undefined) {
+      fields.push(`name = $${paramIndex++}`);
+      values.push(updates.name);
+    }
+    // Add other fields if needed
+
+    if (fields.length === 0) {
+      // No updates
+      return await this.getSessionById(sessionId);
+    }
+
     const stmt = `
       UPDATE sessions
-      SET ended_at = COALESCE($1, ended_at)
-      WHERE id = $2
+      SET ${fields.join(', ')}
+      WHERE id = $${paramIndex}
       RETURNING *;
     `;
+    values.push(sessionId);
 
-    const result = await this.pool.query(stmt, [ended_at || null, sessionId]);
+    const result = await this.pool.query(stmt, values);
 
     if (result.rowCount === 0) {
       return null; // Return null if no session was updated

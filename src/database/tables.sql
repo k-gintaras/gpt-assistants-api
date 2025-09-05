@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS focused_memories (
 CREATE TABLE IF NOT EXISTS tasks (
   id TEXT PRIMARY KEY,
   description TEXT NOT NULL,
-  assignedAssistant TEXT NOT NULL REFERENCES assistants(id) ON DELETE SET NULL, -- Assigned assistant
+  assignedAssistant TEXT REFERENCES assistants(id) ON DELETE SET NULL, -- Assigned assistant (nullable to allow SET NULL on delete)
   status TEXT CHECK(status IN ('pending', 'in_progress', 'completed', 'failed')) NOT NULL,
   inputData TEXT, -- Serialized JSON for task input
   outputData TEXT, -- Serialized JSON for task output

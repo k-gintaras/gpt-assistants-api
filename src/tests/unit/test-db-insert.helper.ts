@@ -68,7 +68,7 @@ export const insertHelpers = {
     );
   },
 
-  async insertAssistant(client: any, assistantId: string = '1') {
+  async insertAssistant(client: any, assistantId: string = '1', type: 'chat' | 'assistant' = 'chat', gptAssistantId: string | null = null) {
     await client.query(
       `
         INSERT INTO assistants (id, name, description, type, model, created_at, updated_at, gpt_assistant_id)
@@ -80,11 +80,11 @@ export const insertHelpers = {
         assistantId,
         `Test Assistant ${assistantId}`,
         `Description for Assistant ${assistantId}`,
-        'chat',
+        type,
         'gpt-3.5-turbo',
         new Date().toISOString(),
         new Date().toISOString(),
-        'test_gpt_assistant_id', // Add a fake GPT assistant ID for testing
+        gptAssistantId || (type === 'assistant' ? 'test_gpt_assistant_id' : null),
       ]
     );
   },

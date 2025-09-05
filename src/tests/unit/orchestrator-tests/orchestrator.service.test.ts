@@ -75,11 +75,7 @@ describe('OrchestratorService Integration Tests', () => {
     expect(mapping.memory_id).toBe(mm.id);
     expect(mapping.tag_id).toBe(tag.id);
 
-    // Clean up: Ensure that the memory is removed from the tables if no longer needed
-    // (Optional, for cleaning up the test data in between tests)
-    await db.query('DELETE FROM memory_tags WHERE memory_id = $1', [mm.id]);
-    await db.query('DELETE FROM owned_memories WHERE memory_id = $1', [mm.id]);
-    await db.query('DELETE FROM memories WHERE id = $1', [mm.id]);
+    // Clean up is handled by ROLLBACK in afterEach
   });
 
   test('delegateTask: creates task without tags', async () => {
@@ -105,7 +101,7 @@ describe('OrchestratorService Integration Tests', () => {
   });
 
   test('delegateTask: creates task with tags', async () => {
-    const assistantId = oId + 'assistant1';
+    const assistantId = oId + 'assistant3';
     await db.query(
       `INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
        VALUES ($1, 'Test Assistant', 'desc', 'assistant', 'modelX', $2, $3)`,
@@ -180,7 +176,7 @@ describe('OrchestratorService Integration Tests', () => {
   });
 
   test('suggestAssistants: returns suggestions based on task', async () => {
-    const aId = oId + 'assistant3';
+    const aId = oId + 'assistant4';
     await db.query(
       `INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
        VALUES ($1, 'Assistant One', 'Expert in Node.js', 'assistant', 'model1', $2, $3)`,
@@ -205,7 +201,7 @@ describe('OrchestratorService Integration Tests', () => {
   });
 
   test('evaluatePerformance: returns evaluation metrics', async () => {
-    const aId = oId + 'assistant4';
+  const aId = oId + 'assistant5';
     const data1 = JSON.stringify({});
     const data2 = JSON.stringify({});
 

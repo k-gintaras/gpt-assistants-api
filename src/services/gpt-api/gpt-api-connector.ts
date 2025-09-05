@@ -31,7 +31,7 @@ export function initOpenAI(apiKey: string, project: string): void {
 export function getOpenAI(): OpenAI {
   if (!openaiInstance) {
     const apiKey = process.env.OPENAI_API_KEY;
-    const projectKey = process.env.OPENAI_PROJECT_ID;
+    const projectKey = process.env.OPENAI_PROJECT_KEY;
 
     if (!apiKey || !projectKey) {
       throw new Error('Environment variables OPENAI_API_KEY and OPENAI_PROJECT_KEY are required.');

@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { Assistant, AssistantRow } from '../../models/assistant.model';
+import { logger } from '../logger';
 import { generateUniqueId } from './unique-id.service';
 
 export class AssistantService {
@@ -35,6 +36,8 @@ export class AssistantService {
 
   async updateAssistant(id: string, updates: Partial<Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
     const existingAssistant = await this.getAssistantById(id);
+  // DEBUG: log that updateAssistant was invoked and whether existing assistant exists
+  logger.debug('AssistantService.updateAssistant: id=%s existing=%s', id, existingAssistant ? 'yes' : 'no');
     if (!existingAssistant) {
       throw new Error(`Assistant with ID ${id} not found.`);
     }

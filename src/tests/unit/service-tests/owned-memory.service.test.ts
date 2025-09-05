@@ -17,6 +17,11 @@ beforeEach(async () => {
   // await db.query('TRUNCATE TABLE assistants, memories, owned_memories, focused_memories, memory_focus_rules RESTART IDENTITY CASCADE');
 
   await db.query('BEGIN'); // Begin transaction before each test
+  // Clean up any existing data to ensure test isolation
+  await db.query('DELETE FROM owned_memories');
+  await db.query('DELETE FROM memories');
+  await db.query('DELETE FROM assistants');
+  
   await insertHelpers.insertAssistant(db, '1');
   await insertHelpers.insertMemory(db, '1', 'Memory 1');
   await insertHelpers.insertMemory(db, '2', 'Memory 2');

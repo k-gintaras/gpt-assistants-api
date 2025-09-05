@@ -23,8 +23,11 @@ describe('Database Initialization Tests', () => {
   it('should initialize the database and create tables', async () => {
     const client = await getDb.getInstance().connect();
     try {
-      const result = await client.query("SELECT to_regclass('public.assistants') AS exists;");
-      expect(result.rows[0].exists).not.toBeNull(); // Check if the assistants table exists
+      // Instead of using to_regclass (not supported by pg-mem), 
+      // check if table exists by trying to select from it
+      const result = await client.query("SELECT COUNT(*) FROM assistants;");
+      expect(result.rows).toBeDefined(); // If we can query the table, it exists
+      expect(result.rows[0].count).toBeDefined(); // Count should be defined (even if 0)
     } finally {
       client.release(); // Release the client back to the pool
     }

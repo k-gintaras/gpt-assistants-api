@@ -1,0 +1,17 @@
+{
+  // Set Git Bash as the default integrated terminal on Windows.
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "terminal.integrated.profiles.windows": {
+    "Git Bash": {
+      "source": "Git Bash",
+      "path": "C:\\Users\\emnom\\AppData\\Local\\Programs\\Git\\bin\\bash.exe",
+      "args": ["--login", "-i"]
+    }
+  },
+  // Fallback for older VS Code versions
+  "terminal.integrated.shell.windows": "C:\\Users\\emnom\\AppData\\Local\\Programs\\Git\\bin\\bash.exe",
+  // Confirm before closing terminals with running processes. Valid values: "never", "always", "hasChildProcesses"
+  "terminal.integrated.confirmOnExit": "hasChildProcesses",
+  // Start terminals in workspace folder by default
+  "terminal.integrated.cwd": "${workspaceFolder}"
+}

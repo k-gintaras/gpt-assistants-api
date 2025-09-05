@@ -6,6 +6,7 @@ import { Tag, TagRow } from '../../models/tag.model';
 import { GET_FULL_ASSISTANT_WITH_DETAILS } from '../../queries/assistant.queries';
 import { FullAssistantRows, transformFullAssistantResult } from '../../transformers/assistant-full.transformer';
 import { transformAssistantWithDetails } from '../../transformers/assistant.transformer';
+import { logger } from '../logger';
 
 export class FullAssistantService {
   constructor(private pool: Pool) {}
@@ -30,7 +31,7 @@ export class FullAssistantService {
       const memoryRows = memoryFocusRuleRow
         ? await client
             .query<MemoryRow & { tag_id: string | null; tag_name: string | null }>(
-              `SELECT m.*, t.id AS tag_id, t.name AS tag_name FROM focused_memories fm JOIN memories m ON fm.memory_id = m.id LEFT JOIN memory_tags mt ON m.id = mt.memory_id LEFT JOIN tags t ON mt.tag_id = t.id WHERE fm.memory_focus_id = $1`,
+              `SELECT m.id, m.name, m.summary, m.type, m.description, m.data, m.created_at, m.updated_at, t.id AS tag_id, t.name AS tag_name FROM focused_memories fm JOIN memories m ON fm.memory_id = m.id LEFT JOIN memory_tags mt ON m.id = mt.memory_id LEFT JOIN tags t ON mt.tag_id = t.id WHERE fm.memory_focus_id = $1`,
               [memoryFocusRuleRow.id]
             )
             .then((res) => res.rows)
@@ -71,7 +72,9 @@ export class FullAssistantService {
   async getFullAssistantWithDetailsEfficient(id: string): Promise<AssistantWithDetails | null> {
     const client = await this.pool.connect();
     try {
-      const rows: FullAssistantRows[] = await client.query(GET_FULL_ASSISTANT_WITH_DETAILS, [id]).then((res) => res.rows);
+  const rows: FullAssistantRows[] = await client.query(GET_FULL_ASSISTANT_WITH_DETAILS, [id]).then((res) => res.rows);
+  // DEBUG: inspect returned rows for mapping issues
+  logger.debug('FullAssistantService: raw rows assistant_id/memory_id map -> %o', rows.map((r) => ({ assistant_id: r.assistant_id, memory_id: r.memory_id })));
       if (rows.length === 0) return null;
       return transformFullAssistantResult(rows);
     } catch {

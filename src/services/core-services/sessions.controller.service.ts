@@ -10,7 +10,7 @@ export class SessionsControllerService {
   }
 
   // Create a new session
-  async createSession(assistantId: string, userId: string, name: string): Promise<Session> {
+  async createSession(assistantId: string, userId: string | null, name?: string): Promise<Session> {
     return await this.sessionService.createSession(assistantId, userId, name);
   }
 

@@ -51,30 +51,30 @@ describe('MemoryService Tests', () => {
   });
 
   test('removeMemory - should remove an existing memory', async () => {
-    await insertHelpers.insertMemory(db, 'test-id', 'To remove');
-    await memoryService.removeMemory('test-id');
+    await insertHelpers.insertMemory(db, 'test-id-remove', 'To remove');
+    await memoryService.removeMemory('test-id-remove');
 
-    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id']);
+    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id-remove']);
     expect(rows).toHaveLength(0);
   });
 
   test('updateMemory - should update an existing memory', async () => {
-    await insertHelpers.insertMemory(db, 'test-id', 'Original description');
+    await insertHelpers.insertMemory(db, 'test-id-update', 'Original description');
     const updates = { description: 'Updated description', data: JSON.stringify({ key: 'updated' }) };
 
-    await memoryService.updateMemory('test-id', updates);
-    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id']);
+    await memoryService.updateMemory('test-id-update', updates);
+    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id-update']);
 
     expect(rows[0].description).toBe('Updated description');
     expect(rows[0].data).toEqual({ key: 'updated' });
   });
 
   test('updateMemory - should handle partial updates gracefully', async () => {
-    await insertHelpers.insertMemory(db, 'test-id', 'Original description');
+    await insertHelpers.insertMemory(db, 'test-id-partial', 'Original description');
     const updates = { description: null, data: JSON.stringify({ key: 'original' }) };
 
-    await memoryService.updateMemory('test-id', updates);
-    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id']);
+    await memoryService.updateMemory('test-id-partial', updates);
+    const { rows } = await db.query('SELECT * FROM memories WHERE id = $1', ['test-id-partial']);
 
     expect(rows[0].description).toBe('Original description'); // Should remain unchanged
     expect(rows[0].data).toEqual({ key: 'original' });
@@ -90,10 +90,10 @@ describe('MemoryService Tests', () => {
   });
 
   test('getMemoryById - should fetch a memory by ID', async () => {
-    await insertHelpers.insertMemory(db, 'test-id', 'Test description');
-    await db.query(`UPDATE memories SET data = $1 WHERE id = $2`, [JSON.stringify({ key: 'value' }), 'test-id']);
+    await insertHelpers.insertMemory(db, 'test-id-fetch', 'Test description');
+    await db.query(`UPDATE memories SET data = $1 WHERE id = $2`, [JSON.stringify({ key: 'value' }), 'test-id-fetch']);
 
-    const memory = await memoryService.getMemoryById('test-id');
+    const memory = await memoryService.getMemoryById('test-id-fetch');
 
     expect(memory).toBeDefined();
     expect(memory!.description).toBe('Test description');

@@ -4,10 +4,11 @@ import orchestratorRoutes from '../../../routes/orchestrator.routes'; // Ensure 
 import { insertHelpers } from '../test-db-insert.helper';
 import { TaskRequest } from '../../../models/service-models/orchestrator.service.model';
 import { getDb } from '../../../database/database';
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 
 const app = express();
 let db: Pool;
+let client: PoolClient;
 
 app.use(express.json());
 app.use('/orchestrator', orchestratorRoutes); // Register orchestrator routes
@@ -17,23 +18,25 @@ const uniqueIdPrefix = 'orchestratorRoutesTest_'; // Unique identifier prefix fo
 beforeAll(async () => {
   await getDb().initialize();
   db = getDb().getInstance();
+  client = await db.connect();
 });
 
 beforeEach(async () => {
-  await db.query('BEGIN'); // Begin transaction before each test
+  await client.query('BEGIN'); // Begin transaction before each test
 });
 
 afterEach(async () => {
-  await db.query('ROLLBACK'); // Rollback changes after each test
+  await client.query('ROLLBACK'); // Rollback changes after each test
 });
 
 afterAll(async () => {
+  client.release();
   await getDb().close(); // Clean up the test database after tests
 });
 
 describe('Orchestrator Controller Tests', () => {
   it('should remember a memory for an assistant', async () => {
-    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 1);
+    await insertHelpers.insertAssistant(client, uniqueIdPrefix + 1);
     const newMemory = {
       assistantId: uniqueIdPrefix + '1',
       memory: { type: 'knowledge', data: 'Some memory data' },
@@ -45,7 +48,7 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should delegate a task to an assistant', async () => {
-    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 2);
+    await insertHelpers.insertAssistant(client, uniqueIdPrefix + 2);
 
     const task = {
       assistantId: uniqueIdPrefix + '2',
@@ -58,8 +61,8 @@ describe('Orchestrator Controller Tests', () => {
   });
 
   it('should connect two assistants', async () => {
-    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 4);
-    await insertHelpers.insertAssistant(db, uniqueIdPrefix + 5);
+    await insertHelpers.insertAssistant(client, uniqueIdPrefix + 4);
+    await insertHelpers.insertAssistant(client, uniqueIdPrefix + 5);
 
     const connectionData = {
       primaryId: uniqueIdPrefix + '4',
@@ -74,8 +77,8 @@ describe('Orchestrator Controller Tests', () => {
   it('should connect two entities', async () => {
     const assistantId = uniqueIdPrefix + 'assistant6'; // Unique assistant ID
     const taskId = uniqueIdPrefix + 'task';
-    await insertHelpers.insertAssistant(db, assistantId);
-    await insertHelpers.insertTask(db, taskId, 'qq', assistantId, 'pending');
+    await insertHelpers.insertAssistant(client, assistantId);
+    await insertHelpers.insertTask(client, taskId, 'qq', assistantId, 'pending');
 
     const connectionData = {
       sourceType: 'assistant',
@@ -93,9 +96,9 @@ describe('Orchestrator Controller Tests', () => {
   it('should query knowledge successfully', async () => {
     const assistantId = uniqueIdPrefix + 'assistant7'; // Unique assistant ID
 
-    await insertHelpers.insertAssistant(db, assistantId);
-    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm1', 'amazing memory data');
-    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + 'm1');
+    await insertHelpers.insertAssistant(client, assistantId);
+    await insertHelpers.insertMemory(client, uniqueIdPrefix + 'm1', 'amazing memory data');
+    await insertHelpers.insertOwnedMemory(client, assistantId, uniqueIdPrefix + 'm1');
 
     const query = { query: 'memory data', assistantId: uniqueIdPrefix + '1' };
     const response = await request(app).get('/orchestrator/query-knowledge').query(query);
@@ -107,17 +110,19 @@ describe('Orchestrator Controller Tests', () => {
     const assistantId = uniqueIdPrefix + 'assistant8';
     const taskReq: TaskRequest = { type: 'test', description: 'Node' };
 
-    await insertHelpers.insertAssistant(db, assistantId);
-    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm1', 'Memory about Node.js');
-    await insertHelpers.insertMemory(db, uniqueIdPrefix + 'm2', 'Another Memory about Node2.js');
-    await insertHelpers.insertTag(db, uniqueIdPrefix + 't1', 'Node');
-    await db.query(`INSERT INTO assistant_tags (assistant_id, tag_id) VALUES ('${assistantId}', '${uniqueIdPrefix + 't1'}')`);
+    await insertHelpers.insertAssistant(client, assistantId);
+    await insertHelpers.insertMemory(client, uniqueIdPrefix + 'm1', 'Memory about Node.js');
+    await insertHelpers.insertMemory(client, uniqueIdPrefix + 'm2', 'Another Memory about Node2.js');
+    await insertHelpers.insertTag(client, uniqueIdPrefix + 't1', 'Node');
+    await client.query(`INSERT INTO assistant_tags (assistant_id, tag_id) VALUES ('${assistantId}', '${uniqueIdPrefix + 't1'}')`);
 
-    await insertHelpers.insertMemoryFocusRule(db, uniqueIdPrefix + 'r1', assistantId);
+    await insertHelpers.insertMemoryFocusRule(client, uniqueIdPrefix + 'r1', assistantId);
 
-    await insertHelpers.insertOwnedMemory(db, assistantId, uniqueIdPrefix + 'm1');
+    await insertHelpers.insertOwnedMemory(client, assistantId, uniqueIdPrefix + 'm1');
 
-    await insertHelpers.insertFocusedMemory(db, uniqueIdPrefix + 'r1', uniqueIdPrefix + 'm2');
+    await insertHelpers.insertFocusedMemory(client, uniqueIdPrefix + 'r1', uniqueIdPrefix + 'm2');
+
+    await client.query('COMMIT');
 
     const response = await request(app).post('/orchestrator/suggest-assistants').send({ task: taskReq });
     expect(response.status).toBe(200);
@@ -127,7 +132,7 @@ describe('Orchestrator Controller Tests', () => {
   it('should evaluate an assistant’s performance', async () => {
     const assistantId = uniqueIdPrefix + 'assistant9'; // Unique assistant ID
 
-    await insertHelpers.insertAssistant(db, assistantId);
+    await insertHelpers.insertAssistant(client, assistantId);
     const response = await request(app).get(`/orchestrator/evaluate-performance/${assistantId}`); // Assuming assistant ID is uniqueIdPrefix + '1'
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message', 'Performance evaluated successfully.');
