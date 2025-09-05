@@ -1,9 +1,7 @@
 # Copilot Instructions
 
 ## Terminal Commands
-Always append `; echo ""` to terminal commands to ensure Copilot detects the command end by forcing a newline after the output.
-
-Example: `npm run test; echo ""`
+Expect to wait for my response after giving cmd command, because you can't see the end of the command.
 
 ## Long-Running or Noisy Commands
 For commands that produce a lot of output or run for a long time, redirect output to a file to avoid prompt detection issues:
