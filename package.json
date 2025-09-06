@@ -21,7 +21,10 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "clean": "rimraf dist && rimraf coverage",
-    "update-database": "ts-node ./tools/update-database.ts"
+    "update-database": "ts-node ./tools/update-database.ts",
+    "tsoa:routes": "tsoa routes",
+    "tsoa:spec": "tsoa spec",
+    "tsoa:gen": "tsoa routes && tsoa spec"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +35,8 @@
     "@eslint/js": "^9.18.0",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^6.1.1",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.3",
+    "@types/glob": "^9.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
     "@types/pg": "^8.11.11",
@@ -65,6 +69,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "ts-morph": "^25.0.0",
+    "tsoa": "^6.6.0",
     "yamljs": "^0.3.0"
   }
 }

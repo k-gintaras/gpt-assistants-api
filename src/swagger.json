@@ -1,0 +1,3772 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"Task": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"assignedAssistant": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"pending",
+							"in_progress",
+							"completed",
+							"failed"
+						]
+					},
+					"inputData": {
+						"type": "string",
+						"nullable": true
+					},
+					"outputData": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"description",
+					"assignedAssistant",
+					"status",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_Task.Exclude_keyofTask.id-or-createdAt-or-updatedAt__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"assignedAssistant": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"pending",
+							"in_progress",
+							"completed",
+							"failed"
+						]
+					},
+					"inputData": {
+						"type": "string"
+					},
+					"outputData": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"assignedAssistant",
+					"status"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Task.id-or-createdAt-or-updatedAt_": {
+				"$ref": "#/components/schemas/Pick_Task.Exclude_keyofTask.id-or-createdAt-or-updatedAt__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"Partial_Omit_Task.id-or-createdAt-or-updatedAt__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"assignedAssistant": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"pending",
+							"in_progress",
+							"completed",
+							"failed"
+						]
+					},
+					"inputData": {
+						"type": "string"
+					},
+					"outputData": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"Partial_Omit_Tag.id__": {
+				"properties": {
+					"name": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"Tag": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Session": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"assistant_id": {
+						"type": "string"
+					},
+					"user_id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"started_at": {
+						"type": "string"
+					},
+					"ended_at": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"assistant_id",
+					"started_at",
+					"created_at"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Partial_Session_": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"assistant_id": {
+						"type": "string"
+					},
+					"user_id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"started_at": {
+						"type": "string"
+					},
+					"ended_at": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"RelationshipGraph": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"assistant",
+							"memory",
+							"task"
+						]
+					},
+					"targetId": {
+						"type": "string"
+					},
+					"relationshipType": {
+						"type": "string",
+						"enum": [
+							"related_to",
+							"part_of",
+							"example_of",
+							"derived_from",
+							"depends_on",
+							"blocks",
+							"subtask_of"
+						]
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"targetId",
+					"relationshipType",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MemoryRequest": {
+				"properties": {
+					"text": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"text",
+					"type"
+				],
+				"type": "object",
+				"description": "-- Data Structures --"
+			},
+			"TaskResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"output": {},
+					"error": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TaskRequest": {
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"type",
+					"description"
+				],
+				"type": "object",
+				"additionalProperties": {}
+			},
+			"RelationshipType": {
+				"type": "string",
+				"enum": [
+					"related_to",
+					"part_of",
+					"example_of",
+					"derived_from",
+					"depends_on",
+					"blocks",
+					"subtask_of"
+				]
+			},
+			"AssistantSuggestion": {
+				"properties": {
+					"assistantId": {
+						"type": "string"
+					},
+					"score": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"assistantId",
+					"score"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AssistantEvaluation": {
+				"properties": {
+					"assistantId": {
+						"type": "string"
+					},
+					"successRate": {
+						"type": "number",
+						"format": "double"
+					},
+					"feedbackAverage": {
+						"type": "number",
+						"format": "double"
+					},
+					"tasksCompleted": {
+						"type": "number",
+						"format": "double"
+					},
+					"tasksFailed": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"assistantId",
+					"successRate",
+					"feedbackAverage",
+					"tasksCompleted",
+					"tasksFailed"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Memory": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"summary": {
+						"type": "string",
+						"nullable": true
+					},
+					"type": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"data": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"summary",
+					"type",
+					"description",
+					"data",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_Memory.Exclude_keyofMemory.id-or-createdAt-or-updatedAt__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"summary": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"data": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"name",
+					"summary",
+					"type",
+					"data"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Memory.id-or-createdAt-or-updatedAt_": {
+				"$ref": "#/components/schemas/Pick_Memory.Exclude_keyofMemory.id-or-createdAt-or-updatedAt__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"MemoryWithTags": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"summary": {
+						"type": "string",
+						"nullable": true
+					},
+					"type": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"data": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"tags": {
+						"items": {
+							"$ref": "#/components/schemas/Tag"
+						},
+						"type": "array",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"summary",
+					"type",
+					"description",
+					"data",
+					"createdAt",
+					"updatedAt",
+					"tags"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MemoryFocusRule": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"assistantId": {
+						"type": "string"
+					},
+					"maxResults": {
+						"type": "number",
+						"format": "double"
+					},
+					"relationshipTypes": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"priorityTags": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"assistantId",
+					"maxResults",
+					"relationshipTypes",
+					"priorityTags",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"OrganizedMemoriesResponse": {
+				"properties": {
+					"looseMemories": {
+						"items": {
+							"$ref": "#/components/schemas/Memory"
+						},
+						"type": "array"
+					},
+					"ownedMemories": {
+						"items": {
+							"properties": {
+								"memories": {
+									"items": {
+										"$ref": "#/components/schemas/Memory"
+									},
+									"type": "array"
+								},
+								"assistantId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"memories",
+								"assistantId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"focusedMemories": {
+						"items": {
+							"properties": {
+								"memories": {
+									"items": {
+										"$ref": "#/components/schemas/Memory"
+									},
+									"type": "array"
+								},
+								"memoryFocusRuleId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"memories",
+								"memoryFocusRuleId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"looseMemories",
+					"ownedMemories",
+					"focusedMemories"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Feedback": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"targetId": {
+						"type": "string"
+					},
+					"targetType": {
+						"type": "string",
+						"enum": [
+							"assistant",
+							"memory",
+							"task"
+						]
+					},
+					"rating": {
+						"type": "number",
+						"format": "double"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"targetId",
+					"targetType",
+					"rating",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_Feedback.Exclude_keyofFeedback.id__": {
+				"properties": {
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"targetId": {
+						"type": "string"
+					},
+					"targetType": {
+						"type": "string",
+						"enum": [
+							"assistant",
+							"memory",
+							"task"
+						]
+					},
+					"rating": {
+						"type": "number",
+						"format": "double"
+					},
+					"comments": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"createdAt",
+					"updatedAt",
+					"targetId",
+					"targetType",
+					"rating"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Feedback.id_": {
+				"$ref": "#/components/schemas/Pick_Feedback.Exclude_keyofFeedback.id__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"Partial_Omit_Feedback.id-or-createdAt-or-updatedAt__": {
+				"properties": {
+					"targetId": {
+						"type": "string"
+					},
+					"targetType": {
+						"type": "string",
+						"enum": [
+							"assistant",
+							"memory",
+							"task"
+						]
+					},
+					"rating": {
+						"type": "number",
+						"format": "double"
+					},
+					"comments": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"ConversationResponse": {
+				"properties": {
+					"assistantId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string",
+						"nullable": true
+					},
+					"chatId": {
+						"type": "string",
+						"nullable": true
+					},
+					"sessionId": {
+						"type": "string",
+						"nullable": true
+					},
+					"responseType": {
+						"type": "string",
+						"nullable": true
+					},
+					"answer": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"assistantId",
+					"userId",
+					"chatId",
+					"sessionId",
+					"responseType",
+					"answer"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConversationRequest": {
+				"properties": {
+					"assistantId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string",
+						"nullable": true
+					},
+					"chatId": {
+						"type": "string",
+						"nullable": true
+					},
+					"sessionId": {
+						"type": "string",
+						"nullable": true
+					},
+					"prompt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"assistantId",
+					"userId",
+					"chatId",
+					"sessionId",
+					"prompt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Chat": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"session_id": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"session_id",
+					"created_at"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ChatMessage": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"memory_id": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					},
+					"chat_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"memory_id",
+					"created_at",
+					"chat_id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Assistant": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"gptAssistantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"chat",
+							"assistant"
+						]
+					},
+					"model": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"description",
+					"type",
+					"model",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"FeedbackSummary": {
+				"properties": {
+					"avgRating": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalFeedback": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"avgRating",
+					"totalFeedback"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AssistantWithDetails": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"gptAssistantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"chat",
+							"assistant"
+						]
+					},
+					"model": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"focusedMemories": {
+						"items": {
+							"$ref": "#/components/schemas/MemoryWithTags"
+						},
+						"type": "array"
+					},
+					"memoryFocusRule": {
+						"$ref": "#/components/schemas/MemoryFocusRule"
+					},
+					"assistantTags": {
+						"items": {
+							"$ref": "#/components/schemas/Tag"
+						},
+						"type": "array"
+					},
+					"feedbackSummary": {
+						"$ref": "#/components/schemas/FeedbackSummary"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"description",
+					"type",
+					"model",
+					"createdAt",
+					"updatedAt",
+					"focusedMemories",
+					"feedbackSummary"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Partial_Assistant_": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"gptAssistantId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"assistant",
+							"chat"
+						]
+					},
+					"model": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"AssistantMemoryData": {
+				"properties": {
+					"focused": {
+						"items": {
+							"$ref": "#/components/schemas/Memory"
+						},
+						"type": "array"
+					},
+					"owned": {
+						"items": {
+							"$ref": "#/components/schemas/Memory"
+						},
+						"type": "array"
+					},
+					"related": {
+						"items": {
+							"$ref": "#/components/schemas/Memory"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"focused",
+					"owned",
+					"related"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "gpt-assistants-api",
+		"version": "0.2.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/task/{taskId}": {
+			"get": {
+				"operationId": "GetTaskById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Task"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateTask",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_Omit_Task.id-or-createdAt-or-updatedAt__"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteTask",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/task": {
+			"get": {
+				"operationId": "GetAllTasks",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Task"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "AddTask",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"id": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Omit_Task.id-or-createdAt-or-updatedAt_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/status/{status}": {
+			"get": {
+				"operationId": "GetTasksByStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Task"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "status",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"pending",
+								"in_progress",
+								"completed",
+								"failed"
+							]
+						}
+					}
+				]
+			}
+		},
+		"/task/assistant/{assistantId}": {
+			"get": {
+				"operationId": "GetTasksByAssistant",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Task"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Task"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/tag": {
+			"post": {
+				"operationId": "AddTag",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"tagId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"tagId"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tag"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"name": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"name"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllTags",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Tag"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tag"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/tag/{tagId}": {
+			"delete": {
+				"operationId": "RemoveTag",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Tag"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateTag",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Tag"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_Omit_Tag.id__"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetTagById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Tag"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tag"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/tag-extra/entity/{entityId}/{entityType}": {
+			"get": {
+				"operationId": "GetTagsByEntity",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Tag"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"TagExtra"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "entityId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "entityType",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"memory",
+								"assistant",
+								"task"
+							]
+						}
+					}
+				]
+			}
+		},
+		"/tag-extra/entity/{entityId}/{entityType}/{tagId}/{isNames}": {
+			"post": {
+				"operationId": "AddTagToEntity",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"TagExtra"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "entityId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "entityType",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"memory",
+								"assistant",
+								"task"
+							]
+						}
+					},
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "isNames",
+						"required": true,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/tag-extra/entity/{entityId}/{entityType}/{tagId}": {
+			"delete": {
+				"operationId": "RemoveTagFromEntity",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"TagExtra"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "entityId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "entityType",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"memory",
+								"assistant",
+								"task"
+							]
+						}
+					},
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/sessions": {
+			"post": {
+				"operationId": "CreateSession",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Session"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Sessions"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"userId": {
+										"type": "string"
+									},
+									"assistantId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"name",
+									"userId",
+									"assistantId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllSessions",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Session"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Sessions"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/sessions/{sessionId}": {
+			"get": {
+				"operationId": "GetSessionById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Session"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Sessions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "sessionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateSession",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Session"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Sessions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "sessionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_Session_"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteSession",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Sessions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "sessionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/relationship-graph": {
+			"get": {
+				"operationId": "GetAllRelationships",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/RelationshipGraph"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "AddRelationship",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RelationshipGraph"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/relationship-graph/source/{targetId}": {
+			"get": {
+				"operationId": "GetRelationshipsBySource",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/RelationshipGraph"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "targetId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/relationship-graph/source/{targetId}/type/{relationshipType}": {
+			"get": {
+				"operationId": "GetRelationshipsBySourceAndType",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/RelationshipGraph"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "targetId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "relationshipType",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"assistant",
+								"memory",
+								"task"
+							]
+						}
+					}
+				]
+			}
+		},
+		"/relationship-graph/{id}": {
+			"put": {
+				"operationId": "UpdateRelationship",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RelationshipGraph"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteRelationship",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"RelationshipGraph"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/prompt": {
+			"post": {
+				"operationId": "Prompt",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Prompt"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"extraInstruction": {
+										"type": "string"
+									},
+									"prompt": {
+										"type": "string"
+									},
+									"id": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"prompt",
+									"id"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/remember": {
+			"post": {
+				"operationId": "Remember",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"tags": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									},
+									"memory": {
+										"$ref": "#/components/schemas/MemoryRequest"
+									},
+									"assistantId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"memory",
+									"assistantId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/forget": {
+			"post": {
+				"operationId": "Forget",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"memoryId": {
+										"type": "string"
+									},
+									"assistantId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"memoryId",
+									"assistantId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/delegate-task": {
+			"post": {
+				"operationId": "DelegateTask",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TaskResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"tags": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									},
+									"task": {
+										"$ref": "#/components/schemas/TaskRequest"
+									},
+									"assistantId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"task",
+									"assistantId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/connect-assistants": {
+			"post": {
+				"operationId": "ConnectAssistants",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"relation": {
+										"$ref": "#/components/schemas/RelationshipType"
+									},
+									"dependentId": {
+										"type": "string"
+									},
+									"primaryId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"relation",
+									"dependentId",
+									"primaryId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/connect-entities": {
+			"post": {
+				"operationId": "ConnectEntities",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"relation": {
+										"$ref": "#/components/schemas/RelationshipType"
+									},
+									"targetId": {
+										"type": "string"
+									},
+									"targetType": {
+										"type": "string",
+										"enum": [
+											"assistant",
+											"memory",
+											"task"
+										]
+									},
+									"sourceId": {
+										"type": "string"
+									},
+									"sourceType": {
+										"type": "string",
+										"enum": [
+											"assistant",
+											"memory",
+											"task"
+										]
+									}
+								},
+								"required": [
+									"relation",
+									"targetId",
+									"targetType",
+									"sourceId",
+									"sourceType"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/query-knowledge": {
+			"get": {
+				"operationId": "QueryKnowledge",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "assistantId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "tags",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/orchestrator/suggest-assistants": {
+			"post": {
+				"operationId": "SuggestAssistants",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/AssistantSuggestion"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"tags": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									},
+									"task": {
+										"$ref": "#/components/schemas/TaskRequest"
+									}
+								},
+								"required": [
+									"task"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/orchestrator/evaluate-performance/{assistantId}": {
+			"get": {
+				"operationId": "EvaluatePerformance",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AssistantEvaluation"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Orchestrator"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory": {
+			"get": {
+				"operationId": "GetMemories",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Memory"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Memory"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateMemory",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"id": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Memory"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Omit_Memory.id-or-createdAt-or-updatedAt_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/memory/{id}": {
+			"get": {
+				"operationId": "GetMemory",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Memory"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Memory"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateMemory",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Memory"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Memory"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteMemory",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Memory"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-owned/assistant/{assistantId}": {
+			"get": {
+				"operationId": "GetMemoriesByAssistantId",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryOwned"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateOwnedMemories",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryOwned"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"memoryIds": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"memoryIds"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/memory-owned/owned/{assistantId}": {
+			"get": {
+				"operationId": "GetOwnedMemories",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryOwned"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-owned/assistant/{assistantId}/memory/{memoryId}": {
+			"post": {
+				"operationId": "AddOwnedMemory",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"MemoryOwned"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "memoryId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "RemoveOwnedMemory",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryOwned"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "memoryId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-focused/assistant/{assistantId}": {
+			"get": {
+				"operationId": "GetFocusedMemoriesByAssistantId",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryFocused"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-focused/focus/{memoryFocusId}": {
+			"get": {
+				"operationId": "GetFocusedMemories",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryFocused"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "memoryFocusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateFocusedMemories",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryFocused"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "memoryFocusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"memoryIds": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"memoryIds"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/memory-focused/focus/{memoryFocusId}/memory/{memoryId}": {
+			"post": {
+				"operationId": "AddFocusedMemory",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"tags": [
+					"MemoryFocused"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "memoryFocusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "memoryId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "RemoveFocusedMemory",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryFocused"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "memoryFocusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "memoryId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-focus-rule": {
+			"post": {
+				"operationId": "CreateMemoryFocusRule",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MemoryFocusRule"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryFocusRule"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"priorityTags": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									},
+									"relationshipTypes": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									},
+									"maxResults": {
+										"type": "number",
+										"format": "double"
+									},
+									"assistantId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"priorityTags",
+									"relationshipTypes",
+									"maxResults",
+									"assistantId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/memory-focus-rule/assistant/{assistantId}": {
+			"get": {
+				"operationId": "GetMemoryFocusRules",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MemoryFocusRule"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryFocusRule"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "assistantId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-focus-rule/{ruleId}": {
+			"get": {
+				"operationId": "GetMemoryFocusRuleById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MemoryFocusRule"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryFocusRule"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ruleId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-focus-rule/{id}": {
+			"put": {
+				"operationId": "UpdateMemoryFocusRule",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryFocusRule"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MemoryFocusRule"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "RemoveMemoryFocusRule",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryFocusRule"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-extra/with-tags": {
+			"get": {
+				"operationId": "GetMemoriesWithTags",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryExtra"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/memory-extra/by-tags": {
+			"get": {
+				"operationId": "GetMemoriesByTags",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MemoryWithTags"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryExtra"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "tags",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/memory-extra/organized": {
+			"get": {
+				"operationId": "GetOrganizedMemories",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OrganizedMemoriesResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MemoryExtra"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/memory-extra/{memoryId}/tags": {
+			"put": {
+				"operationId": "UpdateMemoryTags",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"MemoryExtra"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "memoryId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"newTags": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"newTags"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/feedback/{id}": {
+			"get": {
+				"operationId": "GetFeedbackById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Feedback"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Feedback"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateFeedback",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Feedback"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_Omit_Feedback.id-or-createdAt-or-updatedAt__"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteFeedback",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Feedback"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/feedback/target/{targetType}/{targetId}": {
+			"get": {
+				"operationId": "GetFeedbackByTarget",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Feedback"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Feedback"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "targetType",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"assistant",
+								"memory",
+								"task"
+							]
+						}
+					},
+					{
+						"in": "path",
+						"name": "targetId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/feedback": {
+			"post": {
+				"operationId": "AddFeedback",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"id": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Feedback"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Omit_Feedback.id_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversation": {
+			"post": {
+				"operationId": "Ask",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConversationResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ConversationRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/chats": {
+			"post": {
+				"operationId": "CreateChat",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"chatId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"chatId"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Chats"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"sessionId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"sessionId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/chats/session/{sessionId}": {
+			"get": {
+				"operationId": "GetChatsBySessionId",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Chat"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Chats"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "sessionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/chat-messages": {
+			"post": {
+				"operationId": "AddMessage",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"messageId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"messageId"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"ChatMessages"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"type": {
+										"type": "string"
+									},
+									"memoryId": {
+										"type": "string"
+									},
+									"chatId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"type",
+									"chatId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/chat-messages/chat/{chatId}": {
+			"get": {
+				"operationId": "GetMessagesByChatId",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ChatMessage"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"ChatMessages"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "chatId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/assistant": {
+			"get": {
+				"operationId": "GetAllAssistants",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Assistant"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateAssistant",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"id": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"instructions": {
+										"type": "string"
+									},
+									"model": {
+										"type": "string"
+									},
+									"type": {
+										"type": "string",
+										"enum": [
+											"chat",
+											"assistant"
+										]
+									},
+									"description": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"instructions",
+									"model",
+									"type",
+									"description",
+									"name"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/assistant/{id}": {
+			"get": {
+				"operationId": "GetAssistantById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Assistant"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateAssistant",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_Assistant_"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteAssistant",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/assistant/{id}/details": {
+			"get": {
+				"operationId": "GetAssistantWithDetailsById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AssistantWithDetails"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/assistant/simple": {
+			"post": {
+				"operationId": "CreateAssistantSimple",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"id": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Assistant"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"instructions": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"instructions",
+									"name"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/assistant-memory/{id}": {
+			"get": {
+				"operationId": "GetAssistantMemories",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AssistantMemoryData"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"AssistantMemory"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000/"
+		}
+	]
+}

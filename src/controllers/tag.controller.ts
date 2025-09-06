@@ -1,111 +1,48 @@
-import { Request, Response } from 'express';
+import { Route, Tags, Get, Post, Put, Delete, Path, Body, ValidateError, SuccessResponse } from 'tsoa';
 import { TagControllerService } from '../services/core-services/tag.controller.service';
-import { Pool } from 'pg';
+import { getDb } from '../database/database';
 import { Tag } from '../models/tag.model';
-import { respond } from './controller.helper';
 
+@Route('tag')
+@Tags('Tag')
 export class TagController {
   private readonly tagControllerService: TagControllerService;
 
-  constructor(db: Pool) {
-    this.tagControllerService = new TagControllerService(db);
+  constructor() {
+    const pool = getDb().getInstance();
+    this.tagControllerService = new TagControllerService(pool);
   }
 
-  /**
-   * Add a new tag.
-   * @requestBody { name: string } The name of the tag.
-   * @response {201} { status: "success", message: "Tag created successfully.", data: { tagId: string } }
-   * @response {400} { status: "error", message: "Tag {name} not created." }
-   * @response {500} { status: "error", message: "Failed to create tag.", error: any }
-   */
-  async addTag(req: Request, res: Response) {
-    const { name } = req.body;
-    try {
-      const tagId = await this.tagControllerService.addTag({ name });
-      if (!tagId) {
-        respond(res, 400, `Tag ${name} not created.`);
-      }
-
-      return respond(res, 201, 'Tag created successfully.', { tagId });
-    } catch (error) {
-      return respond(res, 500, 'Failed to create tag.', null, error);
-    }
+  @Post('/')
+  @SuccessResponse('201', 'Created')
+  public async addTag(@Body() body: { name: string }): Promise<{ tagId: string }> {
+    const tagId = await this.tagControllerService.addTag({ name: body.name });
+    if (!tagId) throw new ValidateError({}, `Tag ${body.name} not created.`);
+    return { tagId };
   }
 
-  /**
-   * Remove a tag by ID.
-   * @requestParams { tagId: string } The ID of the tag to remove.
-   * @response {200} { status: "success", message: "Tag removed successfully." }
-   * @response {404} { status: "error", message: "Tag to delete not found." }
-   * @response {500} { status: "error", message: "Failed to remove tag.", error: any }
-   */
-  async removeTag(req: Request, res: Response) {
-    const { tagId } = req.params;
-    try {
-      const removed = await this.tagControllerService.removeTag(tagId);
-      if (!removed) {
-        return respond(res, 404, 'Tag to delete not found.');
-      }
-      return respond(res, 200, 'Tag removed successfully.');
-    } catch (error) {
-      return respond(res, 500, 'Failed to remove tag.', null, error);
-    }
+  @Delete('/{tagId}')
+  public async removeTag(@Path() tagId: string): Promise<void> {
+    const removed = await this.tagControllerService.removeTag(tagId);
+    if (!removed) throw new ValidateError({}, 'Tag to delete not found.');
   }
 
-  /**
-   * Update an existing tag.
-   * @requestParams { tagId: string } The ID of the tag to update.
-   * @requestBody { name?: string } The updated tag details.
-   * @response {200} { status: "success", message: "Tag updated successfully." }
-   * @response {404} { status: "error", message: "Tag to update not found." }
-   * @response {500} { status: "error", message: "Failed to update tag.", error: any }
-   */
-  async updateTag(req: Request, res: Response) {
-    const { tagId } = req.params;
-    const updates: Partial<Omit<Tag, 'id'>> = req.body;
-    try {
-      const updated = await this.tagControllerService.updateTag(tagId, updates);
-      if (!updated) {
-        return respond(res, 404, 'Tag to update not found.');
-      }
-      return respond(res, 200, 'Tag updated successfully.');
-    } catch (error) {
-      return respond(res, 500, 'Failed to update tag.', null, error);
-    }
+  @Put('/{tagId}')
+  public async updateTag(@Path() tagId: string, @Body() updates: Partial<Omit<Tag, 'id'>>): Promise<void> {
+    const updated = await this.tagControllerService.updateTag(tagId, updates);
+    if (!updated) throw new ValidateError({}, 'Tag to update not found.');
   }
 
-  /**
-   * Retrieve a tag by ID.
-   * @requestParams { tagId: string } The ID of the tag to fetch.
-   * @response {200} { status: "success", message: "Tag with ID {tagId} fetched successfully", data: Tag }
-   * @response {404} { status: "error", message: "Tag with ID {tagId} not found." }
-   * @response {500} { status: "error", message: "Failed to retrieve tag.", error: any }
-   */
-  async getTagById(req: Request, res: Response) {
-    const { tagId } = req.params;
-    try {
-      const tag = await this.tagControllerService.getTagById(tagId);
-
-      if (!tag) {
-        return respond(res, 404, `Tag with ID ${tagId} not found.`);
-      }
-      return respond(res, 200, `Tag with ID ${tagId} fetched successfully`, tag);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve tag.', null, error);
-    }
+  @Get('/{tagId}')
+  public async getTagById(@Path() tagId: string): Promise<Tag> {
+    const tag = await this.tagControllerService.getTagById(tagId);
+    if (!tag) throw new ValidateError({}, `Tag with ID ${tagId} not found.`);
+    return tag;
   }
 
-  /**
-   * Retrieve all tags.
-   * @response {200} { status: "success", message: "Tags fetched successfully", data: Tag[] }
-   * @response {500} { status: "error", message: "Failed to retrieve tags.", error: any }
-   */
-  async getAllTags(req: Request, res: Response) {
-    try {
-      const tags = await this.tagControllerService.getAllTags();
-      return respond(res, 200, 'Tags fetched successfully', tags);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve tags.', null, error);
-    }
+  @Get('/')
+  public async getAllTags(): Promise<Tag[]> {
+    const tags = await this.tagControllerService.getAllTags();
+    return tags;
   }
 }

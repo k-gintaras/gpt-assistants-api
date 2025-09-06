@@ -1,34 +1,21 @@
-import { Request, Response } from 'express';
-import { Pool } from 'pg';
+import { Route, Tags, Post, Body, ValidateError } from 'tsoa';
 import { PromptControllerService } from '../services/core-services/prompt.controller.service';
-import { respond } from './controller.helper';
+import { getDb } from '../database/database';
 
+@Route('prompt')
+@Tags('Prompt')
 export class PromptController {
   private readonly promptControllerService: PromptControllerService;
 
-  constructor(db: Pool) {
-    this.promptControllerService = new PromptControllerService(db);
+  constructor() {
+    const pool = getDb().getInstance();
+    this.promptControllerService = new PromptControllerService(pool);
   }
 
-  /**
-   * Process a prompt for a specific assistant.
-   * @requestBody { id: string, prompt: string, extraInstruction?: string } The ID of the assistant, the prompt, and optional extra instructions.
-   * @response {200} { status: "success", message: "Prompt processed successfully", data: any }
-   * @response {400} { status: "error", message: "Prompt failed or assistant not found." }
-   * @response {500} { status: "error", message: "Failed to process prompt.", error: any }
-   */
-  async prompt(req: Request, res: Response) {
-    const { id, prompt, extraInstruction } = req.body;
-
-    try {
-      // ! original prompt method didnt have delay between messages and prompt, causing gpt reply to random message
-      const result = await this.promptControllerService.promptWithDelay(id, prompt, extraInstruction);
-      if (result === null) {
-        return respond(res, 400, 'Prompt failed or assistant not found.');
-      }
-      return respond(res, 200, 'Prompt processed successfully', result);
-    } catch (error) {
-      return respond(res, 500, 'Failed to process prompt.', null, error);
-    }
+  @Post('/')
+  public async prompt(@Body() body: { id: string; prompt: string; extraInstruction?: string }): Promise<string> {
+    const result = await this.promptControllerService.promptWithDelay(body.id, body.prompt, body.extraInstruction);
+    if (result === null) throw new ValidateError({}, 'Prompt failed or assistant not found.');
+    return result;
   }
 }

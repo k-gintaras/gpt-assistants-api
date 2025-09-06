@@ -1,153 +1,66 @@
-import { Request, Response } from 'express';
+import { Route, Tags, Get, Post, Put, Delete, Path, Body, SuccessResponse, ValidateError } from 'tsoa';
 import { AssistantControllerService } from '../services/core-services/assistant.controller.service';
-import { respond } from './controller.helper';
-import { Pool } from 'pg';
+import { getDb } from '../database/database';
+import { Assistant, AssistantWithDetails } from '../models/assistant.model';
 
+@Route('assistant')
+@Tags('Assistant')
 export class AssistantController {
-  private readonly assistantService: AssistantControllerService;
+  private assistantService: AssistantControllerService;
 
-  constructor(db: Pool) {
-    this.assistantService = new AssistantControllerService(db);
+  constructor() {
+    const pool = getDb().getInstance();
+    this.assistantService = new AssistantControllerService(pool);
   }
 
-  /**
-   * Retrieve all assistants.
-   * @response {200} { status: "success", message: "Assistants fetched successfully", data: Assistant[] }
-   * @response {404} { status: "error", message: "No assistants found." }
-   * @response {500} { status: "error", message: "Failed to retrieve assistants.", error: any }
-   */
-  async getAllAssistants(req: Request, res: Response) {
-    try {
-      const assistantRows = await this.assistantService.getAllAssistants();
-      if (assistantRows?.length === 0) {
-        return respond(res, 404, 'No assistants found.');
-      }
-      return respond(res, 200, 'Assistants fetched successfully', assistantRows);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve assistants.', null, error);
+  @Get('/')
+  public async getAllAssistants(): Promise<Assistant[]> {
+    const assistantRows = await this.assistantService.getAllAssistants();
+    if (!assistantRows || assistantRows.length === 0) {
+      throw new ValidateError({}, 'No assistants found.');
     }
+    return assistantRows;
   }
 
-  /**
-   * Retrieve an assistant by ID.
-   * @requestParams { id: string } The ID of the assistant.
-   * @response {200} { status: "success", message: "Assistant fetched successfully", data: Assistant }
-   * @response {404} { status: "error", message: "Assistant not found." }
-   * @response {500} { status: "error", message: "Failed to retrieve assistant.", error: any }
-   */
-  async getAssistantById(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const assistantRow = await this.assistantService.getAssistantById(id);
-      if (!assistantRow) {
-        return respond(res, 404, `Assistant with ID ${id} not found.`);
-      }
-      return respond(res, 200, `Assistant with ID ${id} fetched successfully`, assistantRow);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve assistant.', null, error);
-    }
+  @Get('/{id}')
+  public async getAssistantById(@Path() id: string): Promise<Assistant> {
+    const assistantRow = await this.assistantService.getAssistantById(id);
+    if (!assistantRow) throw new ValidateError({}, `Assistant with ID ${id} not found.`);
+    return assistantRow;
   }
 
-  /**
-   * Retrieve an assistant with details by ID.
-   * @requestParams { id: string } The ID of the assistant.
-   * @response {200} { status: "success", message: "Full assistant fetched successfully", data: AssistantDetails }
-   * @response {404} { status: "error", message: "Full assistant not found." }
-   * @response {500} { status: "error", message: "Failed to retrieve assistant details.", error: any }
-   */
-  async getAssistantWithDetailsById(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const assistantRow = await this.assistantService.getAssistantWithDetailsById(id);
-      if (!assistantRow) {
-        return respond(res, 404, `Full Assistant with ID ${id} not found.`);
-      }
-      return respond(res, 200, `Full Assistant with ID ${id} fetched successfully`, assistantRow);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve Full assistant.', null, error);
-    }
+  @Get('/{id}/details')
+  public async getAssistantWithDetailsById(@Path() id: string): Promise<AssistantWithDetails> {
+    const assistantRow = await this.assistantService.getAssistantWithDetailsById(id);
+    if (!assistantRow) throw new ValidateError({}, `Full Assistant with ID ${id} not found.`);
+    return assistantRow;
   }
 
-  /**
-   * Create a simple assistant entry.
-   * @requestBody { name: string, instructions: string } The name and instructions of the assistant.
-   * @response {201} { status: "success", message: "Assistant created successfully", data: { id: string } }
-   * @response {400} { status: "error", message: "Failed to create assistant." }
-   * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
-   */
-  async createAssistantSimple(req: Request, res: Response) {
-    const { name, instructions } = req.body;
-    try {
-      const id = await this.assistantService.createAssistantSimple(name, instructions);
-      if (!id) {
-        return respond(res, 400, 'Failed to create assistant.');
-      }
-      return respond(res, 201, 'Assistant created successfully.', id);
-    } catch (error) {
-      return respond(res, 500, 'Failed to create assistant.', null, error);
-    }
+  @Post('/simple')
+  @SuccessResponse('201', 'Created')
+  public async createAssistantSimple(@Body() body: { name: string; instructions: string }): Promise<{ id: string }> {
+    const id = await this.assistantService.createAssistantSimple(body.name, body.instructions);
+    if (!id) throw new ValidateError({}, 'Failed to create assistant.');
+    return { id };
   }
 
-  /**
-   * Create a new assistant with full details.
-   * @requestBody { name: string, description: string, type: string, model: string, instructions: string } The full assistant details.
-   * @response {201} { status: "success", message: "Assistant created successfully", data: { id: string } }
-   * @response {400} { status: "error", message: "Failed to create assistant." }
-   * @response {500} { status: "error", message: "Failed to create assistant.", error: any }
-   */
-  async createAssistant(req: Request, res: Response) {
-    const { name, description, type, model, instructions } = req.body;
-    try {
-      const assistantId = await this.assistantService.createAssistant(name, description, type, model, instructions);
-      if (!assistantId) {
-        return respond(res, 400, 'Failed to create assistant.');
-      }
-      return respond(res, 201, 'Assistant created successfully.', { id: assistantId });
-    } catch (error) {
-      return respond(res, 500, 'Failed to create assistant.', null, error);
-    }
+  @Post('/')
+  @SuccessResponse('201', 'Created')
+  public async createAssistant(@Body() body: { name: string; description: string; type: Assistant['type']; model: string; instructions: string }): Promise<{ id: string }> {
+    const assistantId = await this.assistantService.createAssistant(body.name, body.description, body.type, body.model, body.instructions);
+    if (!assistantId) throw new ValidateError({}, 'Failed to create assistant.');
+    return { id: assistantId };
   }
 
-  /**
-   * Update an existing assistant.
-   * @requestParams { id: string } The assistant's ID.
-   * @requestBody { name?: string, type?: string, model?: string, description?: string } The fields to update.
-   * @response {200} { status: "success", message: "Assistant updated successfully" }
-   * @response {404} { status: "error", message: "Assistant not found." }
-   * @response {500} { status: "error", message: "Failed to update assistant.", error: any }
-   */
-  async updateAssistant(req: Request, res: Response) {
-    const { id } = req.params;
-    const assistant = req.body;
-
-    try {
-      const isUpdated = await this.assistantService.updateAssistant(id, assistant);
-      if (!isUpdated) {
-        return respond(res, 404, `Assistant with ID ${id} not found or update failed.`);
-      }
-      return respond(res, 200, 'Assistant updated successfully.');
-    } catch (error) {
-      return respond(res, 500, 'Failed to update assistant.', null, error);
-    }
+  @Put('/{id}')
+  public async updateAssistant(@Path() id: string, @Body() assistant: Partial<Assistant>): Promise<void> {
+    const isUpdated = await this.assistantService.updateAssistant(id, assistant as Assistant);
+    if (!isUpdated) throw new ValidateError({}, `Assistant with ID ${id} not found or update failed.`);
   }
 
-  /**
-   * Delete an assistant.
-   * @requestParams { id: string } The assistant's ID.
-   * @response {200} { status: "success", message: "Assistant deleted successfully" }
-   * @response {404} { status: "error", message: "Assistant not found." }
-   * @response {500} { status: "error", message: "Failed to delete assistant.", error: any }
-   */
-  async deleteAssistant(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const isDeleted = await this.assistantService.deleteAssistant(id);
-      if (!isDeleted) {
-        return respond(res, 404, `Assistant with ID ${id} not found or delete failed.`);
-      }
-      return respond(res, 200, 'Assistant deleted successfully.');
-    } catch (error) {
-      return respond(res, 500, 'Failed to delete assistant.', null, error);
-    }
+  @Delete('/{id}')
+  public async deleteAssistant(@Path() id: string): Promise<void> {
+    const isDeleted = await this.assistantService.deleteAssistant(id);
+    if (!isDeleted) throw new ValidateError({}, `Assistant with ID ${id} not found or delete failed.`);
   }
 }

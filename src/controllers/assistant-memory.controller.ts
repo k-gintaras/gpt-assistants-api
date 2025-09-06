@@ -1,33 +1,28 @@
-import { Pool } from 'pg';
-import { Request, Response } from 'express';
+import { Get, Route, Tags, Path, ValidateError } from 'tsoa';
 import { AssistantMemoryControllerService } from '../services/core-services/assistant-memory.controller.service';
-import { respond } from './controller.helper';
+import { getDb } from '../database/database';
+import { AssistantMemoryData } from '../services/sqlite-services/assistant-memory.service';
 
+@Route('assistant-memory')
+@Tags('AssistantMemory')
 export class AssistantMemoryController {
-  private readonly assistantMemoryService: AssistantMemoryControllerService;
+  private assistantMemoryService: AssistantMemoryControllerService;
 
-  constructor(db: Pool) {
-    this.assistantMemoryService = new AssistantMemoryControllerService(db);
+  constructor() {
+    const pool = getDb().getInstance();
+    this.assistantMemoryService = new AssistantMemoryControllerService(pool);
   }
 
-  /**
-   * Retrieve all categorized memories for an assistant.
-   * @requestParams { id: string } The ID of the assistant.
-   * @response {200} { status: "success", message: "Assistant memories fetched successfully", data: AssistantMemoryData }
-   * @response {404} { status: "error", message: "No memories found for assistant {id}." }
-   * @response {500} { status: "error", message: "Failed to retrieve assistant memories.", error: any }
-   */
-  async getAssistantMemories(req: Request, res: Response) {
-    const { id: assistantId } = req.params;
-
-    try {
-      const memories = await this.assistantMemoryService.getAssistantMemories(assistantId);
-      if (!memories || (memories.focused.length === 0 && memories.owned.length === 0 && memories.related.length === 0)) {
-        return respond(res, 404, `No memories found for assistant ${assistantId}.`);
-      }
-      return respond(res, 200, 'Assistant memories fetched successfully', memories);
-    } catch (error) {
-      return respond(res, 500, 'Failed to retrieve assistant memories.', null, error);
+  @Get('/{id}')
+  public async getAssistantMemories(@Path() id: string): Promise<AssistantMemoryData> {
+    const memories = await this.assistantMemoryService.getAssistantMemories(id);
+    if (!memories || (
+      memories.focused.length === 0 &&
+      memories.owned.length === 0 &&
+      memories.related.length === 0
+    )) {
+      throw new ValidateError({}, `No memories found for assistant ${id}.`);
     }
+    return memories;
   }
 }
