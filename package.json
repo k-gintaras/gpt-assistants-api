@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "main": "index.js",
   "scripts": {
-    "add": "ts-node ./tools/add-functionality.ts",
+    "add": "ts-node tools/add-feature.ts",
     "db": "docker exec -it gpt-assistants-api-db-1 psql -U postgres",
     "initdb": "ts-node src/database/init.ts",
     "test:core": "jest src/tests/unit/gpt-tests && jest src/tests/unit/orchestrator-tests && jest src/tests/unit/other-tests && jest src/tests/unit/server-tests && jest src/tests/unit/service-tests && jest src/tests/unit/transformer-tests",

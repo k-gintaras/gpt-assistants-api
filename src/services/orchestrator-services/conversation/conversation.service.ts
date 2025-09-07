@@ -4,7 +4,7 @@ import { ConversationMessage, PreviousConversationService } from './previous-con
 import { FullAssistantService } from '../../sqlite-services/assistant-full.service';
 import { AssistantWithDetails } from '../../../models/assistant.model';
 import { Conversation, ConversationSaverService } from './conversation-saver.service';
-import { ChatLifecycleService } from '../chat-lifecycle.service';
+import { ChatLifecycleService } from './chat-lifecycle.service';
 import { TaskService } from '../../sqlite-services/task.service';
 import { AiApiRequest, AiApiResponse } from '../../ai-api.model';
 import { AiApiService, AiApi } from '../../ai-api.service';
