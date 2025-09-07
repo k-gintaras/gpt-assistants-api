@@ -6,7 +6,7 @@
     "add": "ts-node tools/add-feature.ts",
     "db": "docker exec -it gpt-assistants-api-db-1 psql -U postgres",
     "initdb": "ts-node src/database/init.ts",
-    "test:core": "jest src/tests/unit/gpt-tests && jest src/tests/unit/orchestrator-tests && jest src/tests/unit/other-tests && jest src/tests/unit/server-tests && jest src/tests/unit/service-tests && jest src/tests/unit/transformer-tests",
+    "test:core": "jest src/tests/unit/gpt-tests && jest src/tests/unit/orchestrator-tests && jest src/tests/unit/other-tests && jest src/tests/unit/service-tests && jest src/tests/unit/transformer-tests",
     "test:unit": "jest src/tests/unit",
     "test:integration": "jest --config=jest.pg.config.ts",
     "test:integration-local": "jest tests/basic --config=jest.config.ts",
