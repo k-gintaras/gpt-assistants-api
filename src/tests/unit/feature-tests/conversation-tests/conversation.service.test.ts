@@ -6,6 +6,8 @@ import { AiApi, AiApiService } from '../../../../services/ai-api.service';
 
 // Mock AiApi for testing
 class MockAiApi implements AiApi {
+  public capturedRequest: AiApiRequest | null = null;
+
   constructor(private returnSameChatId: boolean = true, private customResponse: string = 'Mock response', private shouldFail: boolean = false) {}
 
   isAvailable(): boolean {
@@ -13,6 +15,8 @@ class MockAiApi implements AiApi {
   }
 
   async ask(request: AiApiRequest): Promise<AiApiResponse | null> {
+    this.capturedRequest = request; // Capture the request for inspection
+
     if (this.shouldFail) {
       return null;
     }
@@ -28,12 +32,15 @@ class MockAiApi implements AiApi {
 
 // Mock AiApiService for testing
 class MockAiApiService extends AiApiService {
+  public mockApi: MockAiApi;
+
   constructor(private returnSameChatId: boolean = true, private customResponse: string = 'Mock response', private shouldFail: boolean = false) {
     super();
+    this.mockApi = new MockAiApi(returnSameChatId, customResponse, shouldFail);
   }
 
   getAiApi(): AiApi | null {
-    return new MockAiApi(this.returnSameChatId, this.customResponse, this.shouldFail);
+    return this.mockApi;
   }
 }
 
@@ -102,6 +109,51 @@ describe('ConversationService Integration Tests', () => {
     );
 
     return result.rows[0].id;
+  }
+
+  // Helper to create a test assistant with focused memories (like createAssistantSimple)
+  async function createTestAssistantWithFocusedMemories(instructions: string = 'You are a helpful assistant') {
+    const assistantId = 'test-assistant-with-memories';
+
+    // Create assistant
+    await db.query(
+      `
+      INSERT INTO assistants (id, name, description, type, model, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `,
+      [assistantId, 'Test Assistant with Memories', 'Test description', 'chat', 'gpt-3.5-turbo', new Date().toISOString(), new Date().toISOString()]
+    );
+
+    // Create memory focus rule
+    const ruleId = 'test-memory-rule';
+    await db.query(
+      `
+      INSERT INTO memory_focus_rules (id, assistant_id, max_results, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5)
+    `,
+      [ruleId, assistantId, 5, new Date().toISOString(), new Date().toISOString()]
+    );
+
+    // Create instruction memory
+    const memoryId = 'test-instruction-memory';
+    await db.query(
+      `
+      INSERT INTO memories (id, type, description, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5)
+    `,
+      [memoryId, 'instruction', instructions, new Date().toISOString(), new Date().toISOString()]
+    );
+
+    // Link memory to focus rule
+    await db.query(
+      `
+      INSERT INTO focused_memories (memory_focus_id, memory_id)
+      VALUES ($1, $2)
+    `,
+      [ruleId, memoryId]
+    );
+
+    return assistantId;
   }
 
   test('should create a new conversation when no chat or session ID provided', async () => {
@@ -594,5 +646,38 @@ describe('ConversationService Integration Tests', () => {
     // Verify messages were saved
     const messagesResult = await db.query('SELECT * FROM chat_messages WHERE chat_id = $1', [response?.chatId]);
     expect(messagesResult.rows.length).toBeGreaterThan(0);
+  });
+
+  test('should pass focused memories to AI API for chat type assistant', async () => {
+    // Arrange
+    const instructions = 'You are a helpful coding assistant that specializes in TypeScript.';
+    const assistantId = await createTestAssistantWithFocusedMemories(instructions);
+
+    // Create mock AI service
+    const mockAiService = new MockAiApiService();
+    conversationService.aiApiService = mockAiService;
+
+    // Act
+    const request: ConversationRequest = {
+      assistantId,
+      userId: 'test-user',
+      chatId: null,
+      sessionId: null,
+      prompt: 'How do I create a TypeScript interface?',
+    };
+
+    const response = await conversationService.ask(request);
+
+    // Assert
+    expect(response).not.toBeNull();
+    expect(response?.chatId).toBeDefined();
+
+    // Verify that the AI API was called with focused memories
+    const capturedRequest = mockAiService.mockApi.capturedRequest;
+    expect(capturedRequest).not.toBeNull();
+    expect(capturedRequest?.memories).toBeDefined();
+    expect(capturedRequest?.memories?.length).toBe(1);
+    expect(capturedRequest?.memories?.[0].description).toBe(instructions);
+    expect(capturedRequest?.memories?.[0].type).toBe('instruction');
   });
 });
