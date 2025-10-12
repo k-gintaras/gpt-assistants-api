@@ -1,0 +1,9 @@
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=
+DB_NAME=gpt_assistants
+TEST_DB_NAME=gpt_assistants
+NODE_ENV=production
+OPENAI_API_KEY=
+OPENAI_PROJECT_KEY=
