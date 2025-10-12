@@ -15,13 +15,13 @@ RUN npm install
 COPY . .
 
 # Compile TypeScript to generate the dist/ folder
-RUN npm run build
+RUN npm run tsoa:gen && npm run build
 
 COPY src/database/*.sql /app/dist/database/
 
 
 # Expose the app's port
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the app
 CMD ["npm", "start"]

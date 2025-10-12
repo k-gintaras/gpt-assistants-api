@@ -10,6 +10,8 @@ import { TagController } from './controllers/tag.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TagExtraController } from './controllers/tag-extra.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { SimpleConversationController } from './controllers/simple-conversation.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { SessionsController } from './controllers/sessions.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { RelationshipGraphController } from './controllers/relationship-graph.controller';
@@ -833,6 +835,38 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'removeTagFromEntity',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSimpleConversationController_chat: Record<string, TsoaRoute.ParameterSchema> = {
+                assistantId: {"in":"query","name":"assistantId","required":true,"dataType":"string"},
+                message: {"in":"query","name":"message","required":true,"dataType":"string"},
+                chatId: {"in":"query","name":"chatId","dataType":"string"},
+        };
+        app.get('/simple-conversation',
+            ...(fetchMiddlewares<RequestHandler>(SimpleConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(SimpleConversationController.prototype.chat)),
+
+            async function SimpleConversationController_chat(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSimpleConversationController_chat, request, response });
+
+                const controller = new SimpleConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'chat',
                 controller,
                 response,
                 next,

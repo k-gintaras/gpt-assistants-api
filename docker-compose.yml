@@ -28,12 +28,12 @@ services:
       DB_PASSWORD: password
       DB_NAME: gpt_assistants
       NODE_ENV: production
+      PORT: 3001
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_PROJECT_ID: ${OPENAI_PROJECT_ID}
-      OPENAI_ORG_ID: ${OPENAI_ORG_ID}
+      OPENAI_PROJECT_KEY: ${OPENAI_PROJECT_KEY}
 
     ports:
-      - '3001:3000'
+      - '3001:3001'
     volumes:
       - ./src/database:/app/database # This mounts the local database directory to the container
 
