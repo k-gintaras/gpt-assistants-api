@@ -1,5 +1,6 @@
 export interface RelationshipGraph {
   id: string; // Unique identifier for the relationship
+  sourceId: string; // Source entity ID
   type: 'assistant' | 'memory' | 'task'; // Type of the source entity
   targetId: string; // ID of the related entity
   relationshipType: 'related_to' | 'part_of' | 'example_of' | 'derived_from' | 'depends_on' | 'blocks' | 'subtask_of'; // Type of relationship
@@ -8,6 +9,7 @@ export interface RelationshipGraph {
 }
 export interface RelationshipGraphRow {
   id: string; // Unique identifier for the relationship
+  source_id: string; // Source entity ID
   type: 'assistant' | 'memory' | 'task'; // Type of the source entity
   target_id: string; // ID of the related entity
   relationship_type: 'related_to' | 'part_of' | 'example_of' | 'derived_from' | 'depends_on' | 'blocks' | 'subtask_of'; // Type of relationship

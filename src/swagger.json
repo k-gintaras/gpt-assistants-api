@@ -16,7 +16,8 @@
 						"type": "string"
 					},
 					"assignedAssistant": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"status": {
 						"type": "string",
@@ -773,6 +774,98 @@
 					"chatId",
 					"sessionId",
 					"prompt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ChainOptions": {
+				"properties": {
+					"user": {
+						"type": "string"
+					},
+					"maxDelayMs": {
+						"type": "number",
+						"format": "double"
+					},
+					"delayFactor": {
+						"type": "number",
+						"format": "double"
+					},
+					"baseDelayMs": {
+						"type": "number",
+						"format": "double"
+					},
+					"batchSize": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"type": "object"
+			},
+			"BroadcastChainInput": {
+				"properties": {
+					"assistantIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"messages": {
+						"items": {
+							"properties": {
+								"content": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string",
+									"enum": [
+										"user",
+										"developer",
+										"assistant"
+									]
+								}
+							},
+							"required": [
+								"content",
+								"role"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"description": {
+						"type": "string"
+					},
+					"options": {
+						"$ref": "#/components/schemas/ChainOptions"
+					}
+				},
+				"required": [
+					"assistantIds",
+					"messages"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ChainProgress": {
+				"properties": {
+					"done": {
+						"type": "number",
+						"format": "double"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"done",
+					"total",
+					"pct"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -3347,6 +3440,123 @@
 						}
 					}
 				}
+			}
+		},
+		"/conversation/chain/broadcast": {
+			"post": {
+				"operationId": "PlanBroadcastChain",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"childIds": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"parentId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"childIds",
+										"parentId"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BroadcastChainInput"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversation/chain/run/{parentId}": {
+			"post": {
+				"operationId": "RunBroadcastChain",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "parentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversation/chain/progress/{parentId}": {
+			"get": {
+				"operationId": "GetChainProgress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ChainProgress"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "parentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/chats": {

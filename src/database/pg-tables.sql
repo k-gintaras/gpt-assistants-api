@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS feedback (
 -- Relationship graph
 CREATE TABLE IF NOT EXISTS relationship_graph (
   id TEXT PRIMARY KEY,
+  source_id TEXT NOT NULL, -- Source entity ID
   type TEXT CHECK(type IN ('assistant', 'memory', 'task')) NOT NULL, -- Entity type
   target_id TEXT NOT NULL, -- Related entity ID
   relationship_type TEXT CHECK(relationship_type IN ('related_to', 'part_of', 'example_of', 'derived_from', 'depends_on', 'blocks', 'subtask_of')) NOT NULL,

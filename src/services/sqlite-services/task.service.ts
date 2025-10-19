@@ -94,8 +94,29 @@ export class TaskService {
       id: r.id,
       description: r.description,
       assignedAssistant: r.assigned_assistant,
-      inputData: r.input_data || null,
-      outputData: r.output_data || null,
+      // Ensure callers receive parsed objects when possible (tests expect objects)
+      inputData: r.input_data
+        ? typeof r.input_data === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(r.input_data as string);
+              } catch {
+                return r.input_data as string;
+              }
+            })()
+          : r.input_data
+        : null,
+      outputData: r.output_data
+        ? typeof r.output_data === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(r.output_data as string);
+              } catch {
+                return r.output_data as string;
+              }
+            })()
+          : r.output_data
+        : null,
       status: r.status,
       createdAt: new Date(r.created_at), // Updated to snake_case
       updatedAt: new Date(r.updated_at), // Updated to snake_case

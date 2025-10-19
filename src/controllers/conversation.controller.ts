@@ -1,7 +1,8 @@
-import { Route, Tags, Post, Body, ValidateError } from 'tsoa';
+import { Route, Tags, Post, Body, ValidateError, Get, Path } from 'tsoa';
 import { ConversationControllerService } from '../services/core-services/conversation.controller.service';
 import { getDb } from '../database/database';
 import { ConversationRequest, ConversationResponse } from '../services/orchestrator-services/conversation/conversation.service';
+import { BroadcastChainInput, ChainProgress } from '../models/chain.model';
 
 @Route('conversation')
 @Tags('Conversation')
@@ -22,5 +23,27 @@ export class ConversationController {
 
     const response = await this.conversationControllerService.ask(body);
     return response as ConversationResponse;
+  }
+
+  @Post('/chain/broadcast')
+  public async planBroadcastChain(@Body() body: BroadcastChainInput) {
+    if (!body?.assistantIds?.length || !body?.messages?.length) {
+      throw new ValidateError({}, 'Missing assistantIds or messages');
+    }
+
+    const result = await this.conversationControllerService.planBroadcastChain(body);
+    return result;
+  }
+
+  @Post('/chain/run/{parentId}')
+  public async runBroadcastChain(@Path() parentId: string) {
+    const result = await this.conversationControllerService.runBroadcastChain(parentId);
+    return result;
+  }
+
+  @Get('/chain/progress/{parentId}')
+  public async getChainProgress(@Path() parentId: string): Promise<ChainProgress> {
+    const progress = await this.conversationControllerService.getChainProgress(parentId);
+    return progress;
   }
 }

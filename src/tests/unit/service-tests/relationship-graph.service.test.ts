@@ -29,7 +29,8 @@ describe('RelationshipGraphService', () => {
 
   test('should add a relationship', async () => {
     const relationship = {
-      id: 'test1_assistant1Id',
+      id: 'test1_relationshipId',
+      sourceId: 'test1_assistant1Id',
       type: 'assistant' as RelationshipGraph['type'],
       targetId: 'test1_assistant2Id',
       relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
@@ -41,13 +42,15 @@ describe('RelationshipGraphService', () => {
 
   test('should retrieve all relationships', async () => {
     const relationship1 = {
-      id: 'test2_assistant1Id',
+      id: 'test2_relationship1Id',
+      sourceId: 'test2_assistant1Id',
       type: 'assistant' as RelationshipGraph['type'],
       targetId: 'test2_assistant2Id',
       relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
     };
     const relationship2 = {
-      id: 'test2_memory1Id',
+      id: 'test2_relationship2Id',
+      sourceId: 'test2_memory1Id',
       type: 'memory' as RelationshipGraph['type'],
       targetId: 'test2_memory2Id',
       relationshipType: 'related_to' as RelationshipGraph['relationshipType'],
@@ -62,7 +65,8 @@ describe('RelationshipGraphService', () => {
 
   test('should retrieve relationships by source ID', async () => {
     const relationship = {
-      id: 'test3_assistant1Id',
+      id: 'test3_relationshipId',
+      sourceId: 'test3_assistant1Id',
       type: 'assistant' as RelationshipGraph['type'],
       targetId: 'test3_assistant2Id',
       relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
@@ -76,7 +80,8 @@ describe('RelationshipGraphService', () => {
 
   test('should retrieve relationships by target ID', async () => {
     const relationship = {
-      id: 'test4_memory1Id',
+      id: 'test4_relationshipId',
+      sourceId: 'test4_memory1Id',
       type: 'memory' as RelationshipGraph['type'],
       targetId: 'test4_memory2Id',
       relationshipType: 'related_to' as RelationshipGraph['relationshipType'],
@@ -90,7 +95,8 @@ describe('RelationshipGraphService', () => {
 
   test('should update a relationship', async () => {
     const relationship = {
-      id: 'test5_assistant1Id',
+      id: 'test5_relationshipId',
+      sourceId: 'test5_assistant1Id',
       type: 'assistant' as RelationshipGraph['type'],
       targetId: 'test5_assistant2Id',
       relationshipType: 'depends_on' as RelationshipGraph['relationshipType'],
@@ -98,7 +104,7 @@ describe('RelationshipGraphService', () => {
     await service.addRelationship(relationship);
 
     const updates = { relationshipType: 'blocks' as RelationshipGraph['relationshipType'] };
-    const result = await service.updateRelationship('test5_assistant1Id', updates);
+    const result = await service.updateRelationship('test5_relationshipId', updates);
     expect(result).toBe(true);
 
     const updated = await service.getRelationshipsByTarget('test5_assistant2Id');
@@ -107,14 +113,15 @@ describe('RelationshipGraphService', () => {
 
   test('should delete a relationship', async () => {
     const relationship = {
-      id: 'test6_task1Id',
+      id: 'test6_relationshipId',
+      sourceId: 'test6_task1Id',
       type: 'task' as RelationshipGraph['type'],
       targetId: 'test6_task2Id',
       relationshipType: 'subtask_of' as RelationshipGraph['relationshipType'],
     };
     await service.addRelationship(relationship);
 
-    const deleteResult = await service.deleteRelationship('test6_task1Id');
+    const deleteResult = await service.deleteRelationship('test6_relationshipId');
     expect(deleteResult).toBe(true);
 
     const relationships = await service.getAllRelationships();

@@ -19,6 +19,7 @@ export class EntityConnectionService {
       const now = new Date();
       const g: RelationshipGraph = {
         id: sourceId,
+        sourceId: sourceId,
         type: sourceType,
         targetId: targetId,
         relationshipType: relation,

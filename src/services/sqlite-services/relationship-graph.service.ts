@@ -9,12 +9,12 @@ export class RelationshipGraphService {
   }
 
   getRelationshipsBySource(sourceId: string): Promise<RelationshipGraph[]> {
-    return this.pool.query<RelationshipGraphRow>('SELECT * FROM relationship_graph WHERE id = $1', [sourceId]).then((results) => results.rows.map((row) => this.transformRow(row)));
+    return this.pool.query<RelationshipGraphRow>('SELECT * FROM relationship_graph WHERE source_id = $1', [sourceId]).then((results) => results.rows.map((row) => this.transformRow(row)));
   }
 
   async getRelatedTopics(sourceId: string): Promise<string[]> {
     try {
-      const relationships = await this.pool.query<{ target_id: string }>('SELECT target_id FROM relationship_graph WHERE id = $1', [sourceId]);
+      const relationships = await this.pool.query<{ target_id: string }>('SELECT target_id FROM relationship_graph WHERE source_id = $1', [sourceId]);
       return relationships.rows.map((rel) => rel.target_id);
     } catch (error) {
       console.error('Error in getRelatedTopics:', error);
@@ -37,11 +37,11 @@ export class RelationshipGraphService {
     const updatedAt = createdAt;
 
     const stmt = `
-      INSERT INTO relationship_graph (id, type, target_id, relationship_type, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO relationship_graph (id, source_id, type, target_id, relationship_type, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
 
-    const result = await this.pool.query(stmt, [relationship.id, relationship.type, relationship.targetId, relationship.relationshipType, createdAt, updatedAt]);
+    const result = await this.pool.query(stmt, [relationship.id, relationship.sourceId, relationship.type, relationship.targetId, relationship.relationshipType, createdAt, updatedAt]);
     if (!result?.rowCount) return false;
 
     return result.rowCount > 0; // Simplified return
@@ -78,6 +78,7 @@ export class RelationshipGraphService {
   transformRow(row: RelationshipGraphRow): RelationshipGraph {
     return {
       id: row.id,
+      sourceId: row.source_id,
       type: row.type,
       targetId: row.target_id,
       relationshipType: row.relationship_type,

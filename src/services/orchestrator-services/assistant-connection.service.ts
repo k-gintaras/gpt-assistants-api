@@ -19,6 +19,7 @@ export class AssistantConnectionService {
       const now = new Date();
       const g: RelationshipGraph = {
         id: primaryId,
+        sourceId: primaryId,
         type: 'assistant',
         targetId: dependentId,
         relationshipType: relation,

@@ -53,7 +53,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "description": {"dataType":"string","required":true},
-            "assignedAssistant": {"dataType":"string","required":true},
+            "assignedAssistant": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "status": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["in_progress"]},{"dataType":"enum","enums":["completed"]},{"dataType":"enum","enums":["failed"]}],"required":true},
             "inputData": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
             "outputData": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
@@ -289,6 +289,32 @@ const models: TsoaRoute.Models = {
             "chatId": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "sessionId": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "prompt": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ChainOptions": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"user":{"dataType":"string"},"maxDelayMs":{"dataType":"double"},"delayFactor":{"dataType":"double"},"baseDelayMs":{"dataType":"double"},"batchSize":{"dataType":"double"}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BroadcastChainInput": {
+        "dataType": "refObject",
+        "properties": {
+            "assistantIds": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "messages": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"content":{"dataType":"string","required":true},"role":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["user"]},{"dataType":"enum","enums":["developer"]},{"dataType":"enum","enums":["assistant"]}],"required":true}}},"required":true},
+            "description": {"dataType":"string"},
+            "options": {"ref":"ChainOptions"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ChainProgress": {
+        "dataType": "refObject",
+        "properties": {
+            "done": {"dataType":"double","required":true},
+            "total": {"dataType":"double","required":true},
+            "pct": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -2378,6 +2404,96 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'ask',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_planBroadcastChain: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"BroadcastChainInput"},
+        };
+        app.post('/conversation/chain/broadcast',
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.planBroadcastChain)),
+
+            async function ConversationController_planBroadcastChain(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_planBroadcastChain, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'planBroadcastChain',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_runBroadcastChain: Record<string, TsoaRoute.ParameterSchema> = {
+                parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
+        };
+        app.post('/conversation/chain/run/:parentId',
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.runBroadcastChain)),
+
+            async function ConversationController_runBroadcastChain(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_runBroadcastChain, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'runBroadcastChain',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_getChainProgress: Record<string, TsoaRoute.ParameterSchema> = {
+                parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
+        };
+        app.get('/conversation/chain/progress/:parentId',
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.getChainProgress)),
+
+            async function ConversationController_getChainProgress(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_getChainProgress, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'getChainProgress',
                 controller,
                 response,
                 next,
