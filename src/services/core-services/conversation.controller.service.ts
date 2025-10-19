@@ -1,15 +1,18 @@
 import { Pool } from 'pg';
 import { ConversationRequest, ConversationResponse, ConversationService } from '../orchestrator-services/conversation/conversation.service';
 import { ChainService } from '../orchestrator-services/chain/chain.service';
-import { BroadcastChainInput, ChainProgress } from '../../models/chain.model';
+import { RelayChainService } from '../orchestrator-services/chain/relay-chain.service';
+import { BroadcastChainInput, ChainProgress, RelayChainInput, RelayChainProgress } from '../../models/chain.model';
 
 export class ConversationControllerService {
   conversationService: ConversationService;
   chainService: ChainService;
+  relayChainService: RelayChainService;
 
   constructor(pool: Pool) {
     this.conversationService = new ConversationService(pool);
     this.chainService = new ChainService(pool);
+    this.relayChainService = new RelayChainService(pool);
   }
 
   async ask(request: ConversationRequest): Promise<ConversationResponse | null> {
@@ -30,5 +33,21 @@ export class ConversationControllerService {
 
   async getChainProgress(parentId: string): Promise<ChainProgress> {
     return await this.chainService.getChainProgress(parentId);
+  }
+
+  async planRelayChain(input: RelayChainInput) {
+    return await this.relayChainService.planRelayChain(input);
+  }
+
+  async runRelayChain(parentId: string) {
+    // Run in background
+    this.relayChainService.runRelayChain(parentId).catch(err => {
+      console.error('Error running relay chain:', err);
+    });
+    return { message: 'Relay chain execution started' };
+  }
+
+  async getRelayChainProgress(parentId: string): Promise<RelayChainProgress> {
+    return await this.relayChainService.getRelayChainProgress(parentId);
   }
 }

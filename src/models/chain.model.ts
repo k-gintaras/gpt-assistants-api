@@ -1,4 +1,4 @@
-export type ChainMode = 'broadcast';
+export type ChainMode = 'broadcast' | 'relay';
 
 export type ChainOptions = {
   batchSize?: number;       // e.g. 5
@@ -15,8 +15,23 @@ export interface BroadcastChainInput {
   options?: ChainOptions;
 }
 
+export interface RelayStep {
+  assistantId: string;
+  messageTemplate: string; // e.g. "Given INTERFACE:\n{{prev_reply}}\nCreate semantic HTML."
+}
+
+export interface RelayChainInput {
+  steps: RelayStep[];      // ordered
+  description?: string;
+  options?: ChainOptions;
+}
+
 export interface ChainProgress {
   done: number;
   total: number;
   pct: number;
+}
+
+export interface RelayChainProgress extends ChainProgress {
+  stepTrack: string; // e.g. "step1:completed -> step2:in_progress -> step3:pending"
 }

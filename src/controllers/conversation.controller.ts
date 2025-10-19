@@ -2,7 +2,7 @@ import { Route, Tags, Post, Body, ValidateError, Get, Path } from 'tsoa';
 import { ConversationControllerService } from '../services/core-services/conversation.controller.service';
 import { getDb } from '../database/database';
 import { ConversationRequest, ConversationResponse } from '../services/orchestrator-services/conversation/conversation.service';
-import { BroadcastChainInput, ChainProgress } from '../models/chain.model';
+import { BroadcastChainInput, ChainProgress, RelayChainInput, RelayChainProgress } from '../models/chain.model';
 
 @Route('conversation')
 @Tags('Conversation')
@@ -44,6 +44,28 @@ export class ConversationController {
   @Get('/chain/progress/{parentId}')
   public async getChainProgress(@Path() parentId: string): Promise<ChainProgress> {
     const progress = await this.conversationControllerService.getChainProgress(parentId);
+    return progress;
+  }
+
+  @Post('/chain/relay')
+  public async planRelayChain(@Body() body: RelayChainInput) {
+    if (!body?.steps?.length) {
+      throw new ValidateError({}, 'Missing steps');
+    }
+
+    const result = await this.conversationControllerService.planRelayChain(body);
+    return result;
+  }
+
+  @Post('/chain/relay/run/{parentId}')
+  public async runRelayChain(@Path() parentId: string) {
+    const result = await this.conversationControllerService.runRelayChain(parentId);
+    return result;
+  }
+
+  @Get('/chain/relay/progress/{parentId}')
+  public async getRelayChainProgress(@Path() parentId: string): Promise<RelayChainProgress> {
+    const progress = await this.conversationControllerService.getRelayChainProgress(parentId);
     return progress;
   }
 }
