@@ -9,7 +9,6 @@
     "outputDirectory": "src",
     "specVersion": 3,
     "basePath": "/",
-    "host": "localhost:3001",
     "schemes": ["http"]
   },
   "routes": {
