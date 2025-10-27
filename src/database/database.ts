@@ -126,22 +126,23 @@ export class DbHelper {
 
   // Clears data from tables (no schema reset)
   private async clearData(client: any): Promise<void> {
+    // Delete in order to respect foreign key constraints
     const tablesToClear = [
-      'assistants',
-      'tags',
-      'tasks',
-      'feedback',
-      'memories',
-      'memory_focus_rules',
-      'owned_memories',
-      'focused_memories',
-      'task_tags',
-      'memory_tags',
-      'assistant_tags',
-      'relationship_graph',
-      'sessions',
-      'chats',
-      'chat_messages',
+      'chat_messages',  // Depends on chats, memories
+      'chats',          // Depends on sessions
+      'sessions',       // Depends on assistants
+      'task_tags',      // Junction table
+      'memory_tags',    // Junction table
+      'assistant_tags', // Junction table
+      'focused_memories', // Junction table
+      'relationship_graph', // May reference assistants/memories
+      'feedback',       // May reference various entities
+      'memory_focus_rules', // Depends on assistants
+      'owned_memories', // Depends on assistants, memories
+      'tasks',          // Depends on assistants
+      'memories',       // Referenced by many tables
+      'assistants',     // Referenced by many tables
+      'tags',           // Referenced by junction tables
     ];
 
     for (const table of tablesToClear) {
