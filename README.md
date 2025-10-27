@@ -16,7 +16,7 @@ See [architecture.md](readme/architecture.md) for project structure and design.
 
 ## API Reference
 
-See [api.md](readme/api.md) for endpoints. Full docs at http://localhost:3000/api-docs.
+See [api.md](readme/api.md) for endpoints. Full docs at `http://localhost:3001/api-docs`.
 
 ## Database
 
