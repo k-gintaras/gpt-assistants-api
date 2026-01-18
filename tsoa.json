@@ -1,5 +1,6 @@
 {
   "entryFile": "src/app.ts",
+  "authenticationModule": "./src/authentication.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": [
     "src/controllers/**/*.controller.ts",
@@ -9,7 +10,11 @@
     "outputDirectory": "src",
     "specVersion": 3,
     "basePath": "/",
-    "schemes": ["http"]
+    "schemes": ["http"],
+    "securityDefinitions": {
+      "firebase": { "type": "apiKey", "name": "Authorization", "in": "header" },
+      "claims": { "type": "apiKey", "name": "Authorization", "in": "header" }
+    }
   },
   "routes": {
     "routesDir": "src",

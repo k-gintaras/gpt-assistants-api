@@ -1,4 +1,4 @@
-import { Route, Tags, Post, Body, ValidateError, Get, Path } from 'tsoa';
+import { Route, Tags, Post, Body, ValidateError, Get, Path, Security } from 'tsoa';
 import { ConversationControllerService } from '../services/core-services/conversation.controller.service';
 import { getDb } from '../database/database';
 import { ConversationRequest, ConversationResponse } from '../services/orchestrator-services/conversation/conversation.service';
@@ -6,6 +6,7 @@ import { BroadcastChainInput, ChainProgress, RelayChainInput, RelayChainProgress
 
 @Route('conversation')
 @Tags('Conversation')
+@Security('claims', ['canUseGpt'])
 export class ConversationController {
   private readonly conversationControllerService: ConversationControllerService;
 

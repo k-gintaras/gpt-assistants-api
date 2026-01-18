@@ -209,6 +209,9 @@
 					"id": {
 						"type": "string"
 					},
+					"sourceId": {
+						"type": "string"
+					},
 					"type": {
 						"type": "string",
 						"enum": [
@@ -243,6 +246,7 @@
 				},
 				"required": [
 					"id",
+					"sourceId",
 					"type",
 					"targetId",
 					"relationshipType",
@@ -870,6 +874,70 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"RelayStep": {
+				"properties": {
+					"assistantId": {
+						"type": "string"
+					},
+					"messageTemplate": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"assistantId",
+					"messageTemplate"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RelayChainInput": {
+				"properties": {
+					"steps": {
+						"items": {
+							"$ref": "#/components/schemas/RelayStep"
+						},
+						"type": "array"
+					},
+					"description": {
+						"type": "string"
+					},
+					"options": {
+						"$ref": "#/components/schemas/ChainOptions"
+					}
+				},
+				"required": [
+					"steps"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RelayChainProgress": {
+				"properties": {
+					"done": {
+						"type": "number",
+						"format": "double"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "number",
+						"format": "double"
+					},
+					"stepTrack": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"done",
+					"total",
+					"pct",
+					"stepTrack"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Chat": {
 				"properties": {
 					"id": {
@@ -1106,9 +1174,35 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"SetClaimsBody": {
+				"properties": {
+					"role": {
+						"type": "string",
+						"enum": [
+							"admin",
+							"user"
+						]
+					},
+					"canUseGpt": {
+						"type": "boolean"
+					}
+				},
+				"type": "object"
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"firebase": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header"
+			},
+			"claims": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header"
+			}
+		}
 	},
 	"info": {
 		"title": "gpt-assistants-api",
@@ -2055,7 +2149,13 @@
 				"tags": [
 					"Prompt"
 				],
-				"security": [],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -3428,7 +3528,13 @@
 				"tags": [
 					"Conversation"
 				],
-				"security": [],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -3475,7 +3581,13 @@
 				"tags": [
 					"Conversation"
 				],
-				"security": [],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -3515,7 +3627,13 @@
 				"tags": [
 					"Conversation"
 				],
-				"security": [],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -3546,7 +3664,148 @@
 				"tags": [
 					"Conversation"
 				],
-				"security": [],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "parentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversation/chain/relay": {
+			"post": {
+				"operationId": "PlanRelayChain",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"stepIds": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"parentId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"stepIds",
+										"parentId"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RelayChainInput"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversation/chain/relay/run/{parentId}": {
+			"post": {
+				"operationId": "RunRelayChain",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "parentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversation/chain/relay/progress/{parentId}": {
+			"get": {
+				"operationId": "GetRelayChainProgress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RelayChainProgress"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversation"
+				],
+				"security": [
+					{
+						"claims": [
+							"canUseGpt"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -3728,6 +3987,30 @@
 						}
 					}
 				]
+			}
+		},
+		"/auth/whoami": {
+			"get": {
+				"operationId": "Whoami",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Auth"
+				],
+				"security": [
+					{
+						"firebase": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/assistant": {
@@ -4019,11 +4302,56 @@
 					}
 				]
 			}
+		},
+		"/admin/users/{uid}/claims": {
+			"post": {
+				"operationId": "SetClaims",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"claims": [
+							"role"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uid",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SetClaimsBody"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"servers": [
 		{
-			"url": "http://localhost:3001/"
+			"url": "/"
 		}
 	]
 }

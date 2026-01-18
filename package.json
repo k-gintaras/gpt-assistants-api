@@ -22,6 +22,8 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "clean": "rimraf dist && rimraf coverage",
     "update-database": "ts-node ./tools/update-database.ts",
+    "set-claims": "ts-node tools/set-claims.ts",
+    "bootstrap-admin": "node dist/scripts/bootstrap-admin.js",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec",
     "tsoa:gen": "tsoa routes && tsoa spec"
@@ -63,6 +65,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "firebase-admin": "^13.6.0",
     "glob": "^10.4.5",
     "openai": "^4.104.0",
     "pg": "^8.13.1",

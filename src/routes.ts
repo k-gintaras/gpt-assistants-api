@@ -38,10 +38,15 @@ import { ChatsController } from './controllers/chats.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ChatMessagesController } from './controllers/chat-messages.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AuthDebugController } from './controllers/auth-debug.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AssistantController } from './controllers/assistant.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AssistantMemoryController } from './controllers/assistant-memory.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AdminClaimsController } from './controllers/admin-claims.controller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
+import { expressAuthenticationRecasted } from './authentication';
 
 
 
@@ -115,6 +120,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
+            "sourceId": {"dataType":"string","required":true},
             "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["assistant"]},{"dataType":"enum","enums":["memory"]},{"dataType":"enum","enums":["task"]}],"required":true},
             "targetId": {"dataType":"string","required":true},
             "relationshipType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["related_to"]},{"dataType":"enum","enums":["part_of"]},{"dataType":"enum","enums":["example_of"]},{"dataType":"enum","enums":["derived_from"]},{"dataType":"enum","enums":["depends_on"]},{"dataType":"enum","enums":["blocks"]},{"dataType":"enum","enums":["subtask_of"]}],"required":true},
@@ -319,6 +325,36 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RelayStep": {
+        "dataType": "refObject",
+        "properties": {
+            "assistantId": {"dataType":"string","required":true},
+            "messageTemplate": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RelayChainInput": {
+        "dataType": "refObject",
+        "properties": {
+            "steps": {"dataType":"array","array":{"dataType":"refObject","ref":"RelayStep"},"required":true},
+            "description": {"dataType":"string"},
+            "options": {"ref":"ChainOptions"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RelayChainProgress": {
+        "dataType": "refObject",
+        "properties": {
+            "done": {"dataType":"double","required":true},
+            "total": {"dataType":"double","required":true},
+            "pct": {"dataType":"double","required":true},
+            "stepTrack": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Chat": {
         "dataType": "refObject",
         "properties": {
@@ -397,6 +433,11 @@ const models: TsoaRoute.Models = {
             "related": {"dataType":"array","array":{"dataType":"refObject","ref":"Memory"},"required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SetClaimsBody": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"role":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["admin"]},{"dataType":"enum","enums":["user"]}]},"canUseGpt":{"dataType":"boolean"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -1239,6 +1280,7 @@ export function RegisterRoutes(app: Router) {
                 body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"extraInstruction":{"dataType":"string"},"prompt":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},
         };
         app.post('/prompt',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
             ...(fetchMiddlewares<RequestHandler>(PromptController)),
             ...(fetchMiddlewares<RequestHandler>(PromptController.prototype.prompt)),
 
@@ -2389,6 +2431,7 @@ export function RegisterRoutes(app: Router) {
                 body: {"in":"body","name":"body","required":true,"ref":"ConversationRequest"},
         };
         app.post('/conversation',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
             ...(fetchMiddlewares<RequestHandler>(ConversationController)),
             ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.ask)),
 
@@ -2419,6 +2462,7 @@ export function RegisterRoutes(app: Router) {
                 body: {"in":"body","name":"body","required":true,"ref":"BroadcastChainInput"},
         };
         app.post('/conversation/chain/broadcast',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
             ...(fetchMiddlewares<RequestHandler>(ConversationController)),
             ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.planBroadcastChain)),
 
@@ -2449,6 +2493,7 @@ export function RegisterRoutes(app: Router) {
                 parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
         };
         app.post('/conversation/chain/run/:parentId',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
             ...(fetchMiddlewares<RequestHandler>(ConversationController)),
             ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.runBroadcastChain)),
 
@@ -2479,6 +2524,7 @@ export function RegisterRoutes(app: Router) {
                 parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
         };
         app.get('/conversation/chain/progress/:parentId',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
             ...(fetchMiddlewares<RequestHandler>(ConversationController)),
             ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.getChainProgress)),
 
@@ -2494,6 +2540,99 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getChainProgress',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_planRelayChain: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"RelayChainInput"},
+        };
+        app.post('/conversation/chain/relay',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.planRelayChain)),
+
+            async function ConversationController_planRelayChain(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_planRelayChain, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'planRelayChain',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_runRelayChain: Record<string, TsoaRoute.ParameterSchema> = {
+                parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
+        };
+        app.post('/conversation/chain/relay/run/:parentId',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.runRelayChain)),
+
+            async function ConversationController_runRelayChain(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_runRelayChain, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'runRelayChain',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_getRelayChainProgress: Record<string, TsoaRoute.ParameterSchema> = {
+                parentId: {"in":"path","name":"parentId","required":true,"dataType":"string"},
+        };
+        app.get('/conversation/chain/relay/progress/:parentId',
+            authenticateMiddleware([{"claims":["canUseGpt"]}]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.getRelayChainProgress)),
+
+            async function ConversationController_getRelayChainProgress(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_getRelayChainProgress, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'getRelayChainProgress',
                 controller,
                 response,
                 next,
@@ -2614,6 +2753,37 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getMessagesByChatId',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAuthDebugController_whoami: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/auth/whoami',
+            authenticateMiddleware([{"firebase":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(AuthDebugController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthDebugController.prototype.whoami)),
+
+            async function AuthDebugController_whoami(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthDebugController_whoami, request, response });
+
+                const controller = new AuthDebugController();
+
+              await templateService.apiHandler({
+                methodName: 'whoami',
                 controller,
                 response,
                 next,
@@ -2865,9 +3035,112 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminClaimsController_setClaims: Record<string, TsoaRoute.ParameterSchema> = {
+                uid: {"in":"path","name":"uid","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"SetClaimsBody"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/admin/users/:uid/claims',
+            authenticateMiddleware([{"claims":["role"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController.prototype.setClaims)),
+
+            async function AdminClaimsController_setClaims(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminClaimsController_setClaims, request, response });
+
+                const controller = new AdminClaimsController();
+
+              await templateService.apiHandler({
+                methodName: 'setClaims',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
+
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+    function authenticateMiddleware(security: TsoaRoute.Security[] = []) {
+        return async function runAuthenticationMiddleware(request: any, response: any, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            // keep track of failed auth attempts so we can hand back the most
+            // recent one.  This behavior was previously existing so preserving it
+            // here
+            const failedAttempts: any[] = [];
+            const pushAndRethrow = (error: any) => {
+                failedAttempts.push(error);
+                throw error;
+            };
+
+            const secMethodOrPromises: Promise<any>[] = [];
+            for (const secMethod of security) {
+                if (Object.keys(secMethod).length > 1) {
+                    const secMethodAndPromises: Promise<any>[] = [];
+
+                    for (const name in secMethod) {
+                        secMethodAndPromises.push(
+                            expressAuthenticationRecasted(request, name, secMethod[name], response)
+                                .catch(pushAndRethrow)
+                        );
+                    }
+
+                    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+                    secMethodOrPromises.push(Promise.all(secMethodAndPromises)
+                        .then(users => { return users[0]; }));
+                } else {
+                    for (const name in secMethod) {
+                        secMethodOrPromises.push(
+                            expressAuthenticationRecasted(request, name, secMethod[name], response)
+                                .catch(pushAndRethrow)
+                        );
+                    }
+                }
+            }
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            try {
+                request['user'] = await Promise.any(secMethodOrPromises);
+
+                // Response was sent in middleware, abort
+                if (response.writableEnded) {
+                    return;
+                }
+
+                next();
+            }
+            catch(err) {
+                // Show most recent error as response
+                const error = failedAttempts.pop();
+                error.status = error.status || 401;
+
+                // Response was sent in middleware, abort
+                if (response.writableEnded) {
+                    return;
+                }
+                next(error);
+            }
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        }
+    }
 
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 }
