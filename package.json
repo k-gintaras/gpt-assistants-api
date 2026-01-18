@@ -26,7 +26,7 @@
     "bootstrap-admin": "node dist/scripts/bootstrap-admin.js",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec",
-    "tsoa:gen": "tsoa routes && tsoa spec"
+    "tsoa:gen": "tsoa routes && tsoa spec && node scripts/fix-routes-import.js"
   },
   "keywords": [],
   "author": "",

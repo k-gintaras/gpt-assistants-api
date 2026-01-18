@@ -9,8 +9,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": "./"
+    "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "scripts/**/*.ts", "src/database/*.sql", "src/tests/testing-tidy.js"],
+  "include": ["src/**/*.ts", "src/database/*.sql", "src/tests/testing-tidy.js"],
   "exclude": ["node_modules"]
 }

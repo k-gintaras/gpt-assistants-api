@@ -19,7 +19,6 @@ RUN npm run tsoa:gen && npm run build
 
 COPY src/database/*.sql /app/dist/database/
 
-
 # Expose the app's port
 EXPOSE 3001
 
