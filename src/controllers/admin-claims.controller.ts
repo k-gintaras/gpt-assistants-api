@@ -90,6 +90,14 @@ export class AdminClaimsController extends Controller {
     if (typeof body.canUseGpt === 'boolean') next.canUseGpt = body.canUseGpt;
     if (typeof body.role === 'string') next.role = body.role;
 
+    // Enforce root admin cannot be demoted or disabled
+    const rootUid = process.env.ROOT_ADMIN_UID;
+    const isRootTarget = Boolean(rootUid && uid === rootUid);
+    if (isRootTarget) {
+      next.role = 'admin';
+      next.canUseGpt = true;
+    }
+
     await admin.auth().setCustomUserClaims(uid, next);
 
     return { ok: true, uid, applied: body, mergedClaims: next };
