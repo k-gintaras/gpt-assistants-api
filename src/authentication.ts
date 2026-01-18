@@ -44,25 +44,30 @@ export async function expressAuthentication(
     throw err;
   }
 
-  const decoded = await admin.auth().verifyIdToken(token);
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
 
-  if (securityName === 'firebase') return decoded;
+    if (securityName === 'firebase') return decoded;
 
-  if (securityName === 'claims') {
-    const required = scopes ?? [];
-    for (const scope of required) {
-      if (!(decoded as any)[scope]) {
-        const err = new Error(`Missing claim: ${scope}`);
-        (err as any).status = 403;
-        throw err;
+    if (securityName === 'claims') {
+      const required = scopes ?? [];
+      for (const scope of required) {
+        if (!(decoded as any)[scope]) {
+          const err = new Error(`Missing claim: ${scope}`);
+          (err as any).status = 403;
+          throw err;
+        }
       }
+      return decoded;
     }
-    return decoded;
-  }
 
-  const err = new Error('Unknown security scheme');
-  (err as any).status = 401;
-  throw err;
+    const err = new Error('Unknown security scheme');
+    (err as any).status = 401;
+    throw err;
+  } catch (error: any) {
+    console.error('❌ Token verification failed:', error.message);
+    throw error;
+  }
 }
 
 // Wrapper for tsoa compatibility - accepts 4 arguments (request, name, scopes, response)

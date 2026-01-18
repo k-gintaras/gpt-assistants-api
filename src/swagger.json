@@ -4303,6 +4303,50 @@
 				]
 			}
 		},
+		"/admin/whoami": {
+			"get": {
+				"operationId": "GetWhoami",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"firebase": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/admin/health": {
+			"get": {
+				"operationId": "GetHealth",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/admin/users/{uid}/claims": {
 			"post": {
 				"operationId": "SetClaims",

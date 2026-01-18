@@ -14,7 +14,7 @@
     "test:basic": "jest src/tests/unit/service-tests",
     "test": "npm run test:core",
     "test-key": "ts-node tools/test-key.ts",
-    "build": "tsc",
+    "build": "tsc && npx tsc --project tsconfig.scripts.json",
     "start": "node dist/app.js",
     "dev": "ts-node src/app.ts",
     "test:watch": "jest --watch",

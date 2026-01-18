@@ -11,16 +11,16 @@ COPY package*.json ./
 RUN npm install
 
 # Copy all project files into the container
-
 COPY . .
 
-# Compile TypeScript to generate the dist/ folder
-RUN npm run tsoa:gen && npm run build
+# Copy Firebase service account file
+COPY ai-api-5c92d-firebase-adminsdk-fbsvc-2df8c90eaf.json /app/firebase-key.json
 
-COPY src/database/*.sql /app/dist/database/
+# Build TypeScript
+RUN npm run build
 
 # Expose the app's port
 EXPOSE 3001
 
-# Start the app
-CMD ["npm", "start"]
+# Start the compiled app
+CMD ["node", "dist/app.js"]

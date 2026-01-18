@@ -3035,6 +3035,66 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminClaimsController_getWhoami: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/admin/whoami',
+            authenticateMiddleware([{"firebase":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController.prototype.getWhoami)),
+
+            async function AdminClaimsController_getWhoami(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminClaimsController_getWhoami, request, response });
+
+                const controller = new AdminClaimsController();
+
+              await templateService.apiHandler({
+                methodName: 'getWhoami',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminClaimsController_getHealth: Record<string, TsoaRoute.ParameterSchema> = {
+        };
+        app.get('/admin/health',
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminClaimsController.prototype.getHealth)),
+
+            async function AdminClaimsController_getHealth(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminClaimsController_getHealth, request, response });
+
+                const controller = new AdminClaimsController();
+
+              await templateService.apiHandler({
+                methodName: 'getHealth',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsAdminClaimsController_setClaims: Record<string, TsoaRoute.ParameterSchema> = {
                 uid: {"in":"path","name":"uid","required":true,"dataType":"string"},
                 body: {"in":"body","name":"body","required":true,"ref":"SetClaimsBody"},
