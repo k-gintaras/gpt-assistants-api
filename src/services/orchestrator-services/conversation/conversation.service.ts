@@ -51,48 +51,54 @@ export class ConversationService {
       throw new Error('Missing assistantId or prompt');
     }
 
-    await this.validateConversationReferences(chatId, sessionId);
+    try {
+      await this.validateConversationReferences(chatId, sessionId);
 
-    const assistant = await this.getAssistantData(assistantId);
-    if (!assistant) {
-      throw new Error(`Assistant not found: ${assistantId}`);
+      const assistant = await this.getAssistantData(assistantId);
+      if (!assistant) {
+        throw new Error(`Assistant not found: ${assistantId}`);
+      }
+
+      const aiApi = await this.getAiApi(assistant);
+      if (!aiApi?.isAvailable(assistant.type)) {
+        throw new Error(`AI API is unavailable for assistant type: ${assistant.type}`);
+      }
+
+      const previousMessages = await this.previousConversationService.getConversation(chatId, sessionId);
+      const resolvedChatId = await this.getValidChatId(chatId, previousMessages);
+
+      const taskId = await this.createPromptTask(assistantId, prompt);
+
+      const aiApiResponse = await this.getAiResponse(aiApi, assistant, prompt, resolvedChatId, previousMessages);
+      if (!aiApiResponse) {
+        throw new Error('AI API failed to return a response');
+      }
+
+      await this.finalizeTask(taskId, aiApiResponse);
+
+      const savedIds = await this.saveInteraction({
+        assistantId,
+        userId,
+        sessionId,
+        chatId: aiApiResponse.conversationId ?? resolvedChatId,
+        userPrompt: prompt,
+        aiResponse: this.extractResponse(aiApiResponse),
+        taskId,
+      });
+
+      return {
+        assistantId,
+        userId,
+        chatId: savedIds.chatId,
+        sessionId: savedIds.sessionId,
+        responseType: aiApiResponse.responseType,
+        answer: aiApiResponse.response,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[ConversationService.ask] Error:', errorMessage);
+      throw error;
     }
-
-    const aiApi = await this.getAiApi(assistant);
-    if (!aiApi?.isAvailable(assistant.type)) {
-      throw new Error(`AI API is unavailable for assistant type: ${assistant.type}`);
-    }
-
-    const previousMessages = await this.previousConversationService.getConversation(chatId, sessionId);
-    const resolvedChatId = await this.getValidChatId(chatId, previousMessages);
-
-    const taskId = await this.createPromptTask(assistantId, prompt);
-
-    const aiApiResponse = await this.getAiResponse(aiApi, assistant, prompt, resolvedChatId, previousMessages);
-    if (!aiApiResponse) {
-      throw new Error('AI API failed to return a response');
-    }
-
-    await this.finalizeTask(taskId, aiApiResponse);
-
-    const savedIds = await this.saveInteraction({
-      assistantId,
-      userId,
-      sessionId,
-      chatId: aiApiResponse.conversationId ?? resolvedChatId,
-      userPrompt: prompt,
-      aiResponse: this.extractResponse(aiApiResponse),
-      taskId,
-    });
-
-    return {
-      assistantId,
-      userId,
-      chatId: savedIds.chatId,
-      sessionId: savedIds.sessionId,
-      responseType: aiApiResponse.responseType,
-      answer: aiApiResponse.response,
-    };
   }
 
   private async getAssistantData(id: string) {

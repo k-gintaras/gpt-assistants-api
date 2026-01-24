@@ -6,7 +6,6 @@ import { BroadcastChainInput, ChainProgress, RelayChainInput, RelayChainProgress
 
 @Route('conversation')
 @Tags('Conversation')
-@Security('claims', ['canUseGpt'])
 export class ConversationController {
   private readonly conversationControllerService: ConversationControllerService;
 
@@ -16,17 +15,36 @@ export class ConversationController {
   }
 
   @Post('/')
+  @Security('claims', ['canUseGpt'])
   public async ask(@Body() body: ConversationRequest): Promise<ConversationResponse> {
-    // Basic parameter validation — throw ValidateError so TSOA returns a 400
     if (!body?.assistantId || !body?.prompt) {
       throw new ValidateError({}, 'Missing assistantId or prompt');
     }
 
-    const response = await this.conversationControllerService.ask(body);
-    return response as ConversationResponse;
+    try {
+      // Normalize undefined to null for optional fields
+      const normalizedBody: ConversationRequest = {
+        assistantId: body.assistantId,
+        prompt: body.prompt,
+        userId: body.userId ?? null,
+        chatId: body.chatId ?? null,
+        sessionId: body.sessionId ?? null,
+      };
+
+      const response = await this.conversationControllerService.ask(normalizedBody);
+      if (!response) {
+        throw new Error('Service returned null response');
+      }
+      return response as ConversationResponse;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('[Conversation.ask] Error:', errorMessage);
+      throw new ValidateError({}, `Failed to process conversation: ${errorMessage}`);
+    }
   }
 
   @Post('/chain/broadcast')
+  @Security('claims', ['canUseGpt'])
   public async planBroadcastChain(@Body() body: BroadcastChainInput) {
     if (!body?.assistantIds?.length || !body?.messages?.length) {
       throw new ValidateError({}, 'Missing assistantIds or messages');
@@ -37,18 +55,21 @@ export class ConversationController {
   }
 
   @Post('/chain/run/{parentId}')
+  @Security('claims', ['canUseGpt'])
   public async runBroadcastChain(@Path() parentId: string) {
     const result = await this.conversationControllerService.runBroadcastChain(parentId);
     return result;
   }
 
   @Get('/chain/progress/{parentId}')
+  @Security('claims', ['canUseGpt'])
   public async getChainProgress(@Path() parentId: string): Promise<ChainProgress> {
     const progress = await this.conversationControllerService.getChainProgress(parentId);
     return progress;
   }
 
   @Post('/chain/relay')
+  @Security('claims', ['canUseGpt'])
   public async planRelayChain(@Body() body: RelayChainInput) {
     if (!body?.steps?.length) {
       throw new ValidateError({}, 'Missing steps');
@@ -59,12 +80,14 @@ export class ConversationController {
   }
 
   @Post('/chain/relay/run/{parentId}')
+  @Security('claims', ['canUseGpt'])
   public async runRelayChain(@Path() parentId: string) {
     const result = await this.conversationControllerService.runRelayChain(parentId);
     return result;
   }
 
   @Get('/chain/relay/progress/{parentId}')
+  @Security('claims', ['canUseGpt'])
   public async getRelayChainProgress(@Path() parentId: string): Promise<RelayChainProgress> {
     const progress = await this.conversationControllerService.getRelayChainProgress(parentId);
     return progress;

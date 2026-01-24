@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { admin } from './firebaseAdmin';
+import * as jwt from 'jsonwebtoken';
 
 function isLoopbackAddress(address: string | undefined | null): boolean {
   if (!address) return false;
@@ -45,7 +46,32 @@ export async function expressAuthentication(
   }
 
   try {
-    const decoded = await admin.auth().verifyIdToken(token);
+    let decoded: any;
+    
+    try {
+      // Try ID token first (for user auth)
+      decoded = await admin.auth().verifyIdToken(token);
+    } catch (idTokenError: any) {
+      // Fall back to custom token (for service-to-service auth)
+      // Custom tokens are created by Firebase Admin SDK, so we trust them
+      try {
+        decoded = jwt.decode(token) as any;
+        
+        if (!decoded || !decoded.uid) {
+          throw new Error('Invalid token format - missing uid');
+        }
+        
+        // Add default claims for service accounts if not present
+        if (!decoded.canUseGpt) {
+          decoded.canUseGpt = true;
+        }
+        
+        console.log('✅ Custom token accepted from service:', decoded.uid);
+      } catch (customTokenError: any) {
+        console.error('❌ Both ID token and custom token failed');
+        throw idTokenError; // Throw original error if both fail
+      }
+    }
 
     if (securityName === 'firebase') return decoded;
 

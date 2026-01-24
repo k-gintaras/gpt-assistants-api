@@ -16,7 +16,12 @@ export class ConversationControllerService {
   }
 
   async ask(request: ConversationRequest): Promise<ConversationResponse | null> {
-    return await this.conversationService.ask(request);
+    try {
+      return await this.conversationService.ask(request);
+    } catch (error) {
+      console.error('[ConversationControllerService.ask] Error:', error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 
   async planBroadcastChain(input: BroadcastChainInput) {
