@@ -26,7 +26,13 @@
     "bootstrap-admin": "node dist/scripts/bootstrap-admin.js",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec",
-    "tsoa:gen": "tsoa routes && tsoa spec && node scripts/fix-routes-import.js"
+    "tsoa:gen": "tsoa routes && tsoa spec && node scripts/fix-routes-import.js",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f server",
+    "docker:restart": "docker compose down && docker compose up --build -d",
+    "restart": "npm run docker:restart"
   },
   "keywords": [],
   "author": "",
