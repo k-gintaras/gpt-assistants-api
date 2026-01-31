@@ -2,6 +2,12 @@ import type { Request, Response } from 'express';
 import { admin } from './firebaseAdmin';
 import * as jwt from 'jsonwebtoken';
 
+// =====================================================================
+// 🔧 DEVELOPER MODE: Set to true to bypass all authentication
+// ⚠️  WARNING: Only use for local development on localhost!
+// =====================================================================
+const DISABLE_AUTH_FOR_DEVELOPMENT = true;
+
 function isLoopbackAddress(address: string | undefined | null): boolean {
   if (!address) return false;
   const normalized = address.toLowerCase();
@@ -27,6 +33,18 @@ export async function expressAuthentication(
   securityName: string,
   scopes?: string[]
 ) {
+  // 🔧 Developer mode bypass - skip all authentication
+  if (DISABLE_AUTH_FOR_DEVELOPMENT) {
+    const required = scopes ?? [];
+    const bypassToken: Record<string, unknown> = {
+      uid: 'dev-user',
+      bypass: true,
+      developmentMode: true,
+    };
+    for (const scope of required) bypassToken[scope] = true;
+    return bypassToken;
+  }
+
   if (shouldBypassAuth(req)) {
     const required = scopes ?? [];
     const bypassToken: Record<string, unknown> = {
